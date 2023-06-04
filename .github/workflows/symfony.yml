@@ -68,6 +68,8 @@ jobs:
               echo 'Connected via SSH' &&
               cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }} &&
               cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git &&
-              cd /var/www/html/symfony/symfony-api && echo -e ${{ secrets.ENV_FILE }}>.env &&
+              cd /var/www/html/symfony/symfony-api && echo ${{ secrets.APP_ENV }} >.env &&
+              cd /var/www/html/symfony/symfony-api && echo ${{ secrets.APP_SECRET }} >> .env &&
+              cd /var/www/html/symfony/symfony-api && echo ${{ secrets.BOT_KEY }} >> .env &&
               cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod &&
               cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
