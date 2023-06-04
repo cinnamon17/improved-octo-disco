@@ -54,10 +54,5 @@ jobs:
     - name: Connect via SSH
       run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
-          
-    - name: Deploy to the server
-    
-      run: | 
-          cd /var/www/html/symfony
-          mv symfony-api ${{ github.run_number }} 
-    - uses: actions/checkout@v3
+          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git fetch origin && git reset --hard origin/${{ github.ref }}"
+          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
