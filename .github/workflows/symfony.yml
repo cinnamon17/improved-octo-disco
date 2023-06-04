@@ -54,10 +54,6 @@ jobs:
     - name: Connect via SSH
       run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} BOT_KEY=${{ secrets.BOT_KEY }}
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} APP_SECRET=${{ secrets.APP_SECRET }}
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} APP_ENV=${{ secrets.APP_ENV }}
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} BOT_KEY=${{ secrets.BOT_KEY }}
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod"
