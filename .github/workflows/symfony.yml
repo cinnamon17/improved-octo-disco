@@ -57,4 +57,4 @@ jobs:
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var"
+          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:'$HTTPDUSER':rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:'$HTTPDUSER':rwX -m u:$(whoami):rwX var"
