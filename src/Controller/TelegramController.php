@@ -16,7 +16,8 @@ class TelegramController extends AbstractController
     {
         $update = json_decode($request->getContent(), true);
         $chat_id = $update['message']['chat']['id'];
-        $bot =$env->get('BOT_KEY');
+        $bot =$env->get('bot_api');
+
 
         $response = $client->request('POST',"https://api.telegram.org/$bot/sendMessage", [
                                     'json' => ['chat_id' => $chat_id, 'text' => 'hello']]);
