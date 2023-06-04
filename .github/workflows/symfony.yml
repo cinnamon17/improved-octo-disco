@@ -46,6 +46,11 @@ jobs:
         DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
       run: php bin/phpunit
       
-    - name: Deploy to the server
-    
-      run:  ssh -i ${{ secrets.PRIVATE_KEY }} ${{ secrets.USER }}@{{ secrets.HOSTNAME }}
+    - name: Configure SSH key
+      uses: webfactory/ssh-agent@v0.5.2
+      with:
+        ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+    - name: Connect via SSH
+      run: |
+          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
