@@ -21,41 +21,47 @@ jobs:
     #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
     # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
     # uses: shivammathur/setup-php@v2
-    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
-      with:
-        php-version: '8.2'
-    - uses: actions/checkout@v3
-    - name: Copy .env.test.local
-   ##   run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-    - name: Install Dependencies
-   ##   run: composer install
-    - name: Create Database
-   #   run: |
-    #    mkdir -p data
-     #   touch data/database.sqlite
-    - name: Execute tests (Unit and Feature tests) via PHPUnit
-      env:
-        DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-     # run: php bin/phpunit
+#    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+#      with:
+#        php-version: '8.2'
+#    - uses: actions/checkout@v3
+#    - name: Copy .env.test.local
+#      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+#    - name: Cache Composer packages
+#      id: composer-cache
+#      uses: actions/cache@v3
+#      with:
+#        path: vendor
+#        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+#        restore-keys: |
+#          ${{ runner.os }}-php-
+#    - name: Install Dependencies
+#      run: composer install
+#    - name: Create Database
+#      run: |
+#        mkdir -p data
+#        touch data/database.sqlite
+#    - name: Execute tests (Unit and Feature tests) via PHPUnit
+#      env:
+#        DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
+#      run: php bin/phpunit
       
-    - name: Configure SSH key
-      uses: webfactory/ssh-agent@v0.5.2
+ #   - name: Configure SSH key
+ #     uses: webfactory/ssh-agent@v0.5.2
+ #     with:
+ #       ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+ #       run: |
+ #         ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+    - name: TEST
+      uses: D3rHase/ssh-command-action@{version}
       with:
-        ssh-private-key: ${{ secrets.PRIVATE_KEY }}
-
-    - name: Connect via SSH
-      run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+        host: ${{secrets.HOSTNAME}} # Remote server address / ip - required
+        user: ${{secrets.USER}} # Remote server user - required
+        private_key: ${{secrets.PRIVATE_KEY}} # Private ssh key registered on the remote server - required
+        #host_fingerprint: ${{secrets.HOST_FINGERPRINT}} # Public ssh key fingerprint, viewable via ssh-keyscan -H $HOST -p $PORT - optional
+        command: echo 'hello world' # Command to be executed - Default: echo 'hello world' - optional
