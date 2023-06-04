@@ -56,4 +56,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
-          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && composer install
+          ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && composer install"
