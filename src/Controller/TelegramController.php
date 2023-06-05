@@ -17,7 +17,19 @@ class TelegramController extends AbstractController
     {
 
         $update = json_decode($request->getContent(), true);
+        $chat_id = $update['message']['chat']['id'];
         $messageText = $update['message']['text'];
+
+        $welcomeMessage = "¡Hola! Soy tu asistente de IA en Telegram. Estoy aquí para ayudarte en todo lo que necesites.\n
+Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en escribirme! Estoy emocionado de comenzar esta aventura contigo.\n
+¡Vamos a explorar el mundo de la inteligencia artificial juntos!";
+
+        if($messageText == "/start"){
+
+            $response = $botApi->apiRequest('POST','/sendMessage', ['chat_id' => $chat_id, 'text' => $welcomeMessage]);
+            die();
+
+        }
 
         $response = $client->request('POST', 'https://api.openai.com/v1/chat/completions', [
             'headers' => [
@@ -34,7 +46,6 @@ class TelegramController extends AbstractController
         $data = json_decode($response->getContent(false), true);
 
         $message = $data['choices'][0]['message']['content'];
-        $chat_id = $update['message']['chat']['id'];
         $response = $botApi->apiRequest('POST','/sendMessage', ['chat_id' => $chat_id, 'text' => $message]);
 
         return $this->json($response);
