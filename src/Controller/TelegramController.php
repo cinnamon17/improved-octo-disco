@@ -31,6 +31,7 @@ Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en e
         $openaiResponse = $apiRequest->openApi($messageText);
 
         $message = $openaiResponse['choices'][0]['message']['content'];
+        $response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => '...']);
         $response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => $message]);
 
         return $this->json($response);
