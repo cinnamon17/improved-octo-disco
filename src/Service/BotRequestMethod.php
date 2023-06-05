@@ -21,7 +21,7 @@ class BotRequestMethod {
 
         $response = $this->client->request($httpMethod,
         $this->env->get('BOT_URL').$this->env->get('BOT_KEY').$apiMethod, ['json' => $params]);
-        $content = $response->toArray();
+        $content = $response->toArray(false);
 
         return $content;
 

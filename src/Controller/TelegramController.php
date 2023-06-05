@@ -29,12 +29,14 @@ class TelegramController extends AbstractController
                       ]
         ]);
 
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(false), true);
 
         $message = $data['choices'][0]['message']['content'];
         $update = json_decode($request->getContent(), true);
         $chat_id = $update['message']['chat']['id'];
-        $response = $botApi->apiRequest('POST','/sendMessage', ['chat_id' => $chat_id, 'text' => "$chat_id"]);
+        $response = $botApi->apiRequest('POST','/sendMessage', ['chat_id' => $chat_id, 'text' => 'hola']);
+        $response = $botApi->apiRequest('POST','/sendMessage', ["chat_id" => $chat_id, "text" => $chat_id]);
+        $response = $botApi->apiRequest('POST','/sendMessage', ["chat_id" => $chat_id, "text" => $message]);
 
         return $this->json($response);
 
