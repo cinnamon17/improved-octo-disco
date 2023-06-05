@@ -8,7 +8,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class BotRequestMethod {
 
-    private $response;
     private ContainerBagInterface $env;
     private HttpClientInterface $client;
 
@@ -18,16 +17,14 @@ class BotRequestMethod {
             $this->client = $client;
     }
 
-    public function apiRequest( String $httpMethod, String $apiMethod, array $json){
+    public function apiRequest( String $httpMethod, String $apiMethod, array $params = []) : array {
 
-        $this->response = $this->client->request($httpMethod,
-        $this->env->get('BOT_URL').$this->env->get('BOT_KEY').$apiMethod, ['json' => $json ]);
+        $response = $this->client->request($httpMethod,
+        $this->env->get('BOT_URL').$this->env->get('BOT_KEY').$apiMethod, ['json' => $params]);
+        $content = $response->toArray();
 
-    }
+        return $content;
 
-    public function getResponse(){
-
-            return $this->response;
     }
 
 }
