@@ -21,6 +21,18 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $message;
 
+    #[ORM\Column]
+    private ?int $chat_id = null;
+
+    #[ORM\Column]
+    private ?bool $is_bot = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $last_name = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $first_name = null;
+
     public function __construct()
     {
         $this->message = new ArrayCollection();
@@ -69,6 +81,54 @@ class User
                 $message->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getChatId(): ?int
+    {
+        return $this->chat_id;
+    }
+
+    public function setChatId(int $chat_id): self
+    {
+        $this->chat_id = $chat_id;
+
+        return $this;
+    }
+
+    public function isIsBot(): ?bool
+    {
+        return $this->is_bot;
+    }
+
+    public function setIsBot(bool $is_bot): self
+    {
+        $this->is_bot = $is_bot;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->last_name;
+    }
+
+    public function setLastName(?string $last_name): self
+    {
+        $this->last_name = $last_name;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->first_name;
+    }
+
+    public function setFirstName(string $first_name): self
+    {
+        $this->first_name = $first_name;
 
         return $this;
     }
