@@ -22,6 +22,10 @@ class TelegramController extends AbstractController
 Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en escribirme! Estoy emocionado de comenzar esta aventura contigo.\n
 ¡Vamos a explorar el mundo de la inteligencia artificial juntos!";
 
+        if(empty($messageText) || is_null($messageText)){
+             $response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => 'Por favor envia un texto valido']);
+            die();
+        }
         if($messageText == "/start"){
 
             $telegramResponse = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => $welcomeMessage]);
