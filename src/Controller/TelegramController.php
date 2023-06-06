@@ -67,9 +67,6 @@ Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en e
 
         }
 
-        $message = new Message();
-        $message->setText($messageText);
-
         return $this->json($response);
 
     }
