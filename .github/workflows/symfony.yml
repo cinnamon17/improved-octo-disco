@@ -72,6 +72,6 @@ jobs:
               cd /var/www/html/symfony/symfony-api && echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env &&
               cd /var/www/html/symfony/symfony-api && echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env &&
               cd /var/www/html/symfony/symfony-api && echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env &&
+              cd /var/www/html/symfony/symfony-api && echo LOCAL_DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env &&
               cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod &&
               cd /var/www/html/symfony/symfony-api && HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
