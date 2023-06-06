@@ -41,9 +41,9 @@ Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en e
         }
 
         $response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => '...']);
-        //$openaiResponse = $apiRequest->openApi($messageText);
-        //$message = $openaiResponse['choices'][0]['message']['content'];
-        //$response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => $message]);
+        $openaiResponse = $apiRequest->openApi($messageText);
+        $message = $openaiResponse['choices'][0]['message']['content'];
+        $response = $apiRequest->telegramApi('POST','sendMessage', ['chat_id' => $chat_id, 'text' => $message]);
 
         $user = $userRepository->findOneBy(['chat_id' => $chat_id]);
 
@@ -64,7 +64,6 @@ Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en e
             $user->addMessage($message);
             $entityManager->persist($message);
             $entityManager->flush();
-
 
         }
 
