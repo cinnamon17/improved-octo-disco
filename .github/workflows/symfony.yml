@@ -46,7 +46,7 @@ jobs:
         DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
       run: php bin/phpunit
       
- #   - name: Configure SSH key
+ ##   - name: Configure SSH key
  #     uses: webfactory/ssh-agent@v0.5.2
  #     with:
  #       ssh-private-key: ${{ secrets.PRIVATE_KEY }}
