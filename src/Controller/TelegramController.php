@@ -49,19 +49,27 @@ Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en e
 
         if(!$user){
 
+            $message = new Message();
+            $message->setText($messageText);
+            $message->setMessageId($message_id);
+
             $user = new User();
             $user->setChatId($chat_id);
             $user->setIsBot($is_bot);
             $user->setFirstName($first_name);
+            $user->addMessage($message);
+
+            $entityManager->persist($message);
             $entityManager->persist($user);
             $entityManager->flush();
 
         }else{
 
             $message = new Message();
+            $message = new Message();
             $message->setText($messageText);
             $message->setMessageId($message_id);
-            $user->addMessage($message);
+            $message->setUser($user);
             $entityManager->persist($message);
             $entityManager->flush();
 
