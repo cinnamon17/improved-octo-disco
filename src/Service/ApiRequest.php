@@ -5,60 +5,81 @@ namespace App\Service;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-
-class ApiRequest {
-
+class ApiRequest
+{
     private ContainerBagInterface $env;
     private HttpClientInterface $client;
     private TelegramBotUpdate $update;
 
-    public function __construct(ContainerBagInterface $containerBagInterface, HttpClientInterface $client, TelegramBotUpdate $update) {
+    public function __construct(ContainerBagInterface $containerBagInterface, HttpClientInterface $client, TelegramBotUpdate $update)
+    {
 
-            $this->env= $containerBagInterface;
-            $this->client = $client;
-            $this->update = $update;
+        $this->env= $containerBagInterface;
+        $this->client = $client;
+        $this->update = $update;
     }
 
-    public function telegramApi(  String $apiMethod, array $params = [], String $httpMethod = 'POST') : array {
+    public function telegramApi(String $apiMethod, array $params = [], String $httpMethod = 'POST'): array
+    {
 
-        $response = $this->client->request($httpMethod,
-        $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/".$apiMethod, ['json' => $params]);
+        $response = $this->client->request(
+            $httpMethod,
+            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/".$apiMethod,
+            ['json' => $params]
+        );
         $content = $response->toArray(false);
 
         return $content;
     }
 
-    public function sendMessage( array $params = [], String $httpMethod = 'POST') : array {
+    public function sendRequest($telegramMethod, $params = [], $httpMethod = 'POST'): array
+    {
 
-        if(!$params['text']){
-
-            $error_message = ['chat_id' => $params['message']['chat']['id'], 'text' => 'Por favor envia un texto valido'];
-            $response = $this->client->request($httpMethod,
-            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/sendMessage", ['json' => $error_message]);
-
-            return $response->toArray(false);
-
-        }
-
-        $response = $this->client->request($httpMethod,
-        $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/sendMessage", ['json' => $params]);
-        $content = $response->toArray(false);
-
-        return $content ?? $this->sendMessage($params);
+        $response = $this->client->request(
+            $httpMethod,
+            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/".$telegramMethod,
+            ['json' => $params]
+        );
+        return $response->toArray(false);
     }
 
-    public function openApi(?String $messageText): string{
+    public function sendErrorMessage(string $errorMessage, $httpMethod = 'POST'): array
+    {
 
-        if(!$messageText){
+        $response = $this->sendRequest('sendMessage', ['chat_id' => $this->update->getChatId(), 'text' => $errorMessage], $httpMethod);
+        return $response;
+    }
 
-            $error_message = ['chat_id' => $this->update->getChatId(), 'text' => 'Por favor envia un texto valido'];
-            $response = $this->client->request('POST',
-            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/sendMessage", ['json' => $error_message]);
+    public function sendMessage(array $params = [], String $httpMethod = 'POST'): array
+    {
 
+        if(!$params['text']) {
+
+            $response = $this->sendErrorMessage('Por favor envia un texto valido');
+            return $response;
+        }
+
+        $response = $this->sendRequest('sendMessage', $params, $httpMethod);
+        return $response ?? $this->sendMessage($params);
+    }
+
+    public function sendChatAction(string $action = 'typing', $httpMethod = 'POST'): array
+    {
+
+        $response =$this->sendRequest('sendChatAction', ['chat_id' => $this->update->getChatId(), 'action' => $action ], $httpMethod);
+        return $response;
+    }
+
+    public function openApi(?String $messageText): string
+    {
+
+        if(!$messageText) {
+
+            $this->sendErrorMessage('Por favor envia un texto valido');
             die();
         }
 
-        $this->sendMessage(['chat_id' => $this->update->getChatId(), 'text' => '...']);
+        $response = $this->sendChatAction('typing');
         $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
 
             'headers' => [
