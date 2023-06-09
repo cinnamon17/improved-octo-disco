@@ -51,7 +51,7 @@ class TelegramBotUpdate
 
     }
 
-    public function getFirstName(): ?bool {
+    public function getFirstName(): ?string{
 
         $first_name= $this->request['message']['from']['first_name'] ?? null;
         return $first_name;
