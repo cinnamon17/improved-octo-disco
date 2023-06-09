@@ -32,44 +32,6 @@ class ApiRequest
         return $content;
     }
 
-    public function sendRequest($telegramMethod, $params = [], $httpMethod = 'POST'): array
-    {
-
-        $response = $this->client->request(
-            $httpMethod,
-            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/".$telegramMethod,
-            ['json' => $params]
-        );
-        return $response->toArray(false);
-    }
-
-    public function sendErrorMessage(string $errorMessage, $httpMethod = 'POST'): array
-    {
-
-        $response = $this->sendRequest('sendMessage', ['chat_id' => $this->update->getChatId(), 'text' => $errorMessage], $httpMethod);
-        return $response;
-    }
-
-    public function sendMessage(array $params = [], String $httpMethod = 'POST'): array
-    {
-
-        if(!$params['text']) {
-
-            $response = $this->sendErrorMessage('Por favor envia un texto valido');
-            return $response;
-        }
-
-        $response = $this->sendRequest('sendMessage', $params, $httpMethod);
-        return $response ?? $this->sendMessage($params);
-    }
-
-    public function sendChatAction(string $action = 'typing', $httpMethod = 'POST'): array
-    {
-
-        $response =$this->sendRequest('sendChatAction', ['chat_id' => $this->update->getChatId(), 'action' => $action ], $httpMethod);
-        return $response;
-    }
-
     public function openApi(?String $messageText): string
     {
 
@@ -94,9 +56,48 @@ class ApiRequest
         ]);
 
         $response = $response->toArray(false);
-
         return $response['choices']['0']['message']['content'] ?? $this->openApi($messageText);
 
     }
+
+    public function sendRequest($telegramMethod, $params = [], $httpMethod = 'POST'): array
+    {
+
+        $response = $this->client->request(
+            $httpMethod,
+            $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/".$telegramMethod,
+            ['json' => $params]
+        );
+        return $response->toArray(false);
+    }
+
+    public function sendMessage(array $params = [], String $httpMethod = 'POST'): array
+    {
+
+        if(!$params['text']) {
+
+            $response = $this->sendErrorMessage('Por favor envia un texto valido');
+            return $response;
+        }
+
+        $response = $this->sendRequest('sendMessage', $params, $httpMethod);
+        return $response ?? $this->sendMessage($params);
+    }
+
+    public function sendErrorMessage(string $errorMessage, $httpMethod = 'POST'): array
+    {
+
+        $response = $this->sendRequest('sendMessage', ['chat_id' => $this->update->getChatId(), 'text' => $errorMessage], $httpMethod);
+        return $response;
+    }
+
+
+    public function sendChatAction(string $action = 'typing', $httpMethod = 'POST'): array
+    {
+
+        $response =$this->sendRequest('sendChatAction', ['chat_id' => $this->update->getChatId(), 'action' => $action ], $httpMethod);
+        return $response;
+    }
+
 
 }
