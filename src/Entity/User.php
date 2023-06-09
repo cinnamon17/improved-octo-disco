@@ -15,9 +15,6 @@ class User
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $update_id = null;
-
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $message;
 
@@ -41,18 +38,6 @@ class User
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUpdateId(): ?int
-    {
-        return $this->update_id;
-    }
-
-    public function setUpdateId(?int $update_id): self
-    {
-        $this->update_id = $update_id;
-
-        return $this;
     }
 
     /**
