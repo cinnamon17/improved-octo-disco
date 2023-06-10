@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -18,7 +19,7 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Message::class, orphanRemoval: true)]
     private Collection $message;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BIGINT)]
     private ?int $chat_id = null;
 
     #[ORM\Column]
