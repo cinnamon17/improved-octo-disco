@@ -16,7 +16,7 @@ class TelegramBotUpdate
         $this->welcomeMessage = $welcomeMessage;
     }
 
-    public function getUpdateId(): int {
+    public function getUpdateId(): float {
 
         $update_id = $this->request['update_id'];
         return $update_id;
@@ -30,14 +30,14 @@ class TelegramBotUpdate
 
     }
 
-    public function getMessageId(): ?int {
+    public function getMessageId(): ?float {
 
         $message_id = $this->request['message']['message_id'] ?? null;
         return $message_id;
 
     }
 
-    public function getChatId(): ?int {
+    public function getChatId(): ?float {
 
         $chat_id = $this->request['message']['chat']['id'] ?? null;
         return $chat_id;

@@ -32,7 +32,7 @@ class TelegramBotUpdateTest extends TestCase
                         'language_code' => 'es'
                       ],
                       'chat' => [
-                        'id' => 1111111111,
+                        'id' => 111111111111111111111,
                         'first_name' => 'pepe',
                         'last_name' => 'dior',
                         'username' => 'pepedior',
@@ -57,7 +57,7 @@ class TelegramBotUpdateTest extends TestCase
         $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
         $this->assertEquals(829824026, $telegramBotUpdate->getUpdateId());
         $this->assertNotEquals(829824025, $telegramBotUpdate->getUpdateId());
-        $this->assertIsInt($telegramBotUpdate->getUpdateId());
+        $this->assertIsFloat($telegramBotUpdate->getUpdateId());
     }
 
     public function testGetMessageText(): void
@@ -73,14 +73,14 @@ class TelegramBotUpdateTest extends TestCase
         $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
         $this->assertEquals(2239818, $telegramBotUpdate->getMessageId());
         $this->assertNotEquals(2239817, $telegramBotUpdate->getMessageId());
-        $this->assertIsInt($telegramBotUpdate->getMessageId());
+        $this->assertIsFloat($telegramBotUpdate->getMessageId());
     }
     public function testGetChatId(): void
     {
         $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
-        $this->assertEquals(1111111111, $telegramBotUpdate->getChatId());
+        $this->assertEquals(111111111111111111111, $telegramBotUpdate->getChatId());
         $this->assertNotEquals(1111111112, $telegramBotUpdate->getChatId());
-        $this->assertIsInt($telegramBotUpdate->getChatId());
+        $this->assertIsFloat($telegramBotUpdate->getChatId());
     }
 
     public function testGetIsBot(): void

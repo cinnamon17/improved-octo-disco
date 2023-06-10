@@ -20,7 +20,7 @@ class User
     private Collection $message;
 
     #[ORM\Column(type: Types::BIGINT)]
-    private ?int $chat_id = null;
+    private ?float $chat_id = null;
 
     #[ORM\Column]
     private ?bool $is_bot = null;
@@ -71,7 +71,7 @@ class User
         return $this;
     }
 
-    public function getChatId(): ?int
+    public function getChatId(): ?float
     {
         return $this->chat_id;
     }

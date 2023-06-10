@@ -14,8 +14,8 @@ class Message
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $message_id = null;
+    #[ORM\Column(type: Types::BIGINT)]
+    private ?float $message_id = null;
 
     #[ORM\ManyToOne(inversedBy: 'message')]
     #[ORM\JoinColumn(nullable: false)]
@@ -29,7 +29,7 @@ class Message
         return $this->id;
     }
 
-    public function getMessageId(): ?int
+    public function getMessageId(): ?float
     {
         return $this->message_id;
     }
