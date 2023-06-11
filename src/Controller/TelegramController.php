@@ -24,6 +24,16 @@ class TelegramController extends AbstractController
             die();
         }
 
+        if($update->getMessageText() == "/mode") {
+            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => 'Selecciona un modo', 'reply_markup' => [
+                    'inline_keyboard' => [[
+                        ['text' => 'Psicologo', 'callback_data' => 'psicologo'],
+                        ['text' => 'Asistente', 'callback_data' => 'asistente']
+                     ]]]])
+                    ;
+            die();
+        }
+
         $openaiResponse = $apiRequest->openApi($update->getMessageText());
         $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
 
