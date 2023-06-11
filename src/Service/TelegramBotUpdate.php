@@ -58,6 +58,13 @@ class TelegramBotUpdate
 
     }
 
+    public function getUsername(): ?string{
+
+        $first_name= $this->request['message']['from']['username'] ?? null;
+        return $first_name;
+
+    }
+
     public function getWelcomeMessage(): String{
 
         return $this->welcomeMessage;

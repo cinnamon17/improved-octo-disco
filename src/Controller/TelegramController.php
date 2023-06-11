@@ -39,6 +39,7 @@ class TelegramController extends AbstractController
             $user->setChatId($update->getChatId());
             $user->setIsBot($update->getIsBot());
             $user->setFirstName($update->getFirstName());
+            $user->setUsername($update->getUsername());
             $user->addMessage($message);
 
             $entityManager->persist($message);

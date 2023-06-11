@@ -31,6 +31,9 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $first_name = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $username = null;
+
     public function __construct()
     {
         $this->message = new ArrayCollection();
@@ -115,6 +118,18 @@ class User
     public function setFirstName(string $first_name): self
     {
         $this->first_name = $first_name;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(?string $username): self
+    {
+        $this->username = $username;
 
         return $this;
     }
