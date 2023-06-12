@@ -30,7 +30,7 @@ class TelegramController extends AbstractController
                         ['text' => 'Psicologo', 'callback_data' => 'psicologo'],
                         ['text' => 'Asistente', 'callback_data' => 'asistente']
                      ]]]])
-                    ;
+            ;
             die();
         }
 
@@ -42,21 +42,23 @@ class TelegramController extends AbstractController
         if(!$user) {
 
             $user = new User();
-            $user->setChatId($update->getChatId());
-            $user->setIsBot($update->getIsBot());
+            $user->setChatId($update->getChatId())
+                 ->setIsBot($update->getIsBot());
             $entityManager->persist($user);
 
         }
 
-            $user->setFirstName($update->getFirstName());
-            $user->setLastName($update->getLastName());
-            $user->setUsername($update->getUsername());
-            $message = new Message();
-            $message->setText($update->getMessageText());
-            $message->setMessageId($update->getMessageId());
-            $message->setUser($user);
-            $entityManager->persist($message);
-            $entityManager->flush();
+        $user->setFirstName($update->getFirstName())
+             ->setLastName($update->getLastName())
+             ->setUsername($update->getUsername());
+
+        $message = new Message();
+        $message->setText($update->getMessageText())
+                ->setMessageId($update->getMessageId())
+                ->setUser($user);
+
+        $entityManager->persist($message);
+        $entityManager->flush();
 
         return $this->json($response);
 
