@@ -49,6 +49,7 @@ class TelegramController extends AbstractController
         }
 
             $user->setFirstName($update->getFirstName());
+            $user->setLastName($update->getLastName());
             $user->setUsername($update->getUsername());
             $message = new Message();
             $message->setText($update->getMessageText());
