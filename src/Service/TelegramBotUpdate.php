@@ -77,4 +77,11 @@ class TelegramBotUpdate
         return $this->welcomeMessage;
 
     }
+
+    public function getCallbackQuery(string $id = 'data'): mixed{
+
+        $callbackQueryData = $this->request['callback_query']["$id"] ?? null;
+        return $callbackQueryData;
+
+    }
 }

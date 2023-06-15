@@ -21,6 +21,18 @@ class TelegramBotUpdateTest extends TestCase
         ->method('toArray')
         ->willReturn([
                     'update_id' => 829824026,
+                    'callback_query' => [
+                        'id' => '4382bfdwdsb323b2d9',
+                        'from' => [
+                            'last_name' =>'Test Lastname',
+                            'type' => 'private',
+                            'id' => 1111111,
+                            'first_name' => 'Test Firstname',
+                            'username' => 'Testusername'
+                        ],
+                        'data' => 'Data from button callback',
+                        'inline_message_id' => '1234csdbsk4839'
+                        ],
                     'message' => [
                       'message_id' => 2239818,
                       'from' =>  [
@@ -107,5 +119,12 @@ class TelegramBotUpdateTest extends TestCase
         $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
         $this->assertEquals('mensaje de bienvenida', $telegramBotUpdate->getWelcomeMessage());
         $this->assertIsString($telegramBotUpdate->getWelcomeMessage());
+    }
+
+    public function testGetCallbackQuery(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $this->assertEquals('Data from button callback', $telegramBotUpdate->getCallbackQuery('data'));
+        $this->assertIsString($telegramBotUpdate->getCallbackQuery('data'));
     }
 }

@@ -18,6 +18,19 @@ class TelegramController extends AbstractController
     public function index(TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
     {
 
+        if($update->getCallbackQuery()){
+
+            $chat_id = $update->getCallbackQuery('from')['id'];
+            $data = $update->getCallbackQuery();
+            $user = $userRepository->findOneBy(['chat_id' => $chat_id]);
+
+            if($user){
+                $user->setMode($data);
+                $apiRequest->sendMessage(['chat_id' => $chat_id, 'text' => 'Modo configurado correctamente']);
+            }
+
+            die();
+        }
 
         if($update->getMessageText() == "/start") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $update->getWelcomeMessage()]);
@@ -27,23 +40,25 @@ class TelegramController extends AbstractController
         if($update->getMessageText() == "/mode") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => 'Selecciona un modo', 'reply_markup' => [
                     'inline_keyboard' => [[
-                        ['text' => 'Psicologo', 'callback_data' => 'psicologo'],
+                        ['text' => 'Super Mario Bros', 'callback_data' => 'super_mario'],
                         ['text' => 'Asistente', 'callback_data' => 'asistente']
                      ]]]])
             ;
             die();
         }
 
-        $openaiResponse = $apiRequest->openApi($update->getMessageText());
+        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
+        $mode = $user->getMode() ?? 'asistente';
+        $openaiResponse = $apiRequest->openApi($update->getMessageText(), $mode);
         $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
 
-        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
 
         if(!$user) {
 
             $user = new User();
             $user->setChatId($update->getChatId())
-                 ->setIsBot($update->getIsBot());
+                 ->setIsBot($update->getIsBot())
+                 ->setMode('asistente');
             $entityManager->persist($user);
 
         }
