@@ -43,10 +43,11 @@ class TelegramController extends AbstractController
         }
 
         if($update->getMessageText() == "/mode") {
-            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => '¿Que personaje te gustaria que interpretara?', 'reply_markup' => [
+            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => '¿Que personaje te gustaria que interpretara? 🎭', 'reply_markup' => [
                     'inline_keyboard' => [[
                         ['text' => 'Super Mario Bros 🍄', 'callback_data' => 'Super Mario Bros'],
-                        ['text' => 'Asistente 👨🏻‍🏫', 'callback_data' => 'asistente']
+                        ['text' => 'Asistente 👨🏻‍🏫', 'callback_data' => 'asistente'],
+                        ['text' => 'Shakira👱‍♀️ ' , 'callback_data' => 'Shakira']
                      ]]]])
             ;
             die();
