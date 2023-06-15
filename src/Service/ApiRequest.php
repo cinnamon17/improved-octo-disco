@@ -102,5 +102,12 @@ class ApiRequest
         return $response;
     }
 
+    public function answerCallbackQuery(string $id, $httpMethod = 'POST'): array
+    {
+
+        $response =$this->sendRequest('answerCallbackQuery', ['callback_query_id' => $id ], $httpMethod);
+        return $response;
+    }
+
 
 }

@@ -23,6 +23,7 @@ class TelegramController extends AbstractController
             $chat_id = $update->getCallbackQuery('from')['id'];
             $data = $update->getCallbackQuery();
             $user = $userRepository->findOneBy(['chat_id' => $chat_id]);
+            $callbackQueryId = $update->getCallbackQuery('id');
 
             if($user){
                 $user->setMode($data);
@@ -30,6 +31,8 @@ class TelegramController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
             }
+
+            $apiRequest->answerCallbackQuery($callbackQueryId);
 
             die();
         }
