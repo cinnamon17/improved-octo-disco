@@ -41,6 +41,9 @@ class User
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mode = null;
+
     public function __construct()
     {
         $this->message = new ArrayCollection();
@@ -175,5 +178,17 @@ class User
             $this->setCreatedAt(new \DateTimeImmutable());
         }
 
+    }
+
+    public function getMode(): ?string
+    {
+        return $this->mode;
+    }
+
+    public function setMode(?string $mode): self
+    {
+        $this->mode = $mode;
+
+        return $this;
     }
 }
