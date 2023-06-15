@@ -27,6 +27,8 @@ class TelegramController extends AbstractController
             if($user){
                 $user->setMode($data);
                 $apiRequest->sendMessage(['chat_id' => $chat_id, 'text' => 'Modo configurado correctamente']);
+                $entityManager->persist($user);
+                $entityManager->flush();
             }
 
             die();
@@ -40,8 +42,8 @@ class TelegramController extends AbstractController
         if($update->getMessageText() == "/mode") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => 'Selecciona un modo', 'reply_markup' => [
                     'inline_keyboard' => [[
-                        ['text' => 'Super Mario Bros', 'callback_data' => 'super_mario'],
-                        ['text' => 'Asistente', 'callback_data' => 'asistente']
+                        ['text' => 'Super Mario Bros 🍄', 'callback_data' => 'Super Mario Bros'],
+                        ['text' => 'Asistente 👨🏻‍🏫', 'callback_data' => 'asistente']
                      ]]]])
             ;
             die();
