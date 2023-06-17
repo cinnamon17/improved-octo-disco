@@ -12,6 +12,7 @@ class ApiRequest
     private HttpClientInterface $client;
     private TelegramBotUpdate $update;
     private TranslatorInterface $translator;
+    private string $invalidMessage;
 
     public function __construct(TranslatorInterface $translator, ContainerBagInterface $containerBagInterface, HttpClientInterface $client, TelegramBotUpdate $update)
     {
@@ -20,6 +21,7 @@ class ApiRequest
         $this->client = $client;
         $this->update = $update;
         $this->translator = $translator;
+        $this->invalidMessage = $this->translator->trans('invalid.message', locale: $this->update->getLanguageCode());
     }
 
     public function telegramApi(String $apiMethod, array $params = [], String $httpMethod = 'POST'): array
@@ -35,7 +37,7 @@ class ApiRequest
         return $content;
     }
 
-    public function openApi(?string $messageText, ?string $mode = $this->translator->trans('invalid.message', locale: $this->update->getLanguageCode())): string
+    public function openApi(?string $messageText, ?string $mode = 'asistente'): string
     {
 
         if(!$messageText) {
