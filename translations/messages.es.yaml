@@ -2,3 +2,24 @@ welcome:
   message: "¡Hola! Soy tu asistente de IA en Telegram. Estoy aquí para ayudarte en todo lo que necesites.\n\n
                           Si tienes preguntas, curiosidades o simplemente quieres charlar, ¡no dudes en escribirme! Estoy emocionado de comenzar esta aventura contigo.\n\n
                           ¡Vamos a explorar el mundo de la inteligencia artificial juntos!"
+
+character:
+  message: "¿Que personaje te gustaria que interpretara? 🎭"
+
+assistant:
+  message: "asistente 👨🏻‍🏫"
+
+translator:
+  message: "traductor 👩‍🏫"
+
+callbackQuery:
+  message: "Modo configurado correctamente. ✅"
+
+invalid:
+  message: "Por favor ingresa un texto valido"
+
+youAre:
+  message: "Tu eres"
+
+respondAccordingly:
+  message: "actua como tal"

@@ -84,4 +84,11 @@ class TelegramBotUpdate
         return $callbackQueryData;
 
     }
+
+    public function getLanguageCode(): ?string{
+
+        $first_name= $this->request['message']['from']['language_code'] ?? null;
+        return $first_name;
+
+    }
 }

@@ -3,3 +3,23 @@ welcome:
             If you have questions, curiosities, or just want to chat, feel free to write to me! I'm excited to start this adventure with you.\n\n
             Let's explore the world of artificial intelligence together!"
 
+character:
+  message: "What character would you like me to portray? 🎭"
+
+assistant:
+  message: "assistant 👨🏻‍🏫"
+
+translator:
+  message: "translator 👩‍🏫"
+
+callbackQuery:
+  message: "Mode successfully configured. ✅"
+
+invalid:
+  message: "Please enter a valid text."
+
+youAre:
+  message: "You are"
+
+respondAccordingly:
+  message: "please respond accordingly."

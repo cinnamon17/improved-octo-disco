@@ -27,8 +27,9 @@ class TelegramController extends AbstractController
             $callbackQueryId = $update->getCallbackQuery('id');
 
             if($user){
+                $setModeMessage= $translator->trans('callabackQuery.message', locale: $update->getLanguageCode());
                 $user->setMode($data);
-                $apiRequest->sendMessage(['chat_id' => $chat_id, 'text' => 'Modo configurado correctamente']);
+                $apiRequest->sendMessage(['chat_id' => $chat_id, 'text' => $setModeMessage]);
                 $entityManager->persist($user);
                 $entityManager->flush();
             }
@@ -38,25 +39,28 @@ class TelegramController extends AbstractController
             die();
         }
 
-        $welcomeMessage = $translator->trans('welcome.message');
+        $welcomeMessage = $translator->trans('welcome.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/start") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $welcomeMessage]);
             die();
         }
 
+        $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
+        $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
+        $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/mode") {
-            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => '¿Que personaje te gustaria que interpretara? 🎭', 'reply_markup' => [
+            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $characterMessage, 'reply_markup' => [
                     'inline_keyboard' => [[
                         ['text' => 'Super Mario🍄', 'callback_data' => 'Super Mario Bros'],
-                        ['text' => 'Asistente 👨🏻‍🏫', 'callback_data' => 'asistente'],
-                        ['text' => 'Traductor 👩‍🏫' , 'callback_data' => 'traductor']
+                        ['text' => $assistantMessage,'callback_data' => $assistantMessage],
+                        ['text' => $translatorMessage , 'callback_data' => $translatorMessage]
                      ]]]])
             ;
             die();
         }
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-        $mode = $user->getMode() ?? 'asistente';
+        $mode = $user->getMode() ?? $assistantMessage;
         $openaiResponse = $apiRequest->openApi($update->getMessageText(), $mode);
         $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
 
@@ -66,7 +70,7 @@ class TelegramController extends AbstractController
             $user = new User();
             $user->setChatId($update->getChatId())
                  ->setIsBot($update->getIsBot())
-                 ->setMode('asistente');
+                 ->setMode($assistantMessage);
             $entityManager->persist($user);
 
         }

@@ -127,4 +127,11 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertEquals('Data from button callback', $telegramBotUpdate->getCallbackQuery('data'));
         $this->assertIsString($telegramBotUpdate->getCallbackQuery('data'));
     }
+
+    public function testGetLanguageCode(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $this->assertEquals('es', $telegramBotUpdate->getLanguageCode());
+        $this->assertIsString($telegramBotUpdate->getLanguageCode());
+    }
 }

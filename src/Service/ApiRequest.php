@@ -4,19 +4,22 @@ namespace App\Service;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ApiRequest
 {
     private ContainerBagInterface $env;
     private HttpClientInterface $client;
     private TelegramBotUpdate $update;
+    private TranslatorInterface $translator;
 
-    public function __construct(ContainerBagInterface $containerBagInterface, HttpClientInterface $client, TelegramBotUpdate $update)
+    public function __construct(TranslatorInterface $translator, ContainerBagInterface $containerBagInterface, HttpClientInterface $client, TelegramBotUpdate $update)
     {
 
         $this->env= $containerBagInterface;
         $this->client = $client;
         $this->update = $update;
+        $this->translator = $translator;
     }
 
     public function telegramApi(String $apiMethod, array $params = [], String $httpMethod = 'POST'): array
@@ -32,16 +35,18 @@ class ApiRequest
         return $content;
     }
 
-    public function openApi(?string $messageText, ?string $mode = 'asistente'): string
+    public function openApi(?string $messageText, ?string $mode = $this->translator->trans('invalid.message', locale: $this->update->getLanguageCode())): string
     {
 
         if(!$messageText) {
 
-            $this->sendErrorMessage('Por favor envia un texto valido');
+            $this->sendErrorMessage($this->translator->trans('invalid.message', locale: $this->update->getLanguageCode()));
             die();
         }
 
         $response = $this->sendChatAction('typing');
+        $youAre = $this->translator->trans('youAre.message', locale: $this->update->getLanguageCode());
+        $respondAccordingly = $this->translator->trans('respondAccordingly.message', locale: $this->update->getLanguageCode());
         $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
 
             'headers' => [
@@ -51,7 +56,7 @@ class ApiRequest
             'json' => [
                         "model" => "gpt-3.5-turbo",
                         "messages" => [
-                            ["role" => "system", "content" => "Eres $mode, responde como tal"],
+                            ["role" => "system", "content" => "$youAre $mode, $respondAccordingly"],
                             ["role" => "user", "content" => $messageText]
                         ]
 
@@ -79,7 +84,7 @@ class ApiRequest
 
         if(!$params['text']) {
 
-            $response = $this->sendErrorMessage('Por favor envia un texto valido');
+            $response = $this->sendErrorMessage($this->translator->trans('invalid.message', locale: $this->update->getLanguageCode()));
             return $response;
         }
 
