@@ -11,11 +11,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TelegramController extends AbstractController
 {
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
-    public function index(TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
+    public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
     {
 
         if($update->getCallbackQuery()){
@@ -37,8 +38,9 @@ class TelegramController extends AbstractController
             die();
         }
 
+        $welcomeMessage = $translator->trans('welcome.message');
         if($update->getMessageText() == "/start") {
-            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $update->getWelcomeMessage()]);
+            $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $welcomeMessage]);
             die();
         }
 
