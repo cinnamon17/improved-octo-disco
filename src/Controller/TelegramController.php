@@ -27,7 +27,7 @@ class TelegramController extends AbstractController
             $callbackQueryId = $update->getCallbackQuery('id');
 
             if($user){
-                $setModeMessage= $translator->trans('callabackQuery.message', locale: $update->getLanguageCode());
+                $setModeMessage= $translator->trans('callbackQuery.message', locale: $update->getLanguageCode());
                 $user->setMode($data);
                 $apiRequest->sendMessage(['chat_id' => $chat_id, 'text' => $setModeMessage]);
                 $entityManager->persist($user);
