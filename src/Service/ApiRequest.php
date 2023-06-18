@@ -42,7 +42,7 @@ class ApiRequest
 
         if(!$messageText) {
 
-            $this->sendErrorMessage($this->translator->trans('invalid.message', locale: $this->update->getLanguageCode()));
+            $this->sendErrorMessage($this->invalidMessage);
             die();
         }
 
@@ -86,7 +86,7 @@ class ApiRequest
 
         if(!$params['text']) {
 
-            $response = $this->sendErrorMessage($this->translator->trans('invalid.message', locale: $this->update->getLanguageCode()));
+            $response = $this->sendErrorMessage($this->invalidMessage);
             return $response;
         }
 
