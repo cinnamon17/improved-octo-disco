@@ -7,13 +7,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class TelegramBotUpdate
 {
     private array $request;
-    private String $welcomeMessage;
 
-
-    public function __construct(RequestStack $request, String $welcomeMessage )
+    public function __construct(RequestStack $request)
     {
         $this->request = $request->getCurrentRequest()->toArray();
-        $this->welcomeMessage = $welcomeMessage;
     }
 
     public function getUpdateId(): float {
@@ -69,12 +66,6 @@ class TelegramBotUpdate
 
         $first_name= $this->request['message']['from']['username'] ?? null;
         return $first_name;
-
-    }
-
-    public function getWelcomeMessage(): String{
-
-        return $this->welcomeMessage;
 
     }
 

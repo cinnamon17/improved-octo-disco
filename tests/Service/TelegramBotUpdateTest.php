@@ -114,12 +114,6 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertEquals('pepedior', $telegramBotUpdate->getUsername());
         $this->assertIsString($telegramBotUpdate->getUsername());
     }
-    public function testGetWelcomeMesassage(): void
-    {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
-        $this->assertEquals('mensaje de bienvenida', $telegramBotUpdate->getWelcomeMessage());
-        $this->assertIsString($telegramBotUpdate->getWelcomeMessage());
-    }
 
     public function testGetCallbackQuery(): void
     {
