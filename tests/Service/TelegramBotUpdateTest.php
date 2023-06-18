@@ -11,11 +11,8 @@ class TelegramBotUpdateTest extends TestCase
 {
    private RequestStack $requestStack;
    private Request $request;
-   private string $welcomeMessage;
 
     protected function setUp(): void {
-
-        $this->welcomeMessage = 'mensaje de bienvenida';
         $this->request = $this->createMock(Request::class);
         $this->request->expects(self::once())
         ->method('toArray')
@@ -66,7 +63,7 @@ class TelegramBotUpdateTest extends TestCase
 
     public function testGetUpdateId(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals(829824026, $telegramBotUpdate->getUpdateId());
         $this->assertNotEquals(829824025, $telegramBotUpdate->getUpdateId());
         $this->assertIsFloat($telegramBotUpdate->getUpdateId());
@@ -74,7 +71,7 @@ class TelegramBotUpdateTest extends TestCase
 
     public function testGetMessageText(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals('Cual es la masa de la tierra', $telegramBotUpdate->getMessageText());
         $this->assertNotEquals(' ', $telegramBotUpdate->getMessageText());
         $this->assertIsString($telegramBotUpdate->getMessageText());
@@ -82,14 +79,14 @@ class TelegramBotUpdateTest extends TestCase
 
     public function testGetMessageId(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals(2239818, $telegramBotUpdate->getMessageId());
         $this->assertNotEquals(2239817, $telegramBotUpdate->getMessageId());
         $this->assertIsFloat($telegramBotUpdate->getMessageId());
     }
     public function testGetChatId(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals(111111111111111111111, $telegramBotUpdate->getChatId());
         $this->assertNotEquals(1111111112, $telegramBotUpdate->getChatId());
         $this->assertIsFloat($telegramBotUpdate->getChatId());
@@ -97,34 +94,34 @@ class TelegramBotUpdateTest extends TestCase
 
     public function testGetIsBot(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals(false, $telegramBotUpdate->getIsBot());
         $this->assertIsBool($telegramBotUpdate->getIsBot());
     }
     public function testGetFirstName(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals('pepe', $telegramBotUpdate->getFirstName());
         $this->assertIsString($telegramBotUpdate->getFirstName());
     }
 
     public function testGetUsername(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals('pepedior', $telegramBotUpdate->getUsername());
         $this->assertIsString($telegramBotUpdate->getUsername());
     }
 
     public function testGetCallbackQuery(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals('Data from button callback', $telegramBotUpdate->getCallbackQuery('data'));
         $this->assertIsString($telegramBotUpdate->getCallbackQuery('data'));
     }
 
     public function testGetLanguageCode(): void
     {
-        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack, $this->welcomeMessage);
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
         $this->assertEquals('es', $telegramBotUpdate->getLanguageCode());
         $this->assertIsString($telegramBotUpdate->getLanguageCode());
     }
