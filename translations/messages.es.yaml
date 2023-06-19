@@ -7,10 +7,10 @@ character:
   message: "¿Que personaje te gustaria que interpretara? 🎭"
 
 assistant:
-  message: "asistente 👨🏻‍🏫"
+  message: "asistente"
 
 translator:
-  message: "traductor 👩‍🏫"
+  message: "traductor"
 
 callbackQuery:
   message: "Modo configurado correctamente. ✅"
