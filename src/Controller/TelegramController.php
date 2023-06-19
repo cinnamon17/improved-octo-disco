@@ -52,8 +52,8 @@ class TelegramController extends AbstractController
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $characterMessage, 'reply_markup' => [
                     'inline_keyboard' => [[
                         ['text' => 'Super Mario🍄', 'callback_data' => 'Super Mario Bros'],
-                        ['text' => $assistantMessage,'callback_data' => $assistantMessage . "👨🏻‍🏫"],
-                        ['text' => $translatorMessage , 'callback_data' => $translatorMessage . "👩‍🏫"]
+                        ['text' => $assistantMessage ."👨🏻‍🏫",'callback_data' => $assistantMessage . "👨🏻‍🏫"],
+                        ['text' => $translatorMessage . "👩‍🏫", 'callback_data' => $translatorMessage . "👩‍🏫"]
                      ]]]])
             ;
             die();
