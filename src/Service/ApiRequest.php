@@ -47,8 +47,8 @@ class ApiRequest
         }
 
         $response = $this->sendChatAction('typing');
-        $youAre = $this->translator->trans('youAre.message', locale: $this->update->getLanguageCode());
-        $respondAccordingly = $this->translator->trans('respondAccordingly.message', locale: $this->update->getLanguageCode());
+        //$youAre = $this->translator->trans('youAre.message', locale: $this->update->getLanguageCode());
+        //$respondAccordingly = $this->translator->trans('respondAccordingly.message', locale: $this->update->getLanguageCode());
         $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
 
             'headers' => [
@@ -58,7 +58,7 @@ class ApiRequest
             'json' => [
                         "model" => "gpt-3.5-turbo",
                         "messages" => [
-                            ["role" => "system", "content" => "$youAre $mode, $respondAccordingly"],
+                            ["role" => "system", "content" => $mode],
                             ["role" => "user", "content" => $messageText]
                         ]
 

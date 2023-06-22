@@ -48,12 +48,14 @@ class TelegramController extends AbstractController
         $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
         $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
         $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
+        $chefPrompt = $translator->trans('prompts.chef.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/mode") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $characterMessage, 'reply_markup' => [
                     'inline_keyboard' => [[
                         ['text' => 'Super Mario🍄', 'callback_data' => 'Super Mario Bros'],
                         ['text' => $assistantMessage ."👨🏻‍🏫",'callback_data' => $assistantMessage],
-                        ['text' => $translatorMessage . "👩‍🏫", 'callback_data' => $translatorMessage]
+                        ['text' => $translatorMessage . "👩‍🏫", 'callback_data' => $translatorMessage],
+                        ['text' => 'chef 🧑🏻‍🍳', 'callback_data' => $chefPrompt]
                      ]]]])
             ;
             die();
