@@ -7,10 +7,10 @@ character:
   message: "What character would you like me to portray? 🎭"
 
 assistant:
-  message: "assistant 👨🏻‍🏫"
+  message: "assistant"
 
 translator:
-  message: "translator 👩‍🏫"
+  message: "translator"
 
 callbackQuery:
   message: "Mode successfully configured. ✅"
