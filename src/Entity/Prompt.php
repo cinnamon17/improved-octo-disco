@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PromptRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Prompt
 {
     #[ORM\Id]
@@ -25,6 +26,9 @@ class Prompt
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $role = null;
 
     public function getId(): ?int
     {
@@ -75,6 +79,30 @@ class Prompt
     public function setUpdatedAt(?\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updatedTimestamps(): void {
+
+        $this->setUpdatedAt(new \DateTimeImmutable());
+
+        if($this->getCreatedAt() === null){
+            $this->setCreatedAt(new \DateTimeImmutable());
+        }
+
+    }
+
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(?string $role): self
+    {
+        $this->role = $role;
 
         return $this;
     }
