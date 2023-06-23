@@ -66,10 +66,13 @@ class TelegramController extends AbstractController
         }
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-        $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]) ?? 'asistente';
+        $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
 
         if($prompt){
             $prompt = $prompt->getMessage();
+        }else{
+
+            $prompt = $assistantMessage;
         }
 
         $openaiResponse = $apiRequest->openApi($update->getMessageText(), $prompt);
