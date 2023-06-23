@@ -37,7 +37,7 @@ class ApiRequest
         return $content;
     }
 
-    public function openApi(?string $messageText, ?string $mode = 'asistente'): string
+    public function openApi(?string $messageText, ?string $prompt = 'asistente'): string
     {
 
         if(!$messageText) {
@@ -58,7 +58,7 @@ class ApiRequest
             'json' => [
                         "model" => "gpt-3.5-turbo",
                         "messages" => [
-                            ["role" => "system", "content" => $mode],
+                            ["role" => "system", "content" => $prompt],
                             ["role" => "user", "content" => $messageText]
                         ]
 

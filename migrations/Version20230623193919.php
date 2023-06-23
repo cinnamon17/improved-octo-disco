@@ -40,6 +40,16 @@ final class Version20230623193919 extends AbstractMigration
       imágenes médicas y otros programas de aprendizaje automático, para diagnosticar la causa más probable de sus síntomas.
       También debes incorporar métodos tradicionales, como exámenes físicos, pruebas de laboratorio, etc., en tu proceso de
       evaluación para garantizar la precisión.','doctor')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','I want you to act as an English translator, spelling corrector and improver.
+        I will speak to you in any language and you will detect the language, translate it and answer in the corrected and improved version of my text, in English.
+        I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences.
+        Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations.','translator')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('es','Deseo que actúes como un traductor de inglés, corrector ortográfico y perfeccionador.
+         Te hablaré en cualquier idioma y tú detectarás el idioma, lo traducirás y responderás en la versión corregida y mejorada de mi texto, en inglés.
+        Quiero que reemplaces mis palabras y frases simplificadas de nivel A0 con palabras y frases más hermosas y elegantes de un nivel superior en inglés.
+        Mantén el mismo significado, pero hazlos más literarios. Solo deseo que respondas con la corrección y las mejoras, sin proporcionar explicaciones adicionales.','traductor')");
     }
 
     public function down(Schema $schema): void

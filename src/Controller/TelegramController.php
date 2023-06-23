@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Message;
 use App\Entity\User;
+use App\Repository\PromptRepository;
 use App\Repository\UserRepository;
 use App\Service\ApiRequest;
 use App\Service\TelegramBotUpdate;
@@ -16,7 +17,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TelegramController extends AbstractController
 {
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
-    public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
+    public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
 
         if($update->getCallbackQuery()){
@@ -48,16 +49,15 @@ class TelegramController extends AbstractController
         $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
         $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
         $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
-        $chefPrompt = $translator->trans('prompts.chef.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/mode") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $characterMessage, 'reply_markup' => [
                     'inline_keyboard' => [[
-                        ['text' => 'Super Mario 🍄', 'callback_data' => 'Super Mario Bros'],
+                        ['text' => $translatorMessage . " 🈯", 'callback_data' => $translatorMessage],
                         ['text' => $assistantMessage ." 👨🏻‍🏫",'callback_data' => $assistantMessage],
                      ],
                      [
                         ['text' => 'chef 🧑🏻‍🍳','callback_data' => 'chef'],
-                        ['text' => $translatorMessage . " 👩‍🏫", 'callback_data' => $translatorMessage],
+                        ['text' => 'doctor 👨🏻‍⚕️','callback_data' => 'doctor'],
                      ]
 
                     ]]])
@@ -66,8 +66,8 @@ class TelegramController extends AbstractController
         }
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-        $mode = $user->getMode() ?? $assistantMessage;
-        $openaiResponse = $apiRequest->openApi($update->getMessageText(), $mode);
+        $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()])->getMessage() ?? 'asistente';
+        $openaiResponse = $apiRequest->openApi($update->getMessageText(), $prompt);
         $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
 
 
