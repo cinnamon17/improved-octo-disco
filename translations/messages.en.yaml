@@ -4,7 +4,7 @@ welcome:
             Let's explore the world of artificial intelligence together!"
 
 character:
-  message: "What character would you like me to portray? 🎭"
+  message: "What mode would you like me to portray? 🎭"
 
 assistant:
   message: "assistant"
