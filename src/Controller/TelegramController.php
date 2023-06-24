@@ -49,6 +49,7 @@ class TelegramController extends AbstractController
         $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
         $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
         $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
+        $bussinessMessage= $translator->trans('business.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/mode") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $characterMessage, 'reply_markup' => [
                     'inline_keyboard' => [[
@@ -58,6 +59,9 @@ class TelegramController extends AbstractController
                      [
                         ['text' => 'chef 🧑🏻‍🍳','callback_data' => 'chef'],
                         ['text' => 'doctor 👨🏻‍⚕️','callback_data' => 'doctor'],
+                     ],
+                     [
+                        ['text' => $bussinessMessage . "💡",'callback_data' => 'startup'],
                      ]
 
                     ]]])

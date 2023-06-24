@@ -12,6 +12,9 @@ assistant:
 translator:
   message: "traductor"
 
+business:
+  message: "Ideas de Negocio"
+
 callbackQuery:
   message: "Modo configurado correctamente. ✅"
 

@@ -50,6 +50,17 @@ final class Version20230623193919 extends AbstractMigration
          Te hablaré en cualquier idioma y tú detectarás el idioma, lo traducirás y responderás en la versión corregida y mejorada de mi texto, en inglés.
         Quiero que reemplaces mis palabras y frases simplificadas de nivel A0 con palabras y frases más hermosas y elegantes de un nivel superior en inglés.
         Mantén el mismo significado, pero hazlos más literarios. Solo deseo que respondas con la corrección y las mejoras, sin proporcionar explicaciones adicionales.','traductor')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','Generate digital startup ideas based on the wish of the people.
+         For example, when I say I wish there is a big large mall in my small town, you generate a business plan for the digital startup complete with idea name, a short one liner,
+        target user persona, user\'s pain points to solve, main value propositions, sales & marketing channels, revenue stream sources, cost structures, key activities, key resources,
+         key partners, idea validation steps, estimated 1st year cost of operation, and potential business challenges to look for.','startup')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('es','Genera ideas para startups digitales basadas en los deseos de las personas. Por ejemplo,
+        cuando menciono que deseo tener un gran centro comercial en mi pequeña ciudad, generas un plan de negocios para la startup digital, completo con el nombre de la idea,
+        una breve descripción, el perfil del usuario objetivo, los problemas que enfrenta el usuario y que se resolverían, las principales propuestas de valor, los canales de ventas
+        y marketing, las fuentes de ingresos, las estructuras de costos, las actividades clave, los recursos clave, los socios clave, los pasos de validación de la idea, el costo estimado
+        de operación para el primer año y los posibles desafíos comerciales a tener en cuenta.','startup')");
     }
 
     public function down(Schema $schema): void
