@@ -26,16 +26,3 @@ youAre:
 
 respondAccordingly:
   message: "please respond accordingly."
-
-prompts:
-  doctor:
-    message: "I want you to act as an AI assisted doctor. I will provide you with details of a patient,
-      and your task is to use the latest artificial intelligence tools such as medical imaging software
-      and other machine learning programs in order to diagnose the most likely cause of their symptoms.
-      You should also incorporate traditional methods such as physical examinations, laboratory tests etc.,
-      into your evaluation process in order to ensure accuracy."
-
-  chef:
-    message: "I require someone who can suggest delicious recipes that includes foods which are nutritionally
-      beneficial but also easy & not time consuming enough therefore suitable for busy people like us among
-      other factors such as cost effectiveness so overall dish ends up being healthy yet economical at same time!"
