@@ -13,7 +13,7 @@ translator:
   message: "translator"
 
 business:
-  message: "Bussiness Ideas"
+  message: "Business Ideas"
 
 callbackQuery:
   message: "Mode successfully configured. ✅"
