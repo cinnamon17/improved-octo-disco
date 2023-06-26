@@ -63,10 +63,10 @@ class TelegramController extends AbstractController
                      ],
                      [
                         ['text' => $bussinessMessage . "💡",'callback_data' => 'startup'],
-                     ],
-                     [
-                        ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
-                     ]
+                     ]//,
+                     //[
+                      //  ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
+                     //]
 
                     ]]])
             ;
