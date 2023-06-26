@@ -3,8 +3,11 @@
 namespace App\Service;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Panther\Client;
 
 class ApiRequest
 {
@@ -107,6 +110,46 @@ class ApiRequest
 
         $response =$this->sendRequest('sendChatAction', ['chat_id' => $this->update->getChatId(), 'action' => $action ], $httpMethod);
         return $response;
+    }
+
+    public function sendVideo(string $url, $httpMethod = 'POST'): array
+    {
+        if (filter_var($url, FILTER_VALIDATE_URL) == false){
+            $this->sendErrorMessage('url no valida');
+            die();
+        }
+
+        $client = Client::createFirefoxClient();
+
+        $client->request('GET', $url);
+
+        $crawler = $client->waitFor('video');
+
+        $html = htmlspecialchars_decode($crawler->html());
+
+        $matches = '';
+        preg_match('/<video[^>]+src="([^"]+)/', $html, $matches);
+
+        if(!$matches[1]){
+
+            $this->sendErrorMessage('url no encontrada');
+            die();
+        }
+            $this->sendChatAction('upload_video');
+            $response = $this->client->request('GET', $matches[1]);
+
+            $formFields = [
+                'video' => new DataPart($response->getContent(), 'file.mp4', 'video/mp4'),
+                'chat_id' => "{$this->update->getChatId()}"
+            ];
+            $formData = new FormDataPart($formFields);
+            $response = $this->client->request($httpMethod, $this->env->get('BOT_URL').$this->env->get('BOT_KEY')."/sendVideo", [
+
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+            ])
+            ;
+        return $response->toArray();
     }
 
     public function answerCallbackQuery(string $id, $httpMethod = 'POST'): array

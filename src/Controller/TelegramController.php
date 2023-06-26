@@ -20,6 +20,7 @@ class TelegramController extends AbstractController
     public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
 
+
         if($update->getCallbackQuery()){
 
             $chat_id = $update->getCallbackQuery('from')['id'];
@@ -62,6 +63,9 @@ class TelegramController extends AbstractController
                      ],
                      [
                         ['text' => $bussinessMessage . "💡",'callback_data' => 'startup'],
+                     ],
+                     [
+                        ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
                      ]
 
                     ]]])
@@ -70,6 +74,12 @@ class TelegramController extends AbstractController
         }
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
+
+        if($user->getMode() == 'downloader'){
+            $apiRequest->sendVideo($update->getMessageText());
+            die();
+        }
+
         $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
 
         if($prompt){
