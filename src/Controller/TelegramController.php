@@ -75,10 +75,10 @@ class TelegramController extends AbstractController
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
 
-        if($user->getMode() == 'downloader'){
-            $apiRequest->sendVideo($update->getMessageText());
-            die();
-        }
+        //if($user->getMode() == 'downloader'){
+            //$apiRequest->sendVideo($update->getMessageText());
+            //die();
+        //}
 
         $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
 
