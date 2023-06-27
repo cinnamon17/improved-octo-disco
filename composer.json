@@ -20,7 +20,7 @@
         "symfony/runtime": "6.3.*",
         "symfony/translation": "6.3.*",
         "symfony/yaml": "6.3.*",
-        "dbrekelmans/bdi": "^1.0",
+        "dbrekelmans/bdi": "^1.0"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^7.2",
