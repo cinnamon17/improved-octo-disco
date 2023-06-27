@@ -20,6 +20,30 @@ class TelegramController extends AbstractController
     public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
 
+        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
+        $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
+
+        if(!$user) {
+
+            $user = new User();
+            $user->setChatId($update->getChatId())
+                 ->setIsBot($update->getIsBot())
+                 ->setMode($assistantMessage);
+            $entityManager->persist($user);
+
+        }
+
+        $user->setFirstName($update->getFirstName())
+             ->setLastName($update->getLastName())
+             ->setUsername($update->getUsername());
+
+        $message = new Message();
+        $message->setText($update->getMessageText())
+                ->setMessageId($update->getMessageId())
+                ->setUser($user);
+
+        $entityManager->persist($message);
+        $entityManager->flush();
 
         if($update->getCallbackQuery()){
 
@@ -48,7 +72,6 @@ class TelegramController extends AbstractController
         }
 
         $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
-        $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
         $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
         $bussinessMessage= $translator->trans('business.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/mode") {
@@ -73,47 +96,16 @@ class TelegramController extends AbstractController
             die();
         }
 
-        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-        $prompt = $assistantMessage;
-
-        if($user){
-            $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
-        }
-
-        if($prompt != $assistantMessage){
-            $prompt = $prompt->getMessage();
-        }
-
-        $openaiResponse = $apiRequest->openApi($update->getMessageText(), $prompt);
-        $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
-
-
-        if(!$user) {
-
-            $user = new User();
-            $user->setChatId($update->getChatId())
-                 ->setIsBot($update->getIsBot())
-                 ->setMode($assistantMessage);
-            $entityManager->persist($user);
-
-        }
-
-        $user->setFirstName($update->getFirstName())
-             ->setLastName($update->getLastName())
-             ->setUsername($update->getUsername());
-
-        $message = new Message();
-        $message->setText($update->getMessageText())
-                ->setMessageId($update->getMessageId())
-                ->setUser($user);
-
-        $entityManager->persist($message);
-        $entityManager->flush();
-
         if($user->getMode() == 'downloader'){
             $apiRequest->sendVideo($update->getMessageText());
             die();
         }
+
+        $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
+        $prompt = $prompt->getMessage();
+
+        $openaiResponse = $apiRequest->openApi($update->getMessageText(), $prompt);
+        $response = $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $openaiResponse]);
 
         return $this->json($response);
 
