@@ -80,7 +80,7 @@ class TelegramController extends AbstractController
             $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
         }
 
-        if($prompt !== $assistantMessage){
+        if($prompt != $assistantMessage){
             $prompt = $prompt->getMessage();
         }
 
