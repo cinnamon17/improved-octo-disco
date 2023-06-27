@@ -20,31 +20,6 @@ class TelegramController extends AbstractController
     public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
 
-        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-        $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
-
-        if(!$user) {
-
-            $user = new User();
-            $user->setChatId($update->getChatId())
-                 ->setIsBot($update->getIsBot())
-                 ->setMode($assistantMessage);
-            $entityManager->persist($user);
-
-        }
-
-        $user->setFirstName($update->getFirstName())
-             ->setLastName($update->getLastName())
-             ->setUsername($update->getUsername());
-
-        $message = new Message();
-        $message->setText($update->getMessageText())
-                ->setMessageId($update->getMessageId())
-                ->setUser($user);
-
-        $entityManager->persist($message);
-        $entityManager->flush();
-
         if($update->getCallbackQuery()){
 
             $chat_id = $update->getCallbackQuery('from')['id'];
@@ -70,6 +45,31 @@ class TelegramController extends AbstractController
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $welcomeMessage]);
             die();
         }
+
+        $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
+        $assistantMessage = $translator->trans('assistant.message', locale: $update->getLanguageCode());
+
+        if(!$user) {
+
+            $user = new User();
+            $user->setChatId($update->getChatId())
+                 ->setIsBot($update->getIsBot())
+                 ->setMode($assistantMessage);
+            $entityManager->persist($user);
+
+        }
+
+        $user->setFirstName($update->getFirstName())
+             ->setLastName($update->getLastName())
+             ->setUsername($update->getUsername());
+
+        $message = new Message();
+        $message->setText($update->getMessageText())
+                ->setMessageId($update->getMessageId())
+                ->setUser($user);
+
+        $entityManager->persist($message);
+        $entityManager->flush();
 
         $characterMessage = $translator->trans('character.message', locale: $update->getLanguageCode());
         $translatorMessage = $translator->trans('translator.message', locale: $update->getLanguageCode());
