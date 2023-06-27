@@ -74,28 +74,14 @@ class TelegramController extends AbstractController
         }
 
         $user = $userRepository->findOneBy(['chat_id' => $update->getChatId()]);
-
-        //if($user->getMode() == 'downloader'){
-            //$apiRequest->sendVideo($update->getMessageText());
-            //die();
-        //}
+        $prompt = $assistantMessage;
 
         if($user){
-
-        $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
-
-        }else{
-
-        $prompt = null;
-
+            $prompt = $promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $update->getLanguageCode()]);
         }
 
-
-        if($prompt){
+        if($prompt !== $assistantMessage){
             $prompt = $prompt->getMessage();
-        }else{
-
-            $prompt = $assistantMessage;
         }
 
         $openaiResponse = $apiRequest->openApi($update->getMessageText(), $prompt);
@@ -123,6 +109,11 @@ class TelegramController extends AbstractController
 
         $entityManager->persist($message);
         $entityManager->flush();
+
+        if($user->getMode() == 'downloader'){
+            $apiRequest->sendVideo($update->getMessageText());
+            die();
+        }
 
         return $this->json($response);
 
