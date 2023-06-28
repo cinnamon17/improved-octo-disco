@@ -9,7 +9,6 @@ use App\Repository\UserRepository;
 use App\Service\ApiRequest;
 use App\Service\TelegramBotUpdate;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,10 +17,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TelegramController extends AbstractController
 {
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
-    public function index(LoggerInterface $logger, TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
+    public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
         if(!$update->getChatId()){
-            return http_response_code(200);
+            return $this->json('What?');
             die();
         }
 
