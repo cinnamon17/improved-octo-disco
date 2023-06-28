@@ -19,10 +19,6 @@ class TelegramController extends AbstractController
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
     public function index(TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
-        if(!$update->getChatId()){
-            return $this->json('What?');
-            die();
-        }
 
         if($update->getCallbackQuery()){
 
@@ -41,6 +37,11 @@ class TelegramController extends AbstractController
 
             $apiRequest->answerCallbackQuery($callbackQueryId);
 
+            die();
+        }
+
+        if(!$update->getChatId()){
+            return $this->json('What?');
             die();
         }
 

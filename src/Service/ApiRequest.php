@@ -50,8 +50,6 @@ class ApiRequest
         }
 
         $response = $this->sendChatAction('typing');
-        //$youAre = $this->translator->trans('youAre.message', locale: $this->update->getLanguageCode());
-        //$respondAccordingly = $this->translator->trans('respondAccordingly.message', locale: $this->update->getLanguageCode());
         $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
 
             'headers' => [
