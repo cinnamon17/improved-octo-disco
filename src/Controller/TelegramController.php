@@ -21,10 +21,6 @@ class TelegramController extends AbstractController
     public function index(LoggerInterface $logger, TranslatorInterface $translator, TelegramBotUpdate $update, ApiRequest $apiRequest, EntityManagerInterface $entityManager, UserRepository $userRepository, PromptRepository $promptRepository): JsonResponse
     {
         if(!$update->getChatId()){
-
-            $logger->debug($update->getMessageText());
-            $logger->debug($update->getUsername());
-            $logger->debug($update->getIsBot());
             return http_response_code(200);
             die();
         }
