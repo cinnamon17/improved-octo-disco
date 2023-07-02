@@ -45,7 +45,7 @@ class TelegramController extends AbstractController
             die();
         }
 
-        if(!$update->getMessageText){
+        if(!$update->getMessageText()){
             die();
         }
 
