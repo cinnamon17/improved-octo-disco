@@ -45,6 +45,10 @@ class TelegramController extends AbstractController
             die();
         }
 
+        if(!$update->getMessageText){
+            die();
+        }
+
         $welcomeMessage = $translator->trans('welcome.message', locale: $update->getLanguageCode());
         if($update->getMessageText() == "/start") {
             $apiRequest->sendMessage(['chat_id' => $update->getChatId(), 'text' => $welcomeMessage]);
