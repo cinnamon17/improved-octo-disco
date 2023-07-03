@@ -41,11 +41,12 @@ class TelegramController extends AbstractController
         }
 
         if(!$update->getChatId()){
-            return $this->json('What?');
+            return $this->json('invalid chat_id');
             die();
         }
 
         if(!$update->getMessageText()){
+            return $this->json('invalid message');
             die();
         }
 
