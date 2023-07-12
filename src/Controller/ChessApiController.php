@@ -9,6 +9,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Routing\Annotation\Route;
 
+//TODO extract the data from stdut properly
 class ChessApiController extends AbstractController
 {
     #[Route('/chess/api', name: 'app_chess_api')]
