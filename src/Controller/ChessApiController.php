@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ArrayIterator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,27 +17,56 @@ class ChessApiController extends AbstractController
     public function index(Request $request): JsonResponse
     {
 
-        $process = new Process(['../bin/stockfish-ubuntu-x86-64-avx2']);
+        $fenPosition = $request->get('fen');
 
+        // Command to start Stockfish
+        $command = '../bin/stockfish-ubuntu-x86-64-avx2';
 
-        while ($process->isRunning()) {
-            // waiting for process to finish
+        // Open a subprocess
+        $descriptors = array(
+            0 => array('pipe', 'r'), // Stockfish process's stdin
+            1 => array('pipe', 'w'), // Stockfish process's stdout
+        );
+        $process = proc_open($command, $descriptors, $pipes);
+
+        if (is_resource($process)) {
+            // Send UCI initialization commands
+            fwrite($pipes[0], "uci\n");
+            fwrite($pipes[0], "isready\n");
+
+            // Read Stockfish's response
+            $output = '';
+            while (!feof($pipes[1])) {
+                $output .= fgets($pipes[1]);
+                if (strpos($output, 'readyok') !== false) {
+                    break;
+                }
+            }
+
+            // Set up the position
+            $positionCommand = "position fen " . $fenPosition ."\n";
+            fwrite($pipes[0], $positionCommand);
+
+            // Send a command to Stockfish
+            $command = "go depth 10\n";
+            fwrite($pipes[0], $command);
+
+            // Read Stockfish's response
+            $output = '';
+            while (!feof($pipes[1])) {
+                $output .= fgets($pipes[1]);
+                if (strpos($output, 'bestmove') !== false) {
+                    break;
+                }
+            }
+
+            // Close the subprocess
+            fclose($pipes[0]);
+            fclose($pipes[1]);
+            proc_close($process);
+
+            return $this->json(['result' => $output]);
         }
 
-        if(!$process->isSuccessful()){
-            throw new ProcessFailedException($process);
-        }
-
-        $process->setInput('position startpos moves e2e4 e7e5 g1f3 g8f6');
-        $process->setInput('go depth 10');
-
-        $process->start();
-
-        while ($process->isRunning()) {
-            // waiting for process to finish
-        }
-
-        $output = $process->getOutput();
-        return $this->json(['result' => $output]);
     }
 }
