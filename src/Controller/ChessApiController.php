@@ -48,7 +48,7 @@ class ChessApiController extends AbstractController
             fwrite($pipes[0], $positionCommand);
 
             // Send a command to Stockfish
-            $command = "go depth 10\n";
+            $command = "go depth 12\n";
             fwrite($pipes[0], $command);
 
             // Read Stockfish's response
@@ -65,7 +65,15 @@ class ChessApiController extends AbstractController
             fclose($pipes[1]);
             proc_close($process);
 
-            return $this->json(['result' => $output]);
+            $bestMove = substr($output, strpos($output,'bestmove'));
+            $bestMove = explode(" ", $bestMove);
+
+            if(isset($bestMove[1]) && isset($bestMove[3])){
+                return $this->json(["position"=> $fenPosition, "bestmove" => $bestMove[1], "ponder" => rtrim($bestMove[3]), "depth" => 12]);
+
+            }
+                return $this->json(["result" => "error", "message" => "invalid FEN notation"]);
+
         }
 
     }
