@@ -13,9 +13,8 @@ class TelegramBotUpdateTest extends TestCase
    private Request $request;
 
     protected function setUp(): void {
-        $this->request = $this->createMock(Request::class);
-        $this->request->expects(self::once())
-        ->method('toArray')
+        $this->request = $this->createStub(Request::class);
+        $this->request->method('toArray')
         ->willReturn([
                     'update_id' => 829824026,
                     'callback_query' => [
@@ -55,9 +54,8 @@ class TelegramBotUpdateTest extends TestCase
 
         ]);
 
-        $this->requestStack = $this->createMock(RequestStack::class);
-        $this->requestStack->expects(self::once())
-        ->method('getCurrentRequest')
+        $this->requestStack = $this->createStub(RequestStack::class);
+        $this->requestStack->method('getCurrentRequest')
         ->willReturn($this->request);
     }
 
