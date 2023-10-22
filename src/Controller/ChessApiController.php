@@ -106,7 +106,7 @@ class ChessApiController extends AbstractController
                 return $this->json(["position"=> $fenPosition, "bestmove" => $bestMove[1], "ponder" => rtrim($bestMove[3]), "depth" => 12]);
 
             }
-                return $this->json(["result" => "error", "message" => "Too many requests"]);
+                return $this->json(["result" => "bestmove (none)", "message" => "There is no available moves from this position"]);
 
             }
         }catch(Exception $e){
