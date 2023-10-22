@@ -99,7 +99,9 @@ class ChessApiController extends AbstractController
             $bestMove = substr($output, strpos($output,'bestmove'));
             $bestMove = explode(" ", $bestMove);
 
-            if(isset($bestMove[1]) && isset($bestMove[3])){
+            $ifIsSevenIsError =  count(explode(" ", $output)) == 7;
+
+            if(isset($bestMove[1]) && isset($bestMove[3]) && !$ifIsSevenIsError){
 
                 $this->telegramRequest($client, 'User is making requests to the chess api with success');
                 $this->telegramRequest($client, 'position= ' . $fenPosition . ' bestmove= ' . $bestMove[1] . ' ponder= ' . rtrim($bestMove[3]));
