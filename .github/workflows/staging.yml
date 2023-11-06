@@ -31,6 +31,7 @@ jobs:
     - name: Copy .env.test.local
       run: |
         echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
+        echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env.test.local
         cat .env.test.local
     - name: Cache Composer packages
       id: composer-cache
