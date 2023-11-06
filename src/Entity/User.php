@@ -89,7 +89,7 @@ class User
         return $this->chat_id;
     }
 
-    public function setChatId(int $chat_id): self
+    public function setChatId(float $chat_id): self
     {
         $this->chat_id = $chat_id;
 
