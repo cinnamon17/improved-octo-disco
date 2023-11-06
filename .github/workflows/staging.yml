@@ -51,10 +51,7 @@ jobs:
         run: |
           php bin/console --env=test doctrine:database:create
           php bin/console --env=test doctrine:schema:create
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
+          
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
