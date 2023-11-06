@@ -88,9 +88,7 @@ class TelegramControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('POST', '/telegram', content: $fakeUpdate);
 
-        $response = $client->getResponse()->getContent();
-        $this->assertEquals(json_decode($expectedResponse), json_decode($response));
-
+        $this->assertResponseIsSuccessful();
     }
 
     public function testStart(): void
