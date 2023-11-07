@@ -27,5 +27,5 @@ jobs:
           # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
           # Ensure you have the necessary credentials and permissions set up.
           echo "Deployment to staging completed. Message: ${{ github.event.inputs.message }}"
-          ssh pwd
+  
     
