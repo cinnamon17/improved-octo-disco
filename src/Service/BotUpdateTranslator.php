@@ -33,7 +33,7 @@ class BotUpdateTranslator {
 
     public function getbussinessMessage(): string
     {
-        return $this->translate('bussiness.message');
+        return $this->translate('business.message');
     }
 
     public function getTranslatorMessage(): string
