@@ -1,9 +1,16 @@
+name: Deploy to Staging Server
+
 on:
   workflow_dispatch:
+    inputs:
+      message:
+        description: 'Deployment Message'
+        required: true
+
 jobs:
-  deploy-to-staging:
-     runs-on: ubuntu-latest     
-     steps: 
+  deploy-to-staging-server:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -16,5 +23,5 @@ jobs:
         run: |
           # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
           # Ensure you have the necessary credentials and permissions set up.
-          ssh echo "Deployment to staging completed."
+          echo "Deployment to staging completed. Message: ${{ github.event.inputs.message }}"
           ssh pwd
