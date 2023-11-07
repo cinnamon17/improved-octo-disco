@@ -1,0 +1,31 @@
+name: deploy to staging server
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Deployment Message'
+        required: true
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy-to-staging-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Deploy to Staging
+        run: |
+          # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
+          # Ensure you have the necessary credentials and permissions set up.
+          echo "Deployment to staging completed. Message: ${{ github.event.inputs.message }}"
+          ssh pwd
+    
