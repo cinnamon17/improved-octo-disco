@@ -1,12 +1,7 @@
 name: Staging
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - staging
-
-  pull_request:
     branches:
       - staging
 
@@ -47,7 +42,7 @@ jobs:
         run: |
           php bin/console --env=test doctrine:database:create
           php bin/console --env=test doctrine:schema:create
-          
+
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
@@ -55,8 +50,7 @@ jobs:
 
   deploy-to-staging-server:
     runs-on: ubuntu-latest
-    needs: [Test]
-    if: github.event_name == 'workflow_dispatch'
+    needs: Test
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -71,3 +65,4 @@ jobs:
           # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
           # Ensure you have the necessary credentials and permissions set up.
           echo "Deployment to staging completed."
+          pwd
