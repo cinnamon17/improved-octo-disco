@@ -6,9 +6,9 @@ on:
       message:
         description: 'Deployment Message'
         required: true
-  push:
-    branches:
-      - staging
+          #push:
+          #branches:
+          #- staging
 
 jobs:
   deploy-to-staging-server:
