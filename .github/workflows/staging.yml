@@ -2,9 +2,9 @@ name: Staging
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - staging
+    #  push:
+    #branches:
+    #  - staging
 
 permissions:
   contents: read
