@@ -19,4 +19,7 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << EOF
+          pwd
+          echo "hello"
+          EOF
