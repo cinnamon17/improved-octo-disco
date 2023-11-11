@@ -26,6 +26,5 @@ jobs:
           user="${{ secrets.USER }}"
 
           # Replace the following commands with your actual commands
-          ssh "${{ secrets.USER }}@${{ secrets.HOSTNAME }}"<< EOF
-          EOF
+          ssh "${{ secrets.USER }}@${{ secrets.HOSTNAME }}"
 
