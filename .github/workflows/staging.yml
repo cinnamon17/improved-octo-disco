@@ -24,7 +24,7 @@ jobs:
       - name: Copy .env.test.local
         run: |
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
-          echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env.test.local
+          echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
           cat .env.test.local
 
       - name: Cache Composer packages
@@ -49,9 +49,9 @@ jobs:
           DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
         run: vendor/bin/phpunit
 
-  deploy-to-staging-server:
+  deploy:
     runs-on: ubuntu-latest
     needs: Test
     steps:
       - name: Deploy to Staging
-        uses: ./.github/workflows/deploy.yml
+        uses: .github/workflows/deploy.yml
