@@ -91,7 +91,7 @@ class TelegramService implements LoggerAwareInterface
         return $data ? true : false;
     }
 
-    public function ChatCompletion($message): array
+    public function chatCompletion($message): array
     {
         $prompt = $this->db->getPrompt($this->but);
         return $this->http->chatCompletion($message, $prompt->getRole());
