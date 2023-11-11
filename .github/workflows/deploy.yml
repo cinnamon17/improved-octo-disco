@@ -32,9 +32,7 @@ jobs:
           composer install
           composer dump-env prod
           php bin/console doctrine:migrations:migrate -n
-          HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1)
-          echo $HTTPDUSER
-          sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          sudo setfacl -dR -m u:www-data:rwX -m u:$(whoami):rwX var
           #sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
 
           EOF
