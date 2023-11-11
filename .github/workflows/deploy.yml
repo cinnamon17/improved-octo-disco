@@ -18,5 +18,7 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          ssh echo "hello world"
+          remote_server="${{ secrets.HOSTNAME }}"
+          remote_user="${{ secrets.USER }}"
 
+          ssh $remote_user@$remote_server "pwd"
