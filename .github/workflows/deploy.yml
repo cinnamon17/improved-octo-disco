@@ -27,7 +27,5 @@ jobs:
 
           # Replace the following commands with your actual commands
           ssh "${{ secrets.USER }}@${{ secrets.HOSTNAME }}"<< EOF
-          echo "hello"
-          pwd
           EOF
 
