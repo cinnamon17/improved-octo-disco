@@ -1,9 +1,7 @@
 name: deploy to staging server
 on:
   workflow_dispatch:
-          #push:
-          #branches:
-          #- staging
+
 jobs:
   deploy-to-staging-server:
     runs-on: ubuntu-latest
