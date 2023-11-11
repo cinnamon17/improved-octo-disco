@@ -27,10 +27,11 @@ jobs:
           echo APP_ENV=${{ secrets.APP_ENV }} >.env
           echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env
-          echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env
-          echo DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env
-          #composer install && composer dump-env prod
-          #php bin/console doctrine:migrations:migrate -n
-          #HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env
+          echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env
+          composer install
+          composer dump-env prod
+          php bin/console doctrine:migrations:migrate -n
+          HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
 
           EOF
