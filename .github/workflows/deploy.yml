@@ -18,12 +18,5 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
-          # Ensure you have the necessary credentials and permissions set up.
-          # Define the remote server details
-          hostname= "${{ secrets.HOSTNAME }}"
-          user="${{ secrets.USER }}"
-
-          # Replace the following commands with your actual commands
-          ssh $user@$hostname
+          ssh echo "hello world"
 
