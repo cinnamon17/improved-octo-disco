@@ -1,6 +1,7 @@
 name: deploy to staging server
 on:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   deploy-to-staging-server:
