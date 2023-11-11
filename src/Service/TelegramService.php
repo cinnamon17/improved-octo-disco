@@ -27,7 +27,6 @@ class TelegramService implements LoggerAwareInterface
 
     public function telegramRequest(array $params): array
     {
-
         $response = $this->http->request($params);
         return $response;
     }
@@ -44,8 +43,6 @@ class TelegramService implements LoggerAwareInterface
 
     public function sendMessage(string $message): array
     {
-        $this->sendChatAction('typing');
-
         $params = $this->sendMessageParams($message);
         $response = $this->telegramRequest($params);
         return $response;
@@ -93,6 +90,7 @@ class TelegramService implements LoggerAwareInterface
 
     public function chatCompletion($message): array
     {
+        $this->sendChatAction('typing');
         $prompt = $this->db->getPrompt($this->but);
         return $this->http->chatCompletion($message, $prompt->getRole());
     }
