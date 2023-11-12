@@ -46,17 +46,17 @@ class BotUpdateTranslator {
         return $this->update;
     }
 
-    private function getLanguagueCode(): string
+    public function getLanguagueCode(): ?string
     {
         return $this->update->getLanguageCode();
     }
 
-    private function getCallbackQueryLanguageCode(): string
+    public function getCallbackQueryLanguageCode(): ?string
     {
         return $this->update->getCallbackQuery('from')['language_code'];
     }
 
-    private function getLocale(): string
+    public function getLocale(): ?string
     {
         return $this->getLanguagueCode() ?? $this->getCallbackQueryLanguageCode();
     }
