@@ -26,7 +26,11 @@ jobs:
         php-version: '8.2'
     - uses: actions/checkout@v3
     - name: Copy .env.test.local
-      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+      run: |
+        echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
+        echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env.test.local
+        cat .env.test.local
+
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
