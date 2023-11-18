@@ -1,0 +1,55 @@
+name: Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging
+
+permissions:
+  contents: read
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy .env.test.local
+        run: |
+          echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
+          echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
+          cat .env.test.local
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Setup Database
+        run: |
+          php bin/console --env=test doctrine:database:create
+          php bin/console --env=test doctrine:schema:create
+
+      - name: Execute tests (Unit and Feature tests) via PHPUnit
+        env:
+          DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+        run: vendor/bin/phpunit
+
+  deploy:
+    needs: Test
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

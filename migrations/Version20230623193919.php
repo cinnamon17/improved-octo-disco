@@ -27,7 +27,7 @@ final class Version20230623193919 extends AbstractMigration
 
         $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('es','Requiero a alguien que pueda sugerir deliciosas recetas que incluyan alimentos que sean nutricionalmente beneficiosos pero también fáciles y no
       requieran mucho tiempo, adecuadas para personas ocupadas como nosotros. Además, considerando otros factores como la economía, para que el plato final sea
-      saludable y económico al mismo tiempo. Tu respuesta no debe tener mas de 4096 caracteres'','chef')");
+      saludable y económico al mismo tiempo. Tu respuesta no debe tener mas de 4096 caracteres','chef')");
 
         $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','I want you to act as an AI assisted doctor. I will provide you with details of a patient,
       and your task is to use the latest artificial intelligence tools such as medical imaging software
@@ -39,7 +39,7 @@ final class Version20230623193919 extends AbstractMigration
       de un paciente y tu tarea será utilizar las últimas herramientas de inteligencia artificial, como software de
       imágenes médicas y otros programas de aprendizaje automático, para diagnosticar la causa más probable de sus síntomas.
       También debes incorporar métodos tradicionales, como exámenes físicos, pruebas de laboratorio, etc., en tu proceso de
-      evaluación para garantizar la precisión. Tu respuesta no debe tener mas de 4096 caracteres'','doctor')");
+      evaluación para garantizar la precisión. Tu respuesta no debe tener mas de 4096 caracteres','doctor')");
 
         $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','I want you to act as an English translator, spelling corrector and improver.
         I will speak to you in any language and you will detect the language, translate it and answer in the corrected and improved version of my text, in English.
@@ -51,7 +51,7 @@ final class Version20230623193919 extends AbstractMigration
          Te hablaré en cualquier idioma y tú detectarás el idioma, lo traducirás y responderás en la versión corregida y mejorada de mi texto, en inglés.
         Quiero que reemplaces mis palabras y frases simplificadas de nivel A0 con palabras y frases más hermosas y elegantes de un nivel superior en inglés.
         Mantén el mismo significado, pero hazlos más literarios. Solo deseo que respondas con la corrección y las mejoras, sin proporcionar explicaciones adicionales.
-        Tu respuesta no debe tener mas de 4096 caracteres'','traductor')");
+        Tu respuesta no debe tener mas de 4096 caracteres','traductor')");
 
         $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','Generate digital startup ideas based on the wish of the people.
          For example, when I say I wish there is a big large mall in my small town, you generate a business plan for the digital startup complete with idea name, a short one liner,
@@ -63,6 +63,10 @@ final class Version20230623193919 extends AbstractMigration
         una breve descripción, el perfil del usuario objetivo, los problemas que enfrenta el usuario y que se resolverían, las principales propuestas de valor, los canales de ventas
         y marketing, las fuentes de ingresos, las estructuras de costos, las actividades clave, los recursos clave, los socios clave, los pasos de validación de la idea, el costo estimado
         de operación para el primer año y los posibles desafíos comerciales a tener en cuenta. Tu respuesta no debe tener mas de 4096 caracteres','startup')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('es','eres asistente responde en cualquier lenguaje en el que te escriban','asistente')");
+
+        $this->addSql("INSERT INTO prompt (language, message, role) VALUES ('en','you are an assistant answer in any language they talk to you','assistant')");
     }
 
     public function down(Schema $schema): void

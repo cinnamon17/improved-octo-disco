@@ -1,9 +1,7 @@
-name: deploy
+name: deploy to staging server
 on:
   workflow_dispatch:
-          #push:
-          #branches:
-          #- staging
+  workflow_call:
 jobs:
   deploy-to-staging-server:
     runs-on: ubuntu-latest
@@ -18,15 +16,20 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          # Replace this with the actual deployment command to your staging server (e.g., SCP, SSH, etc.).
-          # Ensure you have the necessary credentials and permissions set up.
-          echo "Deployment to staging completed. Message: ${{ github.event.inputs.message }}"
-          # Define the remote server details
-          hostname= "${{ secrets.HOSTNAME }}"
-          user="${{ secrets.USER }}"
-
-          # Replace the following commands with your actual commands
-          ssh "${{ secrets.USER }}@${{ secrets.HOSTNAME }}"<< EOF
-          echo "hello"
-          pwd
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << EOF
+          cd /var/www/html/staging
+          mv symfony-api ${{ github.run_number }}
+          git clone https://github.com/cinnamon17/symfony-api.git
+          cd symfony-api
+          git checkout staging
+          echo APP_ENV=${{ secrets.APP_ENV }} >.env
+          echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
+          echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env
+          echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env
+          echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env
+          composer install
+          composer dump-env prod
+          php bin/console doctrine:migrations:migrate -n
+          cd ..
+          ./permits.sh
           EOF

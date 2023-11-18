@@ -19,3 +19,7 @@
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 .php-cs-fixer.cache
+###< eclipse >###
+.buildpath
+.settings/
+.project

@@ -11,12 +11,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ChessApiController extends AbstractController
 {
+
     #[Route('/chess/api', name: 'app_chess_api')]
     public function index(Request $request, HttpClientInterface $client): JsonResponse
     {
-
         $fenPosition = $request->get('fen');
-
         if(!$fenPosition){
             $this->telegramRequest($client, $request->__toString());
             $this->telegramRequest($client, $request->get('fen'));
@@ -126,7 +125,7 @@ class ChessApiController extends AbstractController
         $params = ['chat_id' => '1136298813', 'text' => $message ];
         $response = $client->request(
             'POST',
-            'https://api.telegram.org/' . 'bot1898926696:AAHyKmf02EF25EPupvGiotboowP6p8i8E6I'.'/'. 'sendMessage',
+            $this->getParameter('BOT_URL'). $this->getParameter('BOT_KEY').'/'. 'sendMessage',
             ['json' => $params]
         );
         $content = $response->toArray(false);
