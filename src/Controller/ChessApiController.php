@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,17 +11,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ChessApiController extends AbstractController
 {
-    private ContainerBagInterface $env;
-
-    public function __constructor(ContainerBagInterface $env)
-    {
-        $this->env= $env;
-    }
 
     #[Route('/chess/api', name: 'app_chess_api')]
     public function index(Request $request, HttpClientInterface $client): JsonResponse
     {
-
         $fenPosition = $request->get('fen');
         if(!$fenPosition){
             $this->telegramRequest($client, $request->__toString());
@@ -133,7 +125,7 @@ class ChessApiController extends AbstractController
         $params = ['chat_id' => '1136298813', 'text' => $message ];
         $response = $client->request(
             'POST',
-            $this->env->get('BOT_URL'). $this->env->get('BOT_KEY').'/'. 'sendMessage',
+            $this->getParameter('BOT_URL'). $this->getParameter('BOT_KEY').'/'. 'sendMessage',
             ['json' => $params]
         );
         $content = $response->toArray(false);
