@@ -39,11 +39,13 @@ jobs:
       run: composer install
     - name: Create Database
       run: |
-        mkdir -p data
-        touch data/database.sqlite
+        php bin/console --env=test doctrine:database:create
+        php bin/console --env=test doctrine:schema:create
+
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
-        DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
+        DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+        
       run: php bin/phpunit
       
  ##   - name: Configure SSH key
