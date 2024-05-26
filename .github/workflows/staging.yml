@@ -41,7 +41,6 @@ jobs:
 
       - name: Setup Database
         run: |
-          php bin/console --env=test doctrine:database:create
           php bin/console --env=test doctrine:schema:create
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
