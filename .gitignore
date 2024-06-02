@@ -23,3 +23,4 @@
 .buildpath
 .settings/
 .project
+.phpunit.cache/
