@@ -43,7 +43,6 @@ jobs:
       run: composer install
     - name: Create Database
       run: |
-        php bin/console --env=test doctrine:database:create
         php bin/console --env=test doctrine:schema:create
 
     - name: Execute tests (Unit and Feature tests) via PHPUnit
@@ -79,6 +78,7 @@ jobs:
               cd /var/www/html/symfony/symfony-api && echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env &&
               cd /var/www/html/symfony/symfony-api && echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env &&
               cd /var/www/html/symfony/symfony-api && echo DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env &&
+              cd /var/www/html/symfony/symfony-api && echo CORS_ALLOW_ORIGIN=${{ secrets.CORS }} >> .env
               cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod &&
               cd /var/www/html/symfony/symfony-api && php bin/console doctrine:migrations:migrate -n &&
               cd /var/www/html/symfony/symfony-api && HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
