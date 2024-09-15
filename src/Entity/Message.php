@@ -36,6 +36,12 @@ class Message
         return $this->id;
     }
 
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getMessageId(): ?float
     {
         return $this->message_id;
@@ -98,12 +104,12 @@ class Message
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function updatedTimestamps(){
+    public function updatedTimestamps()
+    {
 
         $this->setUpdatedAt(new \DateTimeImmutable());
-        if($this->getCreatedAt() === null){
+        if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new \DateTimeImmutable());
         }
-
     }
 }

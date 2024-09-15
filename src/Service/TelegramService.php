@@ -9,14 +9,14 @@ use Psr\Log\LoggerInterface;
 class TelegramService implements LoggerAwareInterface
 {
     private HttpService $http;
-    private BotUpdateTranslator $but;
+    private BotUpdateTranslator $bt;
     private DBService $db;
     private LoggerInterface $logger;
 
-    public function __construct(HttpService $http, BotUpdateTranslator $but, DBService $db)
+    public function __construct(HttpService $http, BotUpdateTranslator $bt, DBService $db)
     {
         $this->http = $http;
-        $this->but = $but;
+        $this->bt = $bt;
         $this->db = $db;
     }
 
@@ -71,14 +71,14 @@ class TelegramService implements LoggerAwareInterface
 
     public function sendWelcomeMessage()
     {
-        $welcomeMessage = $this->but->translate('welcome.message');
+        $welcomeMessage = $this->bt->translate('welcome.message');
         $response = $this->sendMessage($welcomeMessage);
         return $response;
     }
 
     public function isUserExists(): bool
     {
-        $bool = $this->db->isUserExists($this->but);
+        $bool = $this->db->isUserExists($this->bt);
         return $bool;
     }
 
@@ -91,18 +91,18 @@ class TelegramService implements LoggerAwareInterface
     public function chatCompletion($message): array
     {
         $this->sendChatAction('typing');
-        $prompt = $this->db->getPrompt($this->but);
+        $prompt = $this->db->getPrompt($this->bt);
         return $this->http->chatCompletion($message, $prompt->getRole());
     }
 
     public function setBotMode(): void
     {
-        $this->db->setBotMode($this->but);
+        $this->db->setBotMode($this->bt);
     }
 
     public function translate(string $message): string
     {
-        return $this->but->translate($message);
+        return $this->bt->translate($message);
     }
 
     public function log($message, $context = [])
@@ -112,72 +112,72 @@ class TelegramService implements LoggerAwareInterface
 
     public function getChatId(): ?float
     {
-        return $this->but->update()->getChatId();
+        return $this->bt->update()->getChatId();
     }
 
     public function getFirstName(): ?string
     {
-        return $this->but->update()->getFirstName();
+        return $this->bt->update()->getFirstName();
     }
 
     public function getLastname(): ?string
     {
-        return $this->but->update()->getLastName();
+        return $this->bt->update()->getLastName();
     }
 
     public function getUsername(): ?string
     {
-        return $this->but->update()->getUsername();
+        return $this->bt->update()->getUsername();
     }
 
     public function getMessageId()
     {
-        return $this->but->update()->getMessageId();
+        return $this->bt->update()->getMessageId();
     }
 
     public function getMessageText(): ?string
     {
-        return $this->but->update()->getMessageText();
+        return $this->bt->update()->getMessageText();
     }
 
     public function getCallbackQueryId()
     {
-        return $this->but->update()->getCallbackQuery('id');
+        return $this->bt->update()->getCallbackQuery('id');
     }
 
     public function getCallbackQueryChatId()
     {
-        return $this->but->update()->getCallbackQuery('from')['id'];
+        return $this->bt->update()->getCallbackQuery('from')['id'];
     }
 
     public function getCallbackQueryData()
     {
-        return $this->but->update()->getCallbackQuery('data');
+        return $this->bt->update()->getCallbackQuery('data');
     }
 
     public function getLanguageCode()
     {
-        return $this->but->update()->getLanguageCode();
+        return $this->bt->update()->getLanguageCode();
     }
 
     public function getIsBot(): bool
     {
-        return $this->but->update()->getIsBot();
+        return $this->bt->update()->getIsBot();
     }
 
     public function insertUserInDb(): void
     {
-        $this->db->insertUserInDb($this->but);
+        $this->db->insertUserInDb($this->bt);
     }
 
     public function updateUserInDb(): void
     {
-        $this->db->updateUserInDb($this->but);
+        $this->db->updateUserInDb($this->bt);
     }
 
     private function callbackQueryParams(): array
     {
-        $setModeMessage = $this->but->translate('callbackQuery.message');
+        $setModeMessage = $this->bt->translate('callbackQuery.message');
         $params = [
             'method' => 'sendMessage',
             'chat_id' => $this->getCallbackQueryChatId(),
@@ -223,19 +223,19 @@ class TelegramService implements LoggerAwareInterface
         $params = [
             'method' => 'sendMessage',
             'chat_id' => $this->getChatId(),
-            'text' => $this->but->getCharacterMessage(),
+            'text' => $this->bt->getCharacterMessage(),
             'reply_markup' => [
                 'inline_keyboard' => [
                     [
-                        ['text' => $this->but->getTranslatorMessage(). " 🈯", 'callback_data' => $this->but->getTranslatorMessage()],
-                        ['text' => $this->but->getAssistantMessage(). " 👨🏻‍🏫", 'callback_data' => $this->but->getAssistantMessage()],
+                        ['text' => $this->bt->getTranslatorMessage() . " 🈯", 'callback_data' => $this->bt->getTranslatorMessage()],
+                        ['text' => $this->bt->getAssistantMessage() . " 👨🏻‍🏫", 'callback_data' => $this->bt->getAssistantMessage()],
                     ],
                     [
                         ['text' => 'chef 🧑🏻‍🍳', 'callback_data' => 'chef'],
                         ['text' => 'doctor 👨🏻‍⚕️', 'callback_data' => 'doctor'],
                     ],
                     [
-                        ['text' => $this->but->getbussinessMessage(). "💡", 'callback_data' => 'startup'],
+                        ['text' => $this->bt->getbussinessMessage() . "💡", 'callback_data' => 'startup'],
                     ] //,
                     //[
                     //    ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
