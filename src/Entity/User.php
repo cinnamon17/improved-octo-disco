@@ -195,7 +195,11 @@ class User
     public function setMode(?string $mode): self
     {
         $this->mode = $mode;
-
         return $this;
+    }
+
+    public function getIsBot(): ?bool
+    {
+        return $this->is_bot;
     }
 }

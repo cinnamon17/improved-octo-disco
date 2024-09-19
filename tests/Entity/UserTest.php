@@ -81,4 +81,12 @@ class UserTest extends TestCase
         $user->setMode("testMode");
         $this->assertEquals("testMode", $user->getMode());
     }
+
+    public function testIsbot(): void
+    {
+        $user = new User();
+        $user->setIsBot(true);
+
+        $this->assertTrue($user->getIsBot());
+    }
 }
