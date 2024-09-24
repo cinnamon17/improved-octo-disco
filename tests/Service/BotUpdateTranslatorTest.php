@@ -16,7 +16,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('es');
+            ->willReturn('es');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('asistente', $but->getAssistantMessage());
@@ -29,11 +29,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('en');
+            ->willReturn('en');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('assistant', $but->getAssistantMessage());
-
     }
 
     public function testGetCharacterMessageWillReturnInSpanish(): void
@@ -43,11 +42,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('es');
+            ->willReturn('es');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('¿Que modo te gustaria que interpretara? 🎭', $but->getCharacterMessage());
-
     }
 
     public function testGetCharacterMessageWillReturnInEnglish(): void
@@ -57,11 +55,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('en');
+            ->willReturn('en');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('What mode would you like me to portray? 🎭', $but->getCharacterMessage());
-
     }
 
     public function testGetBussinessMessageWillReturnInSpanish(): void
@@ -71,11 +68,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('es');
+            ->willReturn('es');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('Ideas de Negocio', $but->getbussinessMessage());
-
     }
 
     public function testGetBussinessMessageWillReturnInEnglish(): void
@@ -85,11 +81,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('en');
+            ->willReturn('en');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('Business Ideas', $but->getbussinessMessage());
-
     }
 
     public function testGetTranslatorMessageWillReturnInSpanish(): void
@@ -99,11 +94,10 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('es');
+            ->willReturn('es');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('traductor', $but->getTranslatorMessage());
-
     }
 
     public function testGetTranslatorMessageWillReturnInEnglish(): void
@@ -113,11 +107,23 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $translator = static::getContainer()->get(TranslatorInterface::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getLanguageCode')
-                          ->willReturn('en');
+            ->willReturn('en');
 
         $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
         $this->assertSame('translator', $but->getTranslatorMessage());
-
     }
 
+    public function testGetCallbackQueryLanguageCode(): void
+    {
+        self::bootKernel();
+
+        $translator = static::getContainer()->get(TranslatorInterface::class);
+        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
+        $telegramBotUpdate->method('getCallbackQuery')
+            ->with('from')
+            ->willReturn(['language_code' => 'en']);
+
+        $but = new BotUpdateTranslator($telegramBotUpdate, $translator);
+        $this->assertEquals('en', $but->getCallbackQueryLanguageCode());
+    }
 }
