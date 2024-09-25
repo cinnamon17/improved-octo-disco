@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service;
+namespace App\Tests\Unit\Service;
 
 use App\Service\TelegramBotUpdate;
 use PHPUnit\Framework\TestCase;
@@ -9,54 +9,55 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class TelegramBotUpdateTest extends TestCase
 {
-   private RequestStack $requestStack;
-   private Request $request;
+    private RequestStack $requestStack;
+    private Request $request;
 
-    protected function setUp(): void {
+    protected function setUp(): void
+    {
         $this->request = $this->createStub(Request::class);
         $this->request->method('toArray')
-        ->willReturn([
-                    'update_id' => 829824026,
-                    'callback_query' => [
-                        'id' => '4382bfdwdsb323b2d9',
-                        'from' => [
-                            'last_name' =>'Test Lastname',
-                            'type' => 'private',
-                            'id' => 1111111,
-                            'first_name' => 'Test Firstname',
-                            'username' => 'Testusername'
-                        ],
-                        'data' => 'Data from button callback',
-                        'inline_message_id' => '1234csdbsk4839'
-                        ],
-                    'message' => [
-                      'message_id' => 2239818,
-                      'from' =>  [
+            ->willReturn([
+                'update_id' => 829824026,
+                'callback_query' => [
+                    'id' => '4382bfdwdsb323b2d9',
+                    'from' => [
+                        'last_name' => 'Test Lastname',
+                        'type' => 'private',
+                        'id' => 1111111,
+                        'first_name' => 'Test Firstname',
+                        'username' => 'Testusername'
+                    ],
+                    'data' => 'Data from button callback',
+                    'inline_message_id' => '1234csdbsk4839'
+                ],
+                'message' => [
+                    'message_id' => 2239818,
+                    'from' =>  [
                         'id' => 1111111111,
                         'is_bot' => false,
                         'first_name' => 'pepe',
                         'last_name' => 'dior',
                         'username' => 'pepedior',
                         'language_code' => 'es'
-                      ],
-                      'chat' => [
+                    ],
+                    'chat' => [
                         'id' => 111111111111111111111,
                         'first_name' => 'pepe',
                         'last_name' => 'dior',
                         'username' => 'pepedior',
                         'type' => 'private'
-                      ],
-                      'date' => 1686165587,
-                      'text' => 'Cual es la masa de la tierra'
-                    ]
+                    ],
+                    'date' => 1686165587,
+                    'text' => 'Cual es la masa de la tierra'
+                ]
 
 
 
-        ]);
+            ]);
 
         $this->requestStack = $this->createStub(RequestStack::class);
         $this->requestStack->method('getCurrentRequest')
-        ->willReturn($this->request);
+            ->willReturn($this->request);
     }
 
     public function testGetUpdateId(): void

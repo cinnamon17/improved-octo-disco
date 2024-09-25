@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service;
+namespace App\Tests\Unit\Service;
 
 use App\Service\HttpService;
 use PHPUnit\Framework\TestCase;
@@ -49,10 +49,11 @@ class HttpServiceTest extends TestCase
         $openapiArrayResponse = $this->http->chatCompletion('hola', 'test');
         $expectedArray = json_decode($this->expected, true);
 
-        $this->assertSame($expectedArray , $openapiArrayResponse);
+        $this->assertSame($expectedArray, $openapiArrayResponse);
     }
 
-    public function testChatCompletionAssertOpenApiURL(){
+    public function testChatCompletionAssertOpenApiURL()
+    {
 
         $this->http->chatCompletion('hola', 'test');
 
@@ -60,7 +61,8 @@ class HttpServiceTest extends TestCase
         $this->assertSame('https://api.openai.com/v1/chat/completions', $openApiUrl);
     }
 
-    public function testChatCompletionAssertRequiredRequestOptions(){
+    public function testChatCompletionAssertRequiredRequestOptions()
+    {
 
         $this->http->chatCompletion('hola', 'test');
         $requiredOptions = '{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"test"},{"role":"user","content":"hola"}]}';
