@@ -35,6 +35,12 @@ class Prompt
         return $this->id;
     }
 
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getLanguage(): ?string
     {
         return $this->language;
@@ -85,14 +91,14 @@ class Prompt
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function updatedTimestamps(): void {
+    public function updatedTimestamps(): void
+    {
 
         $this->setUpdatedAt(new \DateTimeImmutable());
 
-        if($this->getCreatedAt() === null){
+        if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new \DateTimeImmutable());
         }
-
     }
 
     public function getRole(): ?string

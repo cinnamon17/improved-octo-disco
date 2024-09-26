@@ -54,6 +54,13 @@ class User
         return $this->id;
     }
 
+    public function setId(?int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Message>
      */
@@ -170,14 +177,14 @@ class User
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function updatedTimestamps(): void {
+    public function updatedTimestamps(): void
+    {
 
         $this->setUpdatedAt(new \DateTimeImmutable());
 
-        if($this->getCreatedAt() === null){
+        if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new \DateTimeImmutable());
         }
-
     }
 
     public function getMode(): ?string
@@ -188,7 +195,11 @@ class User
     public function setMode(?string $mode): self
     {
         $this->mode = $mode;
-
         return $this;
+    }
+
+    public function getIsBot(): ?bool
+    {
+        return $this->is_bot;
     }
 }
