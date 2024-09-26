@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Integration\Service;
+namespace App\Tests\Unit\Service;
 
 use App\Service\BotUpdateTranslator;
 use App\Service\TelegramBotUpdate;
@@ -23,7 +23,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('es');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('asistente');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -35,7 +35,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('en');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('assistant');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -47,7 +47,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('es');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('¿Que modo te gustaria que interpretara? 🎭');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -59,7 +59,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('en');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('What mode would you like me to portray? 🎭');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -71,7 +71,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('es');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('Ideas de Negocio');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -83,7 +83,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('en');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('Business Ideas');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -95,7 +95,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('es');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('traductor');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -107,7 +107,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->telegramBotUpdate->method('getLanguageCode')
             ->willReturn('en');
 
-        $this->translator->method('translate')
+        $this->translator->method('trans')
             ->willReturn('translator');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
