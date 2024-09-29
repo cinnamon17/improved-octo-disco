@@ -6,7 +6,7 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 
 class BookControllerTest extends ApiTestCase
 {
-    public function testSomething(): void
+    public function testResponseIsSuccessfull(): void
     {
         $response = static::createClient()->request('GET', '/api/books');
 
