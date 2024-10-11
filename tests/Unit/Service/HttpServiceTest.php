@@ -64,7 +64,7 @@ class HttpServiceTest extends TestCase
     public function testRequest(): void
     {
 
-        $request = $this->http->request(["hello" => "world"]);
+        $request = $this->http->request(["method" => "world"]);
 
         $this->assertIsArray($request);
     }
