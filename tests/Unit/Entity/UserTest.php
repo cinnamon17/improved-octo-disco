@@ -67,10 +67,24 @@ class UserTest extends TestCase
         $this->assertEquals("testUsername", $user->getUsername());
     }
 
+    public function testGetCreatedAt(): void
+    {
+        $user = new User();
+        $user->setCreatedAt(new DateTimeImmutable());
+        $this->assertInstanceOf(DateTimeImmutable::class, $user->getCreatedAt());
+    }
+
     public function testGetUpdatedAt(): void
     {
         $user = new User();
         $user->setUpdatedAt(new DateTimeImmutable());
+        $this->assertInstanceOf(DateTimeImmutable::class, $user->getUpdatedAt());
+    }
+
+    public function testUpdatedTimestamps(): void
+    {
+        $user = new User();
+        $user->updatedTimestamps();
         $this->assertInstanceOf(DateTimeImmutable::class, $user->getUpdatedAt());
     }
 

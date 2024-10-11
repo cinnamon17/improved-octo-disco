@@ -104,6 +104,13 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertIsString($telegramBotUpdate->getFirstName());
     }
 
+    public function testGetLastname(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
+        $this->assertEquals('dior', $telegramBotUpdate->getLastName());
+        $this->assertIsString($telegramBotUpdate->getLastName());
+    }
+
     public function testGetUsername(): void
     {
         $telegramBotUpdate = new TelegramBotUpdate($this->requestStack);
