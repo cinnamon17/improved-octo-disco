@@ -9,64 +9,64 @@ class UserDtoTest extends TestCase
 {
     public function testIdMaxBigInteger(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setId(9223372036854775807);
-        $this->assertEquals(9223372036854775807, $chatDto->getId());
+        $userDto = new UserDto();
+        $userDto->setId(9223372036854775807);
+        $this->assertEquals(9223372036854775807, $userDto->getId());
     }
 
     public function testIsBot(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setIsBot(false);
-        $this->assertEquals(false, $chatDto->getIsBot());
+        $userDto = new UserDto();
+        $userDto->setIsBot(false);
+        $this->assertEquals(false, $userDto->getIsBot());
     }
 
     public function testFirstName(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setFirstName('coolname');
-        $this->assertEquals('coolname', $chatDto->getFirstName());
+        $userDto = new UserDto();
+        $userDto->setFirstName('coolname');
+        $this->assertEquals('coolname', $userDto->getFirstName());
     }
 
     public function testLastName(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setLastName('lastname');
-        $this->assertEquals('lastname', $chatDto->getLastName());
+        $userDto = new UserDto();
+        $userDto->setLastName('lastname');
+        $this->assertEquals('lastname', $userDto->getLastName());
     }
 
     public function testUsername(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setUsername('cinnamon');
-        $this->assertEquals('cinnamon', $chatDto->getUsername());
+        $userDto = new UserDto();
+        $userDto->setUsername('cinnamon');
+        $this->assertEquals('cinnamon', $userDto->getUsername());
     }
 
     public function testLanguageCode(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setLanguageCode('es');
-        $this->assertEquals('es', $chatDto->getLanguageCode());
+        $userDto = new UserDto();
+        $userDto->setLanguageCode('es');
+        $this->assertEquals('es', $userDto->getLanguageCode());
     }
 
     public function testIsPremium(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setIsPremium(null);
-        $this->assertEquals(null, $chatDto->getIsPremium());
+        $userDto = new UserDto();
+        $userDto->setIsPremium(null);
+        $this->assertEquals(null, $userDto->getIsPremium());
     }
 
     public function testAddedToAttachmentMenu(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setAddedToAttachmentMenu(true);
-        $this->assertEquals(true, $chatDto->getAddedToAttachmentMenu());
+        $userDto = new UserDto();
+        $userDto->setAddedToAttachmentMenu(true);
+        $this->assertEquals(true, $userDto->getAddedToAttachmentMenu());
     }
 
     public function testCanJoinGroups(): void
     {
-        $chatDto = new UserDto();
-        $chatDto->setCanJoinGroups(true);
-        $this->assertEquals(true, $chatDto->getCanJoinGroups());
+        $userDto = new UserDto();
+        $userDto->setCanJoinGroups(true);
+        $this->assertEquals(true, $userDto->getCanJoinGroups());
     }
 }
