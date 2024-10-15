@@ -2,74 +2,74 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\RequestStack;
+use App\Dto\UpdateDto;
 
 class TelegramBotUpdate
 {
-    private array $request;
+    private UpdateDto $update;
 
-    public function __construct(RequestStack $request)
+    public function __construct(UpdateDto $update)
     {
-        $this->request = $request->getCurrentRequest()->toArray();
+        $this->update = $update;
     }
 
-    public function getUpdateId(): ?float
+    public function getUpdateId(): int
     {
-        $update_id = $this->request['update_id'];
+        $update_id = $this->update->getUpdateId();
         return $update_id;
     }
 
     public function getMessageText(): ?string
     {
-        $message = $this->request['message']['text'] ??  null;
+        $message = $this->update->getMessage()->getText();
         return $message;
     }
 
-    public function getMessageId(): ?float
+    public function getMessageId(): int
     {
-        $message_id = $this->request['message']['message_id'] ?? null;
+        $message_id = $this->update->getMessage()->getMessageId();
         return $message_id;
     }
 
-    public function getChatId(): ?float
+    public function getChatId(): int
     {
-        $chat_id = $this->request['message']['chat']['id'] ?? null;
+        $chat_id = $this->update->getMessage()->getChat()->getId();
         return $chat_id;
     }
 
     public function getIsBot(): ?bool
     {
-        $is_bot = $this->request['message']['from']['is_bot'] ?? null;
+        $is_bot = $this->update->getMessage()->getFrom()->getIsBot();
         return $is_bot;
     }
 
     public function getFirstName(): ?string
     {
-        $first_name= $this->request['message']['from']['first_name'] ?? null;
+        $first_name = $this->update->getMessage()->getFrom()->getFirstName();
         return $first_name;
     }
 
     public function getLastName(): ?string
     {
-        $first_name= $this->request['message']['from']['last_name'] ?? null;
+        $first_name = $this->update->getMessage()->getFrom()->getLastName();
         return $first_name;
     }
 
     public function getUsername(): ?string
     {
-        $first_name= $this->request['message']['from']['username'] ?? null;
+        $first_name = $this->update->getMessage()->getFrom()->getUsername();
         return $first_name;
     }
 
-    public function getCallbackQuery(string $id = 'data'): mixed
+    public function getCallbackQuery(): ?string
     {
-        $callbackQueryData = $this->request['callback_query']["$id"] ?? null;
+        $callbackQueryData = $this->update->getCallbackQuery()->getData();
         return $callbackQueryData;
     }
 
     public function getLanguageCode(): ?string
     {
-        $first_name= $this->request['message']['from']['language_code'] ?? null;
+        $first_name = $this->update->getMessage()->getFrom()->getLanguageCode();
         return $first_name;
     }
 }
