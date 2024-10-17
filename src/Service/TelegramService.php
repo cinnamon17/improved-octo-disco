@@ -142,17 +142,17 @@ class TelegramService implements LoggerAwareInterface
 
     public function getCallbackQueryId()
     {
-        return $this->bt->update()->getCallbackQuery('id');
+        return $this->bt->update()->getCallbackQueryId();
     }
 
     public function getCallbackQueryChatId()
     {
-        return $this->bt->update()->getCallbackQuery('from')['id'];
+        return $this->bt->update()->getCallbackQueryChatId();
     }
 
     public function getCallbackQueryData()
     {
-        return $this->bt->update()->getCallbackQuery('data');
+        return $this->bt->update()->getCallbackQueryData();
     }
 
     public function getLanguageCode()

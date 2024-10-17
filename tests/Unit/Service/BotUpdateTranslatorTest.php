@@ -116,11 +116,19 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetCallbackQueryLanguageCode(): void
     {
-        $this->telegramBotUpdate->method('getCallbackQuery')
-            ->with('from')
-            ->willReturn(['language_code' => 'en']);
+        $this->telegramBotUpdate->method('getCallbackQueryLanguageCode')
+            ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
         $this->assertEquals('en', $but->getCallbackQueryLanguageCode());
+    }
+
+    public function testGetCallbackQueryChatId(): void
+    {
+        $this->telegramBotUpdate->method('getCallbackQueryChatId')
+            ->willReturn(1136298813);
+
+        $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
+        $this->assertEquals(1136298813, $but->getCallbackQueryChatId());
     }
 }

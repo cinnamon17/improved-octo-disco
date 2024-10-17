@@ -111,11 +111,11 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertIsString($telegramBotUpdate->getUsername());
     }
 
-    public function testGetCallbackQuery(): void
+    public function testGetCallbackQueryData(): void
     {
         $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
-        $this->assertEquals('Data from button callback', $telegramBotUpdate->getCallbackQuery('data'));
-        $this->assertIsString($telegramBotUpdate->getCallbackQuery('data'));
+        $this->assertEquals('Data from button callback', $telegramBotUpdate->getCallbackQueryData());
+        $this->assertIsString($telegramBotUpdate->getCallbackQueryData());
     }
 
     public function testGetLanguageCode(): void
@@ -123,5 +123,31 @@ class TelegramBotUpdateTest extends TestCase
         $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
         $this->assertEquals('es', $telegramBotUpdate->getLanguageCode());
         $this->assertIsString($telegramBotUpdate->getLanguageCode());
+    }
+
+    public function testGetCallbackQueryLanguageCode(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
+        $this->assertEquals('es', $telegramBotUpdate->getCallbackQueryLanguageCode());
+        $this->assertIsString($telegramBotUpdate->getCallbackQueryLanguageCode());
+    }
+
+    public function testGetCallbackQuery(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
+        $this->assertInstanceOf(CallbackQueryDto::class, $telegramBotUpdate->getCallbackQuery());
+    }
+
+    public function testGetCallbackQueryId(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
+        $this->assertEquals('4382bfdwdsb323b2d9', $telegramBotUpdate->getCallbackQueryId());
+        $this->assertIsString($telegramBotUpdate->getCallbackQueryId());
+    }
+
+    public function testGetCallbackQueryChatId(): void
+    {
+        $telegramBotUpdate = new TelegramBotUpdate($this->updateDto);
+        $this->assertEquals(9223372036854775807, $telegramBotUpdate->getCallbackQueryChatId());
     }
 }

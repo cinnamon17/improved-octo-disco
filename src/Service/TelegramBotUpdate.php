@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\CallbackQueryDto;
 use App\Dto\UpdateDto;
 
 class TelegramBotUpdate
@@ -61,7 +62,7 @@ class TelegramBotUpdate
         return $first_name;
     }
 
-    public function getCallbackQuery(): ?string
+    public function getCallbackQueryData(): ?string
     {
         $callbackQueryData = $this->update->getCallbackQuery()->getData();
         return $callbackQueryData;
@@ -69,7 +70,31 @@ class TelegramBotUpdate
 
     public function getLanguageCode(): ?string
     {
-        $first_name = $this->update->getMessage()->getFrom()->getLanguageCode();
-        return $first_name;
+        $languageCode = $this->update->getMessage()->getFrom()->getLanguageCode();
+        return $languageCode;
+    }
+
+    public function getCallbackQuery(): CallbackQueryDto
+    {
+        $callbackQuery = $this->update->getCallbackQuery();
+        return $callbackQuery;
+    }
+
+    public function getCallbackQueryLanguageCode(): ?string
+    {
+        $languageCode = $this->update->getCallbackQuery()->getFrom()->getLanguageCode();
+        return $languageCode;
+    }
+
+    public function getCallbackQueryId(): string
+    {
+        $id = $this->update->getCallbackQuery()->getId();
+        return $id;
+    }
+
+    public function getCallbackQueryChatId(): int
+    {
+        $id = $this->update->getCallbackQuery()->getFrom()->getId();
+        return $id;
     }
 }

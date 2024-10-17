@@ -71,7 +71,7 @@ class DBServiceTest extends TestCase
         $user = new User();
         $user->setMode('doctor');
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $telegramBotUpdate->method('getLanguageCode')
             ->willReturn('es');
@@ -99,7 +99,7 @@ class DBServiceTest extends TestCase
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $this->userRepository->method('findOneBy')
             ->willReturn(new User());
@@ -118,7 +118,7 @@ class DBServiceTest extends TestCase
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $this->userRepository->method('findOneBy')
             ->willReturn(null);
@@ -142,7 +142,7 @@ class DBServiceTest extends TestCase
             ->willReturn('Hello welcome');
 
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $telegramBotUpdate->method('getFirstName')
             ->willReturn('Test');
@@ -167,7 +167,7 @@ class DBServiceTest extends TestCase
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $telegramBotUpdate->method('getFirstName')
             ->willReturn('nameTest');
@@ -182,7 +182,7 @@ class DBServiceTest extends TestCase
             ->willReturn('text message');
 
         $telegramBotUpdate->method('getMessageId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $bt->method('update')
             ->willReturn($telegramBotUpdate);
@@ -205,11 +205,10 @@ class DBServiceTest extends TestCase
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->with('data')
-            ->willReturn((float) 12345);
+        $telegramBotUpdate->method('getCallbackQueryData')
+            ->willReturn('12345');
 
         $this->userRepository->method('findOneBy')
             ->willReturn(new User());

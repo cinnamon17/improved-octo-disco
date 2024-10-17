@@ -4,7 +4,8 @@ namespace App\Service;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BotUpdateTranslator {
+class BotUpdateTranslator
+{
 
     private TelegramBotUpdate $update;
     private TranslatorInterface $translator;
@@ -15,7 +16,8 @@ class BotUpdateTranslator {
         $this->translator = $translator;
     }
 
-    public function translate(string $id): string {
+    public function translate(string $id): string
+    {
 
         $message = $this->translator->trans($id, locale: $this->getLocale());
         return $message;
@@ -41,7 +43,8 @@ class BotUpdateTranslator {
         return $this->translate('translator.message');
     }
 
-    public function update(): TelegramBotUpdate{
+    public function update(): TelegramBotUpdate
+    {
 
         return $this->update;
     }
@@ -53,12 +56,16 @@ class BotUpdateTranslator {
 
     public function getCallbackQueryLanguageCode(): ?string
     {
-        return $this->update->getCallbackQuery('from')['language_code'];
+        return $this->update->getCallbackQueryLanguageCode();
+    }
+
+    public function getCallbackQueryChatId(): ?string
+    {
+        return $this->update->getCallbackQueryChatId();
     }
 
     public function getLocale(): ?string
     {
         return $this->getLanguagueCode() ?? $this->getCallbackQueryLanguageCode();
     }
-
 }

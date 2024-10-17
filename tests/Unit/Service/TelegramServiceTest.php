@@ -52,8 +52,8 @@ class TelegramServiceTest extends TestCase
 
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->willReturn(['id' => 'test']);
+        $telegramBotUpdate->method('getCallbackQueryId')
+            ->willReturn('test');
 
         $this->httpService->method('request')
             ->willReturn([]);
@@ -130,8 +130,8 @@ class TelegramServiceTest extends TestCase
     {
 
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->willReturn(['id' => 'test']);
+        $telegramBotUpdate->method('getCallbackQueryId')
+            ->willReturn('test');
 
         $this->httpService->method('request')
             ->willReturn([]);
@@ -198,7 +198,7 @@ class TelegramServiceTest extends TestCase
     {
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getChatId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $this->bt->method('update')
             ->willReturn($telegramBotUpdate);
@@ -250,13 +250,13 @@ class TelegramServiceTest extends TestCase
     {
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $telegramBotUpdate->method('getMessageId')
-            ->willReturn((float) 12345);
+            ->willReturn(12345);
 
         $this->bt->method('update')
             ->willReturn($telegramBotUpdate);
 
         $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
-        $this->assertEquals((float) 12345, $telegramService->getMessageId());
+        $this->assertEquals(12345, $telegramService->getMessageId());
     }
 
     public function testGetMessageText(): void
@@ -275,42 +275,40 @@ class TelegramServiceTest extends TestCase
     public function testGetCallbackQueryId(): void
     {
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->with('id')
-            ->willReturn(12345);
+        $telegramBotUpdate->method('getCallbackQueryId')
+            ->willReturn("4382bfdwdsb323b2d9");
 
         $this->bt->method('update')
             ->willReturn($telegramBotUpdate);
 
         $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
-        $this->assertEquals(12345, $telegramService->getCallbackQueryId());
+        $this->assertEquals("4382bfdwdsb323b2d9", $telegramService->getCallbackQueryId());
     }
 
     public function testGetCallbackQueryChatId(): void
     {
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->willReturn(['id' => '12345']);
+        $telegramBotUpdate->method('getCallbackQueryChatId')
+            ->willReturn(1136298813);
 
         $this->bt->method('update')
             ->willReturn($telegramBotUpdate);
 
         $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
-        $this->assertEquals('12345', $telegramService->getCallbackQueryId()['id']);
+        $this->assertEquals(1136298813, $telegramService->getCallbackQueryChatId());
     }
 
     public function testGetCallbackQueryData(): void
     {
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->with('data')
-            ->willReturn([]);
+        $telegramBotUpdate->method('getCallbackQueryData')
+            ->willReturn("doctor");
 
         $this->bt->method('update')
             ->willReturn($telegramBotUpdate);
 
         $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
-        $this->assertEquals([], $telegramService->getCallbackQueryData());
+        $this->assertEquals("doctor", $telegramService->getCallbackQueryData());
     }
 
     public function testGetLanguageCode(): void
