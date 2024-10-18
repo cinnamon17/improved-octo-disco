@@ -9,9 +9,9 @@ class TelegramBotUpdate
 {
     private UpdateDto $update;
 
-    public function __construct(UpdateDto $update)
+    public function __construct(RequestSerializer $update)
     {
-        $this->update = $update;
+        $this->update = $update->create();
     }
 
     public function getUpdateId(): int
