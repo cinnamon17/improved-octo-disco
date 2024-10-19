@@ -74,7 +74,7 @@ class TelegramBotUpdate
         return $languageCode;
     }
 
-    public function getCallbackQuery(): CallbackQueryDto
+    public function getCallbackQuery(): ?CallbackQueryDto
     {
         $callbackQuery = $this->update->getCallbackQuery();
         return $callbackQuery;
