@@ -22,55 +22,55 @@ class TelegramBotUpdate
 
     public function getMessageText(): ?string
     {
-        $message = $this->update->getMessage()->getText();
+        $message = $this->update->getMessage()?->getText();
         return $message;
     }
 
     public function getMessageId(): int
     {
-        $message_id = $this->update->getMessage()->getMessageId();
+        $message_id = $this->update->getMessage()?->getMessageId();
         return $message_id;
     }
 
     public function getChatId(): int
     {
-        $chat_id = $this->update->getMessage()->getChat()->getId();
+        $chat_id = $this->update->getMessage()?->getChat()?->getId();
         return $chat_id;
     }
 
     public function getIsBot(): ?bool
     {
-        $is_bot = $this->update->getMessage()->getFrom()->getIsBot();
+        $is_bot = $this->update->getMessage()?->getFrom()?->getIsBot();
         return $is_bot;
     }
 
     public function getFirstName(): ?string
     {
-        $first_name = $this->update->getMessage()->getFrom()->getFirstName();
+        $first_name = $this->update->getMessage()?->getFrom()?->getFirstName();
         return $first_name;
     }
 
     public function getLastName(): ?string
     {
-        $first_name = $this->update->getMessage()->getFrom()->getLastName();
+        $first_name = $this->update->getMessage()?->getFrom()?->getLastName();
         return $first_name;
     }
 
     public function getUsername(): ?string
     {
-        $first_name = $this->update->getMessage()->getFrom()->getUsername();
+        $first_name = $this->update->getMessage()?->getFrom()?->getUsername();
         return $first_name;
     }
 
     public function getCallbackQueryData(): ?string
     {
-        $callbackQueryData = $this->update->getCallbackQuery()->getData();
+        $callbackQueryData = $this->update->getCallbackQuery()?->getData();
         return $callbackQueryData;
     }
 
     public function getLanguageCode(): ?string
     {
-        $languageCode = $this->update->getMessage()->getFrom()->getLanguageCode();
+        $languageCode = $this->update->getMessage()?->getFrom()?->getLanguageCode();
         return $languageCode;
     }
 
@@ -82,7 +82,7 @@ class TelegramBotUpdate
 
     public function getCallbackQueryLanguageCode(): ?string
     {
-        $languageCode = $this->update->getCallbackQuery()->getFrom()->getLanguageCode();
+        $languageCode = $this->update->getCallbackQuery()?->getFrom()?->getLanguageCode();
         return $languageCode;
     }
 
