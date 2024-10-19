@@ -5,8 +5,8 @@ namespace App\Dto;
 class UpdateDto
 {
     private int $update_id;
-    private ?MessageDto $message;
-    private ?CallbackQueryDto $callback_query;
+    private ?MessageDto $message = null;
+    private ?CallbackQueryDto $callback_query = null;
 
     public function setUpdateId(int $update_id): self
     {
