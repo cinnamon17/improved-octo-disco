@@ -84,7 +84,7 @@ class TelegramService implements LoggerAwareInterface
 
     public function isCallbackQuery(): bool
     {
-        $data = $this->getCallbackQueryData();
+        $data = $this->getCallbackQuery();
         return $data ? true : false;
     }
 
@@ -138,6 +138,11 @@ class TelegramService implements LoggerAwareInterface
     public function getMessageText(): ?string
     {
         return $this->bt->update()->getMessageText();
+    }
+
+    public function getCallbackQuery()
+    {
+        return $this->bt->update()->getCallbackQuery();
     }
 
     public function getCallbackQueryId()

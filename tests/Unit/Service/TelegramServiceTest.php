@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Dto\CallbackQueryDto;
 use App\Entity\Prompt;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
@@ -270,6 +271,19 @@ class TelegramServiceTest extends TestCase
 
         $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
         $this->assertEquals('hello', $telegramService->getMessageText());
+    }
+
+    public function testGetCallbackQuery(): void
+    {
+        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
+        $telegramBotUpdate->method('getCallbackQuery')
+            ->willReturn(new CallbackQueryDto());
+
+        $this->bt->method('update')
+            ->willReturn($telegramBotUpdate);
+
+        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService);
+        $this->assertInstanceOf(CallbackQueryDto::class, $telegramService->getCallbackQuery());
     }
 
     public function testGetCallbackQueryId(): void
