@@ -204,7 +204,7 @@ class DBServiceTest extends TestCase
         $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
-        $telegramBotUpdate->method('getChatId')
+        $telegramBotUpdate->method('getCallbackQueryChatId')
             ->willReturn(12345);
 
         $telegramBotUpdate->method('getCallbackQueryData')

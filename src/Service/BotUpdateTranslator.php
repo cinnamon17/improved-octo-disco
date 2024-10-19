@@ -59,7 +59,7 @@ class BotUpdateTranslator
         return $this->update->getCallbackQueryLanguageCode();
     }
 
-    public function getCallbackQueryChatId(): ?string
+    public function getCallbackQueryChatId(): int
     {
         return $this->update->getCallbackQueryChatId();
     }

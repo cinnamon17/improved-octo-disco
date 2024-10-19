@@ -34,7 +34,7 @@ class TelegramBotUpdate
 
     public function getChatId(): int
     {
-        $chat_id = $this->update->getMessage()?->getChat()?->getId();
+        $chat_id = $this->update->getMessage()->getChat()->getId();
         return $chat_id;
     }
 
