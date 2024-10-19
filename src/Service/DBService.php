@@ -45,7 +45,7 @@ class DBService
 
     public function isUserExists(BotUpdateTranslator $but): bool
     {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery('from')['id'];
+        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery()->getFrom()->getId();
         $user = $this->userFindOneBy($chatId);
         $existsUser = $user ? true : false;
 
@@ -80,7 +80,7 @@ class DBService
 
     public function setBotMode(BotUpdateTranslator $but)
     {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery('from')['id'];
+        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery()->getFrom()->getId();
         $user = $this->userFindOneBy($chatId);
         $user->setMode($but->update()->getCallbackQueryData());
         $this->save($user);
