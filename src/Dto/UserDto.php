@@ -6,14 +6,14 @@ class UserDto
 {
 
     private int $id;
-    private ?bool $is_bot;
-    private ?string $first_name;
-    private ?string $last_name;
-    private ?string $username;
-    private ?string $language_code;
-    private ?bool $is_premium;
-    private ?bool $added_to_attachment_menu;
-    private ?bool $can_join_groups;
+    private ?bool $is_bot = null;
+    private ?string $first_name = null;
+    private ?string $last_name = null;
+    private ?string $username = null;
+    private ?string $language_code = null;
+    private ?bool $is_premium = null;
+    private ?bool $added_to_attachment_menu = null;
+    private ?bool $can_join_groups = null;
 
     public function setId(int $id): self
     {

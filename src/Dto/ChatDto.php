@@ -6,11 +6,11 @@ class ChatDto
 {
     private int $id;
     private string $type;
-    private ?string $title;
-    private ?string $username;
-    private ?string $first_name;
-    private ?string $last_name;
-    private ?bool $is_forum;
+    private ?string $title = null;
+    private ?string $username = null;
+    private ?string $first_name = null;
+    private ?string $last_name = null;
+    private ?bool $is_forum = null;
 
     public function setIsForum(?bool $isForum): self
     {
