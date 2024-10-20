@@ -22,7 +22,7 @@ class DBService
         $this->promptRepository = $promptRepository;
     }
 
-    public function userFindOneBy(string $chatId): ?User
+    public function userFindOneBy(int $chatId): ?User
     {
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
         return $user;
