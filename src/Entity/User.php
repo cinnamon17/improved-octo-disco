@@ -21,7 +21,7 @@ class User
     private Collection $message;
 
     #[ORM\Column(type: Types::BIGINT)]
-    private ?float $chat_id = null;
+    private ?int $chat_id = null;
 
     #[ORM\Column]
     private ?bool $is_bot = null;
