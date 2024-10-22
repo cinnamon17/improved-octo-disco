@@ -43,12 +43,6 @@ class BotUpdateTranslator
         return $this->translate('translator.message');
     }
 
-    public function update(): TelegramBotUpdate
-    {
-
-        return $this->update;
-    }
-
     public function getLanguagueCode(): ?string
     {
         return $this->update->getLanguageCode();
@@ -67,5 +61,11 @@ class BotUpdateTranslator
     public function getLocale(): ?string
     {
         return $this->getLanguagueCode() ?? $this->getCallbackQueryLanguageCode();
+    }
+
+    public function update(): TelegramBotUpdate
+    {
+
+        return $this->update;
     }
 }

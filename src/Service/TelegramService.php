@@ -31,7 +31,7 @@ class TelegramService implements LoggerAwareInterface
         return $response;
     }
 
-    public function handleCallbackQuery()
+    public function handleCallbackQuery(): array
     {
         $params = $this->callbackQueryParams();
         $this->setBotMode();
@@ -62,14 +62,14 @@ class TelegramService implements LoggerAwareInterface
         return $response;
     }
 
-    public function sendInlineKeyboard()
+    public function sendInlineKeyboard(): array
     {
         $params = $this->sendInlineKeyboardParams();
         $response = $this->telegramRequest($params);
         return $response;
     }
 
-    public function sendWelcomeMessage()
+    public function sendWelcomeMessage(): array
     {
         $welcomeMessage = $this->bt->translate('welcome.message');
         $response = $this->sendMessage($welcomeMessage);
@@ -241,10 +241,7 @@ class TelegramService implements LoggerAwareInterface
                     ],
                     [
                         ['text' => $this->bt->getbussinessMessage() . "💡", 'callback_data' => 'startup'],
-                    ] //,
-                    //[
-                    //    ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
-                    //]
+                    ]
                 ]
             ]
         ];
