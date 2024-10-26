@@ -52,52 +52,26 @@ class HttpService
     private function requestParams(string $message, string $prompt): array
     {
 
-        $headersDto = $this->createHeadersDto();
-        $jsonDto = $this->createOpenAIJsonDto($message, $prompt);
+        $headersDto = (new HeadersDto())
+            ->setAccept('application/json')
+            ->setAuthorization("Bearer {$this->env->get('OPENAI_KEY')}");
 
-        $openAIDto = new OpenAIDto();
-        $openAIDto->setHeaders($headersDto)
+        $systemPromptOpenAI = (new OpenAIMessageDto())
+            ->setRole('system')
+            ->setContent($prompt);
+
+        $userMessageToOpenAI = (new OpenAIMessageDto())
+            ->setRole('user')
+            ->setContent($message);
+
+        $jsonDto = (new OpenAIJsonDto())
+            ->setModel('gpt-3.5-turbo')
+            ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI]);
+
+        $openAIDto = (new OpenAIDto())
+            ->setHeaders($headersDto)
             ->setJson($jsonDto);
 
         return $openAIDto->toArray();
-    }
-
-    private function createHeadersDto(): HeadersDto
-    {
-
-        $headersDto = new HeadersDto();
-        $headersDto->setAccept('application/json')
-            ->setAuthorization("Bearer {$this->env->get('OPENAI_KEY')}");
-        return $headersDto;
-    }
-
-    private function createOpenAIJsonDto(string $message, string $prompt): OpenAIJsonDto
-    {
-
-        $system = $this->createSystemMessage($prompt);
-        $user = $this->createUserMessage($message);
-
-        $jsonDto = new OpenAIJsonDto();
-        $jsonDto->setModel('gpt-3.5-turbo')
-            ->setMessages([$system, $user]);
-
-        return $jsonDto;
-    }
-
-    private function createSystemMessage(string $prompt): OpenAIMessageDto
-    {
-        $system = new OpenAIMessageDto();
-        $system->setRole('system')
-            ->setContent($prompt);
-
-        return $system;
-    }
-
-    private function createUserMessage(string $message): OpenAIMessageDto
-    {
-        $user = new OpenAIMessageDto();
-        $user->setRole('user')
-            ->setContent($message);
-        return $user;
     }
 }
