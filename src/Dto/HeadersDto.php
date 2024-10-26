@@ -28,4 +28,12 @@ class HeadersDto
     {
         return $this->Authorization;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'Accept' => $this->Accept,
+            'Authorization' => $this->Authorization,
+        ];
+    }
 }

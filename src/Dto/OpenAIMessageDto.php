@@ -28,4 +28,12 @@ class OpenAIMessageDto
     {
         return $this->content;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'role' => $this->role,
+            'content' => $this->content,
+        ];
+    }
 }

@@ -20,4 +20,18 @@ class OpenAIMessageDtoTest extends TestCase
         $openAIMessageDto->setContent('assistant');
         $this->assertEquals('assistant', $openAIMessageDto->getContent());
     }
+
+    public function testToArray(): void
+    {
+
+        $openAIMessageDto = new OpenAIMessageDto();
+        $openAIMessageDto->setContent('assistant');
+        $openAIMessageDto->setRole('system');
+
+        $array = [
+            'role' => 'system',
+            'content' => 'assistant'
+        ];
+        $this->assertEquals($array, $openAIMessageDto->toArray());
+    }
 }

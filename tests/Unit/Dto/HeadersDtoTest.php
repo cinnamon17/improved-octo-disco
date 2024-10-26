@@ -20,4 +20,18 @@ class HeadersDtoTest extends TestCase
         $headerDto->setAuthorization('Bearer 1234test');
         $this->assertEquals('Bearer 1234test', $headerDto->getAuthorization());
     }
+
+    public function testToArray(): void
+    {
+        $headerDto = new HeadersDto();
+        $headerDto->setAuthorization('Bearer 1234test')
+            ->setAccept('application/json');
+
+        $array = [
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer 1234test'
+        ];
+
+        $this->assertEquals($array, $headerDto->toArray());
+    }
 }

@@ -41,4 +41,28 @@ class OpenAIJsonDtoTest extends TestCase
         $openAIJsonDto->setMessages($messages);
         $this->assertIsArray($openAIJsonDto->getMessages());
     }
+
+    public function testToArray(): void
+    {
+        $openAIJsonDto = new OpenAIJsonDto();
+        $openAIJsonDto->setModel('gpt-3.5-turbo');
+        $system = new OpenAIMessageDto();
+        $system->setRole('system')
+            ->setContent('assistant');
+
+        $user = new OpenAIMessageDto();
+        $user->setRole('user')
+            ->setContent('test');
+
+        $array = [
+            'model' => 'gpt-3.5-turbo',
+            'messages' =>
+            [
+                ['role' => 'system', 'content' => 'assistant'],
+                ['role' => 'user', 'content' => 'test']
+            ]
+        ];
+        $openAIJsonDto->setMessages([$system, $user]);
+        $this->assertEquals($array, $openAIJsonDto->toArray());
+    }
 }

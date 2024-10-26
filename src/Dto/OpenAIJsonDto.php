@@ -28,4 +28,12 @@ class OpenAIJsonDto
     {
         return $this->messages;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'model' => $this->model,
+            'messages' => array_map(fn($message) => $message->toArray(), $this->messages),
+        ];
+    }
 }
