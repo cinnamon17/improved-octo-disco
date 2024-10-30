@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -183,12 +184,12 @@ class TelegramService implements LoggerAwareInterface
     private function callbackQueryParams(): array
     {
         $setModeMessage = $this->bt->translate('callbackQuery.message');
-        $params = [
-            'method' => 'sendMessage',
-            'chat_id' => $this->getCallbackQueryChatId(),
-            'text' => $setModeMessage
-        ];
-        return $params;
+        $telegramMessageDto = new TelegramMessageDto();
+        $telegramMessageDto->setMethod('sendMessage')
+            ->setChatId($this->getCallbackQueryChatId())
+            ->setText($setModeMessage);
+
+        return $telegramMessageDto->toArray();
     }
 
     private function sendMessageParams(string $message): array
