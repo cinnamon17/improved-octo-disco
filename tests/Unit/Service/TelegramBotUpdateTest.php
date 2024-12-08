@@ -132,6 +132,54 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertIsString($telegramBotUpdate->getLanguageCode());
     }
 
+    public function testGetLanguageCodeIsNeverNull(): void
+    {
+        $requestSerializer = $this->createStub(RequestSerializer::class);
+        $this->updateDto = new UpdateDto();
+        $callbackQuery = new CallbackQueryDto();
+        $userDto = new UserDto();
+        $messageDto = new MessageDto();
+        $chatDto = new ChatDto();
+
+        $userDto
+            ->setFirstName('pepe')
+            ->setLastName('dior')
+            ->setId(9223372036854775807)
+            ->setUsername('TestUsername')
+            ->setIsBot(false);
+
+        $callbackQuery
+            ->setId('4382bfdwdsb323b2d9')
+            ->setFrom($userDto)
+            ->setData('Data from button callback')
+            ->setInlineMessageId('1234csdbsk4839');
+
+        $chatDto
+            ->setId(9223372036854775807)
+            ->setFirstName('pepe')
+            ->setLastName('dior')
+            ->setUsername('pepedior');
+
+        $messageDto
+            ->setMessageId(2239818)
+            ->setFrom($userDto)
+            ->setChat($chatDto)
+            ->setDate(1686165587)
+            ->setText('Cual es la masa de la tierra');
+
+        $this->updateDto
+            ->setUpdateId(829824026)
+            ->setCallbackQuery($callbackQuery)
+            ->setMessage($messageDto);
+
+        $requestSerializer->method('create')
+            ->willReturn($this->updateDto);
+
+        $telegramBotUpdate = new TelegramBotUpdate($requestSerializer);
+        $this->assertEquals('en', $telegramBotUpdate->getLanguageCode());
+        $this->assertIsString($telegramBotUpdate->getLanguageCode());
+    }
+
     public function testGetCallbackQueryLanguageCode(): void
     {
         $telegramBotUpdate = new TelegramBotUpdate($this->requestSerializer);

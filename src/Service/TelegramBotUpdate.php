@@ -71,7 +71,7 @@ class TelegramBotUpdate
     public function getLanguageCode(): ?string
     {
         $languageCode = $this->update->getMessage()?->getFrom()?->getLanguageCode();
-        return $languageCode;
+        return $languageCode ?? 'en';
     }
 
     public function getCallbackQuery(): ?CallbackQueryDto
