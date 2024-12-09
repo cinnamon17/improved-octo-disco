@@ -38,7 +38,7 @@ class TelegramService implements LoggerAwareInterface
         $this->setBotMode();
         $this->telegramRequest($params);
 
-        $response =  $this->answerCallbackQuery($this->getCallbackQueryId());
+        $response =  $this->answerCallbackQuery();
         return $response;
     }
 

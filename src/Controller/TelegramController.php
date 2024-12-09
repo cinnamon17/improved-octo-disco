@@ -21,6 +21,7 @@ class TelegramController extends AbstractController
 
         if ($this->tService->isCallbackQuery()) {
             $this->tService->handleCallbackQuery();
+            return $this->json('ok');
         }
 
         if (!$this->tService->getChatId()) {
