@@ -4,7 +4,6 @@ namespace App\Tests\Unit\Entity;
 
 use App\Entity\Message;
 use App\Entity\User;
-use DateTime;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
@@ -44,10 +43,24 @@ class MessageTest extends TestCase
         $this->assertEquals("hello", $message->getText());
     }
 
+    public function testGetCreatedAt(): void
+    {
+        $message = new Message();
+        $message->setCreatedAt(new DateTimeImmutable());
+        $this->assertInstanceOf(DateTimeImmutable::class, $message->getCreatedAt());
+    }
+
     public function testGetUpdateAt(): void
     {
         $message = new Message();
         $message->setUpdatedAt(new DateTimeImmutable());
+        $this->assertInstanceOf(DateTimeImmutable::class, $message->getUpdatedAt());
+    }
+
+    public function testUpdatedTimestamps(): void
+    {
+        $message = new Message();
+        $message->updatedTimestamps();
         $this->assertInstanceOf(DateTimeImmutable::class, $message->getUpdatedAt());
     }
 }

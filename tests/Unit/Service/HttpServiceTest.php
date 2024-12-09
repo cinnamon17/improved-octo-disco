@@ -52,13 +52,21 @@ class HttpServiceTest extends TestCase
         $this->assertSame($expectedArray, $openapiArrayResponse);
     }
 
-    public function testChatCompletionAssertOpenApiURL()
+    public function testChatCompletionAssertOpenApiURL(): void
     {
 
         $this->http->chatCompletion('hola', 'test');
 
         $openApiUrl = $this->response->getRequestUrl();
         $this->assertSame('https://api.openai.com/v1/chat/completions', $openApiUrl);
+    }
+
+    public function testRequest(): void
+    {
+
+        $request = $this->http->request(["method" => "world"]);
+
+        $this->assertIsArray($request);
     }
 
     public function testChatCompletionAssertRequiredRequestOptions()

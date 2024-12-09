@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -31,13 +32,13 @@ class TelegramService implements LoggerAwareInterface
         return $response;
     }
 
-    public function handleCallbackQuery()
+    public function handleCallbackQuery(): array
     {
         $params = $this->callbackQueryParams();
         $this->setBotMode();
         $this->telegramRequest($params);
 
-        $response =  $this->answerCallbackQuery($this->getCallbackQueryId());
+        $response =  $this->answerCallbackQuery();
         return $response;
     }
 
@@ -62,14 +63,14 @@ class TelegramService implements LoggerAwareInterface
         return $response;
     }
 
-    public function sendInlineKeyboard()
+    public function sendInlineKeyboard(): array
     {
         $params = $this->sendInlineKeyboardParams();
         $response = $this->telegramRequest($params);
         return $response;
     }
 
-    public function sendWelcomeMessage()
+    public function sendWelcomeMessage(): array
     {
         $welcomeMessage = $this->bt->translate('welcome.message');
         $response = $this->sendMessage($welcomeMessage);
@@ -84,7 +85,7 @@ class TelegramService implements LoggerAwareInterface
 
     public function isCallbackQuery(): bool
     {
-        $data = $this->getCallbackQueryData();
+        $data = $this->getCallbackQuery();
         return $data ? true : false;
     }
 
@@ -140,19 +141,24 @@ class TelegramService implements LoggerAwareInterface
         return $this->bt->update()->getMessageText();
     }
 
+    public function getCallbackQuery()
+    {
+        return $this->bt->update()->getCallbackQuery();
+    }
+
     public function getCallbackQueryId()
     {
-        return $this->bt->update()->getCallbackQuery('id');
+        return $this->bt->update()->getCallbackQueryId();
     }
 
     public function getCallbackQueryChatId()
     {
-        return $this->bt->update()->getCallbackQuery('from')['id'];
+        return $this->bt->update()->getCallbackQueryChatId();
     }
 
     public function getCallbackQueryData()
     {
-        return $this->bt->update()->getCallbackQuery('data');
+        return $this->bt->update()->getCallbackQueryData();
     }
 
     public function getLanguageCode()
@@ -178,12 +184,12 @@ class TelegramService implements LoggerAwareInterface
     private function callbackQueryParams(): array
     {
         $setModeMessage = $this->bt->translate('callbackQuery.message');
-        $params = [
-            'method' => 'sendMessage',
-            'chat_id' => $this->getCallbackQueryChatId(),
-            'text' => $setModeMessage
-        ];
-        return $params;
+        $telegramMessageDto = new TelegramMessageDto();
+        $telegramMessageDto->setMethod('sendMessage')
+            ->setChatId($this->getCallbackQueryChatId())
+            ->setText($setModeMessage);
+
+        return $telegramMessageDto->toArray();
     }
 
     private function sendMessageParams(string $message): array
@@ -236,10 +242,7 @@ class TelegramService implements LoggerAwareInterface
                     ],
                     [
                         ['text' => $this->bt->getbussinessMessage() . "💡", 'callback_data' => 'startup'],
-                    ] //,
-                    //[
-                    //    ['text' => 'video downloader' . "🎥",'callback_data' => 'downloader'],
-                    //]
+                    ]
                 ]
             ]
         ];

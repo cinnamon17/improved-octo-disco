@@ -9,44 +9,50 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TelegramController extends AbstractController
 {
+    private TelegramService $tService;
+
+    public function __construct(TelegramService $tService)
+    {
+        $this->tService = $tService;
+    }
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
-    public function index(TelegramService $telegramService): JsonResponse
+    public function index(): JsonResponse
     {
 
-        if($telegramService->isCallbackQuery()){
-            $telegramService->handleCallbackQuery();
+        if ($this->tService->isCallbackQuery()) {
+            $this->tService->handleCallbackQuery();
+            return $this->json('ok');
         }
 
-        if(!$telegramService->getChatId()){
+        if (!$this->tService->getChatId()) {
             return $this->json('invalid chat_id');
         }
 
-        if(!$telegramService->getMessageText()){
+        if (!$this->tService->getMessageText()) {
             return $this->json('invalid message');
         }
 
-        if(!$telegramService->isUserExists()){
-            $telegramService->insertUserInDb();
+        if (!$this->tService->isUserExists()) {
+            $this->tService->insertUserInDb();
         }
 
-        if($telegramService->isUserExists()){
-            $telegramService->updateUserInDb();
+        if ($this->tService->isUserExists()) {
+            $this->tService->updateUserInDb();
         }
 
-        if($telegramService->getMessageText() == "/start") {
-            $response = $telegramService->sendWelcomeMessage();
+        if ($this->tService->getMessageText() == "/start") {
+            $response = $this->tService->sendWelcomeMessage();
             return $this->json($response);
         }
 
-        if($telegramService->getMessageText() == "/mode") {
-            $response = $telegramService->sendInlineKeyboard();
+        if ($this->tService->getMessageText() == "/mode") {
+            $response = $this->tService->sendInlineKeyboard();
             return $this->json($response);
         }
 
-        $openaiResponse = $telegramService->chatCompletion($telegramService->getMessageText());
-        $response = $telegramService->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
+        $openaiResponse = $this->tService->chatCompletion($this->tService->getMessageText());
+        $response = $this->tService->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
 
         return $this->json($response);
-
     }
 }

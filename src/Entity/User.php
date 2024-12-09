@@ -21,7 +21,7 @@ class User
     private Collection $message;
 
     #[ORM\Column(type: Types::BIGINT)]
-    private ?float $chat_id = null;
+    private ?int $chat_id = null;
 
     #[ORM\Column]
     private ?bool $is_bot = null;
@@ -91,12 +91,12 @@ class User
         return $this;
     }
 
-    public function getChatId(): ?float
+    public function getChatId(): ?int
     {
         return $this->chat_id;
     }
 
-    public function setChatId(float $chat_id): self
+    public function setChatId(int $chat_id): self
     {
         $this->chat_id = $chat_id;
 

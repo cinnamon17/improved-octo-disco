@@ -20,10 +20,9 @@ class DBService
         $this->em = $entityManagerInterface;
         $this->userRepository = $userRepository;
         $this->promptRepository = $promptRepository;
-
     }
 
-    public function userFindOneBy(string $chatId): ?User
+    public function userFindOneBy(int $chatId): ?User
     {
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
         return $user;
@@ -46,7 +45,7 @@ class DBService
 
     public function isUserExists(BotUpdateTranslator $but): bool
     {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery('from')['id'];
+        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery()->getFrom()->getId();
         $user = $this->userFindOneBy($chatId);
         $existsUser = $user ? true : false;
 
@@ -57,34 +56,33 @@ class DBService
     {
         $user = new User();
         $user->setChatId($but->update()->getChatId())
-             ->setIsBot($but->update()->getIsBot())
-             ->setMode($but->getAssistantMessage())
-             ->setFirstName($but->update()->getFirstName());
+            ->setIsBot($but->update()->getIsBot())
+            ->setMode($but->getAssistantMessage())
+            ->setFirstName($but->update()->getFirstName());
 
         $this->save($user);
-
     }
 
     public function updateUserInDb(BotUpdateTranslator $but): void
     {
         $user = $this->userFindOneBy($but->update()->getChatId());
         $user->setFirstName($but->update()->getFirstName())
-             ->setLastName($but->update()->getLastName())
-             ->setUsername($but->update()->getUsername());
+            ->setLastName($but->update()->getLastName())
+            ->setUsername($but->update()->getUsername());
 
         $message = new Message();
         $message->setText($but->update()->getMessageText())
-                ->setMessageId($but->update()->getMessageId())
-                ->setUser($user);
+            ->setMessageId($but->update()->getMessageId())
+            ->setUser($user);
 
         $this->save($message);
     }
 
     public function setBotMode(BotUpdateTranslator $but)
     {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery('from')['id'];
+        $chatId = $but->getCallbackQueryChatId();
         $user = $this->userFindOneBy($chatId);
-        $user->setMode($but->update()->getCallbackQuery('data'));
+        $user->setMode($but->update()->getCallbackQueryData());
         $this->save($user);
     }
 
