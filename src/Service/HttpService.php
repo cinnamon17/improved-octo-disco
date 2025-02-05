@@ -31,8 +31,7 @@ class HttpService
             $this->requestParams($message, $prompt)
         );
 
-        $content = $response->toArray();
-        return $content;
+        return $response->toArray();
     }
 
     public function request(array $params)
@@ -40,7 +39,7 @@ class HttpService
 
         $response = $this->client->request(
             'POST',
-            $this->env->get('BOT_URL') . $this->env->get('BOT_KEY') . "/" . $params['method'],
+            $this->env->get('BOT_API') . $params['method'],
             [
                 'json' => $params
             ]

@@ -6,6 +6,7 @@
 parameters:
   BOT_KEY: '%env(BOT_KEY)%'
   BOT_URL: 'https://api.telegram.org/'
+  BOT_API: '%BOT_URL%%BOT_KEY%/'
   OPENAI_KEY: '%env(OPENAI_KEY)%'
 
 services:
