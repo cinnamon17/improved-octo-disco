@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
@@ -93,7 +94,10 @@ class TelegramService implements LoggerAwareInterface
     {
         $this->sendChatAction('typing');
         $prompt = $this->db->getPrompt($this->bt);
-        return $this->http->chatCompletion($message, $prompt->getRole());
+        $chatPromptMessageDto = new ChatPromptMessageDto();
+        $chatPromptMessageDto->setMessage($message)
+            ->setPrompt($prompt->getRole());
+        return $this->http->chatCompletion($chatPromptMessageDto);
     }
 
     public function setBotMode(): void
