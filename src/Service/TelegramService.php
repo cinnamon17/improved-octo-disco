@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
@@ -198,24 +199,24 @@ class TelegramService implements LoggerAwareInterface
 
     private function sendMessageParams(string $message): array
     {
-        $params = [
-            'chat_id' => $this->getChatId(),
-            'method' => 'sendMessage',
-            'text' => $message
-        ];
+        $telegramMessageDto = new TelegramMessageDto();
+        $telegramMessageDto
+            ->setChatId($this->getChatId())
+            ->setMethod('sendMessage')
+            ->setText($message);
 
-        return $params;
+        return $telegramMessageDto->toArray();
     }
 
     private function sendChatActionParams(string $action)
     {
-        $params = [
-            'chat_id' => $this->getChatId(),
-            'method' => 'sendChatAction',
-            'action' => $action
-        ];
+        $telegramActionDto = new TelegramActionDto();
+        $telegramActionDto
+            ->setChatId($this->getChatId())
+            ->setMethod('sendChatAction')
+            ->setAction($action);
 
-        return $params;
+        return $telegramActionDto->toArray();
     }
     private function answerCallbackQueryParams(): array
     {
