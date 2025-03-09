@@ -8,6 +8,7 @@ class TelegramMessageDto
     private string $method;
     private int $chat_id;
     private string $text;
+    private ?InlineKeyboardDto $reply_markup = null;
 
     public function setMethod(string $method): self
     {
@@ -42,13 +43,26 @@ class TelegramMessageDto
         return $this->text;
     }
 
+    public function setReplyMarkup(InlineKeyboardDto $inlineKeyboard): self
+    {
+
+        $this->reply_markup = $inlineKeyboard;
+        return $this;
+    }
+
+    public function getReplyMarkup(): array | string
+    {
+        return $this->reply_markup?->getKeyboard() ?? '';
+    }
+
     public function toArray(): array
     {
 
         $params = [
             'method' => $this->getMethod(),
             'chat_id' => $this->getChatId(),
-            'text' => $this->getText()
+            'text' => $this->getText(),
+            'reply_markup' => $this->getReplyMarkup()
         ];
 
         return $params;

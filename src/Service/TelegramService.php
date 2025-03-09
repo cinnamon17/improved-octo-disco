@@ -6,6 +6,7 @@ use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\InlineKeyboardButtonDto;
 use App\Dto\InlineKeyboardButtonRowDto;
+use App\Dto\InlineKeyboardDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
@@ -231,7 +232,6 @@ class TelegramService implements LoggerAwareInterface
         return $answerCallbackQueryDto->toArray();
     }
 
-    //TODO: Refactor this into a dto object
     private function sendInlineKeyboardParams(): array
     {
         $translatorButton = new InlineKeyboardButtonDto();
@@ -278,19 +278,19 @@ class TelegramService implements LoggerAwareInterface
         $buttonRow3
             ->add($bussinessButton);
 
-        $params = [
-            'method' => 'sendMessage',
-            'chat_id' => $this->getChatId(),
-            'text' => $this->bt->getCharacterMessage(),
-            'reply_markup' => [
-                'inline_keyboard' => [
-                    $buttonRow1->getButtons(),
-                    $buttonRow2->getButtons(),
-                    $buttonRow3->getButtons()
-                ]
-            ]
-        ];
+        $inlineKeyboardDto = new InlineKeyboardDto();
+        $inlineKeyboardDto
+            ->add($buttonRow1)
+            ->add($buttonRow2)
+            ->add($buttonRow3);
 
-        return $params;
+        $telegramMessageDto = new TelegramMessageDto();
+        $telegramMessageDto
+            ->setMethod('sendMessage')
+            ->setChatId($this->getChatId())
+            ->setText($this->bt->getCharacterMessage())
+            ->setReplyMarkup($inlineKeyboardDto);
+
+        return $telegramMessageDto->toArray();
     }
 }
