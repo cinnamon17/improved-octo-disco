@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
@@ -220,13 +221,12 @@ class TelegramService implements LoggerAwareInterface
     }
     private function answerCallbackQueryParams(): array
     {
-        $id = $this->getCallbackQueryId();
-        $params = [
-            'callback_query_id' => $id,
-            'method' => 'answerCallbackQuery'
-        ];
+        $answerCallbackQueryDto = new AnswerCallbackQueryDto();
+        $answerCallbackQueryDto
+            ->setId($this->getCallbackQueryId())
+            ->setMethod('answerCallbackQuery');
 
-        return $params;
+        return $answerCallbackQueryDto->toArray();
     }
 
     private function sendInlineKeyboardParams(): array
