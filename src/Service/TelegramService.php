@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\InlineKeyboardButtonDto;
+use App\Dto\InlineKeyboardButtonRowDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
@@ -229,25 +231,62 @@ class TelegramService implements LoggerAwareInterface
         return $answerCallbackQueryDto->toArray();
     }
 
+    //TODO: Refactor this into a dto object
     private function sendInlineKeyboardParams(): array
     {
+        $translatorButton = new InlineKeyboardButtonDto();
+        $translatorButton
+            ->setText($this->bt->getTranslatorMessage() . " 🈯")
+            ->setData($this->bt->getTranslatorMessage());
+
+        $assistantButton = new InlineKeyboardButtonDto();
+        $assistantButton
+            ->setText($this->bt->getAssistantMessage() .  " 👨🏻‍🏫")
+            ->setData($this->bt->getAssistantMessage());
+
+        $assistantButton = new InlineKeyboardButtonDto();
+        $assistantButton
+            ->setText($this->bt->getAssistantMessage() .  " 👨🏻‍🏫")
+            ->setData($this->bt->getAssistantMessage());
+
+        $cheffButton = new InlineKeyboardButtonDto();
+        $cheffButton
+            ->setText('chef 🧑🏻‍🍳')
+            ->setData('chef');
+
+        $doctorButton = new InlineKeyboardButtonDto();
+        $doctorButton
+            ->setText('doctor 👨🏻‍⚕️')
+            ->setData('doctor');
+
+        $bussinessButton = new InlineKeyboardButtonDto();
+        $bussinessButton
+            ->setText($this->bt->getbussinessMessage() . '💡')
+            ->setData('startup');
+
+        $buttonRow1 = new InlineKeyboardButtonRowDto();
+        $buttonRow1
+            ->add($translatorButton)
+            ->add($assistantButton);
+
+        $buttonRow2 = new InlineKeyboardButtonRowDto();
+        $buttonRow2
+            ->add($cheffButton)
+            ->add($doctorButton);
+
+        $buttonRow3 = new InlineKeyboardButtonRowDto();
+        $buttonRow3
+            ->add($bussinessButton);
+
         $params = [
             'method' => 'sendMessage',
             'chat_id' => $this->getChatId(),
             'text' => $this->bt->getCharacterMessage(),
             'reply_markup' => [
                 'inline_keyboard' => [
-                    [
-                        ['text' => $this->bt->getTranslatorMessage() . " 🈯", 'callback_data' => $this->bt->getTranslatorMessage()],
-                        ['text' => $this->bt->getAssistantMessage() . " 👨🏻‍🏫", 'callback_data' => $this->bt->getAssistantMessage()],
-                    ],
-                    [
-                        ['text' => 'chef 🧑🏻‍🍳', 'callback_data' => 'chef'],
-                        ['text' => 'doctor 👨🏻‍⚕️', 'callback_data' => 'doctor'],
-                    ],
-                    [
-                        ['text' => $this->bt->getbussinessMessage() . "💡", 'callback_data' => 'startup'],
-                    ]
+                    $buttonRow1->getButtons(),
+                    $buttonRow2->getButtons(),
+                    $buttonRow3->getButtons()
                 ]
             ]
         ];
