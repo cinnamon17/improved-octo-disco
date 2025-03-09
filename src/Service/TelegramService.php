@@ -32,92 +32,9 @@ class TelegramService implements LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    public function telegramRequest(array $params): array
-    {
-        $response = $this->http->request($params);
-        return $response;
-    }
-
-    public function handleCallbackQuery(): array
-    {
-        $params = $this->callbackQueryParams();
-        $this->setBotMode();
-        $this->telegramRequest($params);
-
-        $response =  $this->answerCallbackQuery();
-        return $response;
-    }
-
-    public function sendMessage(string $message): array
-    {
-        $params = $this->sendMessageParams($message);
-        $response = $this->telegramRequest($params);
-        return $response;
-    }
-
-    public function sendChatAction(string $action): array
-    {
-        $params = $this->SendChatActionParams($action);
-        $response = $this->telegramRequest($params);
-        return $response;
-    }
-
-    public function answerCallbackQuery(): array
-    {
-        $params = $this->answerCallbackQueryParams();
-        $response = $this->telegramRequest($params);
-        return $response;
-    }
-
-    public function sendInlineKeyboard(): array
-    {
-        $params = $this->sendInlineKeyboardParams();
-        $response = $this->telegramRequest($params);
-        return $response;
-    }
-
-    public function sendWelcomeMessage(): array
-    {
-        $welcomeMessage = $this->bt->translate('welcome.message');
-        $response = $this->sendMessage($welcomeMessage);
-        return $response;
-    }
-
-    public function isUserExists(): bool
-    {
-        $bool = $this->db->isUserExists($this->bt);
-        return $bool;
-    }
-
-    public function isCallbackQuery(): bool
-    {
-        $data = $this->getCallbackQuery();
-        return $data ? true : false;
-    }
-
-    public function chatCompletion($message): array
-    {
-        $this->sendChatAction('typing');
-        $prompt = $this->db->getPrompt($this->bt);
-        $chatPromptMessageDto = new ChatPromptMessageDto();
-        $chatPromptMessageDto->setMessage($message)
-            ->setPrompt($prompt->getRole());
-        return $this->http->chatCompletion($chatPromptMessageDto);
-    }
-
     public function setBotMode(): void
     {
         $this->db->setBotMode($this->bt);
-    }
-
-    public function translate(string $message): string
-    {
-        return $this->bt->translate($message);
-    }
-
-    public function log($message, $context = [])
-    {
-        $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
     public function getChatId(): ?float
@@ -190,6 +107,91 @@ class TelegramService implements LoggerAwareInterface
         $this->db->updateUserInDb($this->bt);
     }
 
+    public function isUserExists(): bool
+    {
+        $bool = $this->db->isUserExists($this->bt);
+        return $bool;
+    }
+
+    public function isCallbackQuery(): bool
+    {
+        $data = $this->getCallbackQuery();
+        return $data ? true : false;
+    }
+
+    public function log($message, $context = [])
+    {
+        $this->logger->info('File: TelegramService.php ' . $message, $context);
+    }
+
+    public function translate(string $message): string
+    {
+        return $this->bt->translate($message);
+    }
+
+    public function telegramRequest(array $params): array
+    {
+        $response = $this->http->request($params);
+        return $response;
+    }
+
+
+    public function sendMessage(string $message): array
+    {
+        $params = $this->sendMessageParams($message);
+        $response = $this->telegramRequest($params);
+        return $response;
+    }
+
+    public function sendChatAction(string $action): array
+    {
+        $params = $this->SendChatActionParams($action);
+        $response = $this->telegramRequest($params);
+        return $response;
+    }
+
+    public function answerCallbackQuery(): array
+    {
+        $params = $this->answerCallbackQueryParams();
+        $response = $this->telegramRequest($params);
+        return $response;
+    }
+
+    public function sendInlineKeyboard(): array
+    {
+        $params = $this->sendInlineKeyboardParams();
+        $response = $this->telegramRequest($params);
+        return $response;
+    }
+
+    public function sendWelcomeMessage(): array
+    {
+        $welcomeMessage = $this->bt->translate('welcome.message');
+        $response = $this->sendMessage($welcomeMessage);
+        return $response;
+    }
+
+
+    public function chatCompletion($message): array
+    {
+        $this->sendChatAction('typing');
+        $prompt = $this->db->getPrompt($this->bt);
+        $chatPromptMessageDto = new ChatPromptMessageDto();
+        $chatPromptMessageDto->setMessage($message)
+            ->setPrompt($prompt->getRole());
+        return $this->http->chatCompletion($chatPromptMessageDto);
+    }
+
+    public function handleCallbackQuery(): array
+    {
+        $params = $this->callbackQueryParams();
+        $this->setBotMode();
+        $this->telegramRequest($params);
+
+        $response =  $this->answerCallbackQuery();
+        return $response;
+    }
+
     private function callbackQueryParams(): array
     {
         $setModeMessage = $this->bt->translate('callbackQuery.message');
@@ -222,6 +224,7 @@ class TelegramService implements LoggerAwareInterface
 
         return $telegramActionDto->toArray();
     }
+
     private function answerCallbackQueryParams(): array
     {
         $answerCallbackQueryDto = new AnswerCallbackQueryDto();
