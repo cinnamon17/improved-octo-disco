@@ -2,13 +2,7 @@
 
 namespace App\Service;
 
-use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
-use App\Dto\InlineKeyboardButtonDto;
-use App\Dto\InlineKeyboardButtonRowDto;
-use App\Dto\InlineKeyboardDto;
-use App\Dto\TelegramActionDto;
-use App\Dto\TelegramMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -19,12 +13,14 @@ class TelegramService implements LoggerAwareInterface
     private BotUpdateTranslator $bt;
     private DBService $db;
     private LoggerInterface $logger;
+    private TelegramDtoFactory $dtoFactory;
 
-    public function __construct(HttpService $http, BotUpdateTranslator $bt, DBService $db)
+    public function __construct(HttpService $http, BotUpdateTranslator $bt, DBService $db, TelegramDtoFactory $telegramDtoFactory)
     {
         $this->http = $http;
         $this->bt = $bt;
         $this->db = $db;
+        $this->dtoFactory = $telegramDtoFactory;
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -138,28 +134,28 @@ class TelegramService implements LoggerAwareInterface
 
     public function sendMessage(string $message): array
     {
-        $params = $this->sendMessageParams($message);
+        $params = $this->dtoFactory->createSendMessageParams($message);
         $response = $this->telegramRequest($params);
         return $response;
     }
 
     public function sendChatAction(string $action): array
     {
-        $params = $this->SendChatActionParams($action);
+        $params = $this->dtoFactory->createSendChatActionParams($action);
         $response = $this->telegramRequest($params);
         return $response;
     }
 
     public function answerCallbackQuery(): array
     {
-        $params = $this->answerCallbackQueryParams();
+        $params = $this->dtoFactory->createAnswerCallbackQueryParams();
         $response = $this->telegramRequest($params);
         return $response;
     }
 
     public function sendInlineKeyboard(): array
     {
-        $params = $this->sendInlineKeyboardParams();
+        $params = $this->dtoFactory->createSendInlineKeyboardParams();
         $response = $this->telegramRequest($params);
         return $response;
     }
@@ -176,124 +172,19 @@ class TelegramService implements LoggerAwareInterface
     {
         $this->sendChatAction('typing');
         $prompt = $this->db->getPrompt($this->bt);
-        $chatPromptMessageDto = new ChatPromptMessageDto();
-        $chatPromptMessageDto->setMessage($message)
+        $chatPromptMessageDto = (new ChatPromptMessageDto())
+            ->setMessage($message)
             ->setPrompt($prompt->getRole());
         return $this->http->chatCompletion($chatPromptMessageDto);
     }
 
     public function handleCallbackQuery(): array
     {
-        $params = $this->callbackQueryParams();
+        $params = $this->dtoFactory->createCallbackQueryParams();
         $this->setBotMode();
         $this->telegramRequest($params);
 
         $response =  $this->answerCallbackQuery();
         return $response;
-    }
-
-    private function callbackQueryParams(): array
-    {
-        $setModeMessage = $this->bt->translate('callbackQuery.message');
-        $telegramMessageDto = new TelegramMessageDto();
-        $telegramMessageDto->setMethod('sendMessage')
-            ->setChatId($this->getCallbackQueryChatId())
-            ->setText($setModeMessage);
-
-        return $telegramMessageDto->toArray();
-    }
-
-    private function sendMessageParams(string $message): array
-    {
-        $telegramMessageDto = new TelegramMessageDto();
-        $telegramMessageDto
-            ->setChatId($this->getChatId())
-            ->setMethod('sendMessage')
-            ->setText($message);
-
-        return $telegramMessageDto->toArray();
-    }
-
-    private function sendChatActionParams(string $action)
-    {
-        $telegramActionDto = new TelegramActionDto();
-        $telegramActionDto
-            ->setChatId($this->getChatId())
-            ->setMethod('sendChatAction')
-            ->setAction($action);
-
-        return $telegramActionDto->toArray();
-    }
-
-    private function answerCallbackQueryParams(): array
-    {
-        $answerCallbackQueryDto = new AnswerCallbackQueryDto();
-        $answerCallbackQueryDto
-            ->setId($this->getCallbackQueryId())
-            ->setMethod('answerCallbackQuery');
-
-        return $answerCallbackQueryDto->toArray();
-    }
-
-    private function sendInlineKeyboardParams(): array
-    {
-        $translatorButton = new InlineKeyboardButtonDto();
-        $translatorButton
-            ->setText($this->bt->getTranslatorMessage() . " 🈯")
-            ->setData($this->bt->getTranslatorMessage());
-
-        $assistantButton = new InlineKeyboardButtonDto();
-        $assistantButton
-            ->setText($this->bt->getAssistantMessage() .  " 👨🏻‍🏫")
-            ->setData($this->bt->getAssistantMessage());
-
-        $assistantButton = new InlineKeyboardButtonDto();
-        $assistantButton
-            ->setText($this->bt->getAssistantMessage() .  " 👨🏻‍🏫")
-            ->setData($this->bt->getAssistantMessage());
-
-        $cheffButton = new InlineKeyboardButtonDto();
-        $cheffButton
-            ->setText('chef 🧑🏻‍🍳')
-            ->setData('chef');
-
-        $doctorButton = new InlineKeyboardButtonDto();
-        $doctorButton
-            ->setText('doctor 👨🏻‍⚕️')
-            ->setData('doctor');
-
-        $bussinessButton = new InlineKeyboardButtonDto();
-        $bussinessButton
-            ->setText($this->bt->getbussinessMessage() . '💡')
-            ->setData('startup');
-
-        $buttonRow1 = new InlineKeyboardButtonRowDto();
-        $buttonRow1
-            ->add($translatorButton)
-            ->add($assistantButton);
-
-        $buttonRow2 = new InlineKeyboardButtonRowDto();
-        $buttonRow2
-            ->add($cheffButton)
-            ->add($doctorButton);
-
-        $buttonRow3 = new InlineKeyboardButtonRowDto();
-        $buttonRow3
-            ->add($bussinessButton);
-
-        $inlineKeyboardDto = new InlineKeyboardDto();
-        $inlineKeyboardDto
-            ->add($buttonRow1)
-            ->add($buttonRow2)
-            ->add($buttonRow3);
-
-        $telegramMessageDto = new TelegramMessageDto();
-        $telegramMessageDto
-            ->setMethod('sendMessage')
-            ->setChatId($this->getChatId())
-            ->setText($this->bt->getCharacterMessage())
-            ->setReplyMarkup($inlineKeyboardDto);
-
-        return $telegramMessageDto->toArray();
     }
 }
