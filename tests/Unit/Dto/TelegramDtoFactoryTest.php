@@ -2,7 +2,11 @@
 
 namespace App\Tests\Unit\Dto;
 
+use App\Dto\ChatPromptMessageDto;
+use App\Dto\UpdateDto;
+use App\Entity\Prompt;
 use App\Service\BotUpdateTranslator;
+use App\Service\DBService;
 use App\Service\TelegramBotUpdate;
 use App\Service\TelegramDtoFactory;
 use PHPUnit\Framework\TestCase;
@@ -122,5 +126,30 @@ class TelegramDtoFactoryTest extends TestCase
         $result = $this->telegramDtoFactory->createSendInlineKeyboardParams();
 
         $this->assertEquals($expectedParams, $result);
+    }
+
+    public function testCreateChatPromptMessageDto(): void
+    {
+
+        $db = $this->createStub(DBService::class);
+        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
+        $prompt = $this->createStub(Prompt::class);
+        $prompt
+            ->method('getRole')
+            ->willReturn('test');
+
+        $telegramBotUpdate
+            ->method('getMessageText')
+            ->willReturn('test');
+
+        $db->method('getPrompt')
+            ->willReturn($prompt);
+
+        $this->botUpdateTranslator
+            ->method('update')
+            ->willReturn($telegramBotUpdate);
+
+        $result = $this->telegramDtoFactory->createChatPromptMessageDto($db);
+        $this->assertInstanceOf(ChatPromptMessageDto::class, $result);
     }
 }

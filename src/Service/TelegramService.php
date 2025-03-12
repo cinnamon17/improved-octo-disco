@@ -105,14 +105,12 @@ class TelegramService implements LoggerAwareInterface
 
     public function isUserExists(): bool
     {
-        $bool = $this->db->isUserExists($this->bt);
-        return $bool;
+        return $this->db->isUserExists($this->bt);
     }
 
     public function isCallbackQuery(): bool
     {
-        $data = $this->getCallbackQuery();
-        return $data ? true : false;
+        return $this->getCallbackQuery() ? true : false;
     }
 
     public function log($message, $context = [])
@@ -127,54 +125,43 @@ class TelegramService implements LoggerAwareInterface
 
     public function telegramRequest(array $params): array
     {
-        $response = $this->http->request($params);
-        return $response;
+        return $this->http->request($params);
     }
-
 
     public function sendMessage(string $message): array
     {
         $params = $this->dtoFactory->createSendMessageParams($message);
-        $response = $this->telegramRequest($params);
-        return $response;
+        return $this->telegramRequest($params);
     }
 
     public function sendChatAction(string $action): array
     {
         $params = $this->dtoFactory->createSendChatActionParams($action);
-        $response = $this->telegramRequest($params);
-        return $response;
+        return $this->telegramRequest($params);
     }
 
     public function answerCallbackQuery(): array
     {
         $params = $this->dtoFactory->createAnswerCallbackQueryParams();
-        $response = $this->telegramRequest($params);
-        return $response;
+        return $this->telegramRequest($params);
     }
 
     public function sendInlineKeyboard(): array
     {
         $params = $this->dtoFactory->createSendInlineKeyboardParams();
-        $response = $this->telegramRequest($params);
-        return $response;
+        return $this->telegramRequest($params);
     }
 
     public function sendWelcomeMessage(): array
     {
         $welcomeMessage = $this->bt->translate('welcome.message');
-        $response = $this->sendMessage($welcomeMessage);
-        return $response;
+        return $this->sendMessage($welcomeMessage);
     }
 
-
-    public function chatCompletion($message): array
+    public function chatCompletion(): array
     {
         $this->sendChatAction('typing');
-        $prompt = $this->db->getPrompt($this->bt);
-        $chatPromptMessageDto = (new ChatPromptMessageDto())
-            ->setMessage($message)
-            ->setPrompt($prompt->getRole());
+        $chatPromptMessageDto = $this->dtoFactory->createChatPromptMessageDto($this->db);
         return $this->http->chatCompletion($chatPromptMessageDto);
     }
 

@@ -50,7 +50,7 @@ class TelegramController extends AbstractController
             return $this->json($response);
         }
 
-        $openaiResponse = $this->tService->chatCompletion($this->tService->getMessageText());
+        $openaiResponse = $this->tService->chatCompletion();
         $response = $this->tService->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
 
         return $this->json($response);

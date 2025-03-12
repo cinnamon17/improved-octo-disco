@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\AnswerCallbackQueryDto;
+use App\Dto\ChatPromptMessageDto;
 use App\Dto\InlineKeyboardButtonDto;
 use App\Dto\InlineKeyboardButtonRowDto;
 use App\Dto\InlineKeyboardDto;
@@ -98,5 +99,14 @@ class TelegramDtoFactory
             ->setText($this->bt->getCharacterMessage())
             ->setReplyMarkup($inlineKeyboardDto)
             ->toArray();
+    }
+
+    public function createChatPromptMessageDto(DBService $db): ChatPromptMessageDto
+    {
+
+        $prompt = $db->getPrompt($this->bt);
+        return (new ChatPromptMessageDto)
+            ->setMessage($this->bt->update()->getMessageText())
+            ->setPrompt($prompt->getRole());
     }
 }
