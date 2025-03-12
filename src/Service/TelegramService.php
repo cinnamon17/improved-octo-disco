@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Dto\ChatPromptMessageDto;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;

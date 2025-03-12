@@ -16,85 +16,71 @@ class TelegramBotUpdate
 
     public function getUpdateId(): int
     {
-        $update_id = $this->update->getUpdateId();
-        return $update_id;
+        return $this->update->getUpdateId();
     }
 
     public function getMessageText(): ?string
     {
-        $message = $this->update->getMessage()?->getText();
-        return $message;
+        return $this->update->getMessage()?->getText();
     }
 
     public function getMessageId(): int
     {
-        $message_id = $this->update->getMessage()?->getMessageId();
-        return $message_id;
+        return $this->update->getMessage()?->getMessageId();
     }
 
     public function getChatId(): int
     {
-        $chat_id = $this->update->getMessage()->getChat()->getId();
-        return $chat_id;
+        return $this->update->getMessage()->getChat()->getId();
     }
 
     public function getIsBot(): ?bool
     {
-        $is_bot = $this->update->getMessage()?->getFrom()?->getIsBot();
-        return $is_bot;
+        return $this->update->getMessage()?->getFrom()?->getIsBot();
     }
 
     public function getFirstName(): ?string
     {
-        $first_name = $this->update->getMessage()?->getFrom()?->getFirstName();
-        return $first_name;
+        return $this->update->getMessage()?->getFrom()?->getFirstName();
     }
 
     public function getLastName(): ?string
     {
-        $first_name = $this->update->getMessage()?->getFrom()?->getLastName();
-        return $first_name;
+        return $this->update->getMessage()?->getFrom()?->getLastName();
     }
 
     public function getUsername(): ?string
     {
-        $first_name = $this->update->getMessage()?->getFrom()?->getUsername();
-        return $first_name;
+        return $this->update->getMessage()?->getFrom()?->getUsername();
     }
 
     public function getCallbackQueryData(): ?string
     {
-        $callbackQueryData = $this->update->getCallbackQuery()?->getData();
-        return $callbackQueryData;
+        return $this->update->getCallbackQuery()?->getData();
     }
 
     public function getLanguageCode(): ?string
     {
-        $languageCode = $this->update->getMessage()?->getFrom()?->getLanguageCode();
-        return $languageCode ?? 'en';
+        return $this->update->getMessage()?->getFrom()?->getLanguageCode() ?? 'en';
     }
 
     public function getCallbackQuery(): ?CallbackQueryDto
     {
-        $callbackQuery = $this->update->getCallbackQuery();
-        return $callbackQuery;
+        return $this->update->getCallbackQuery();
     }
 
     public function getCallbackQueryLanguageCode(): ?string
     {
-        $languageCode = $this->update->getCallbackQuery()?->getFrom()?->getLanguageCode();
-        return $languageCode;
+        return $this->update->getCallbackQuery()?->getFrom()?->getLanguageCode();
     }
 
     public function getCallbackQueryId(): string
     {
-        $id = $this->update->getCallbackQuery()->getId();
-        return $id;
+        return $this->update->getCallbackQuery()->getId();
     }
 
     public function getCallbackQueryChatId(): int
     {
-        $id = $this->update->getCallbackQuery()->getFrom()->getId();
-        return $id;
+        return $this->update->getCallbackQuery()->getFrom()->getId();
     }
 }

@@ -19,8 +19,7 @@ class BotUpdateTranslator
     public function translate(string $id): string
     {
 
-        $message = $this->translator->trans($id, locale: $this->getLocale());
-        return $message;
+        return $this->translator->trans($id, locale: $this->getLocale());
     }
 
     public function getAssistantMessage(): string
@@ -65,7 +64,6 @@ class BotUpdateTranslator
 
     public function update(): TelegramBotUpdate
     {
-
         return $this->update;
     }
 }
