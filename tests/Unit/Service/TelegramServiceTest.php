@@ -19,6 +19,7 @@ class TelegramServiceTest extends TestCase
     private BotUpdateTranslator $bt;
     private DBService $dbService;
     private TelegramDtoFactory $dtoFactory;
+    private TelegramBotUpdate $update;
 
     protected function setUp(): void
     {
@@ -26,6 +27,7 @@ class TelegramServiceTest extends TestCase
         $this->bt = $this->createStub(BotUpdateTranslator::class);
         $this->dbService = $this->createStub(DBService::class);
         $this->dtoFactory = $this->createStub(TelegramDtoFactory::class);
+        $this->update = $this->createStub(TelegramBotUpdate::class);
     }
     public function testSetLogger(): void
     {
@@ -34,7 +36,7 @@ class TelegramServiceTest extends TestCase
         $logger->expects($this->once())
             ->method('info');
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
         $telegramService->setLogger($logger);
         $telegramService->log("hello");
     }
@@ -45,7 +47,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
         $response = $telegramService->telegramRequest(['params']);
 
         $this->assertIsArray($response);
@@ -62,10 +64,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $response = $telegramService->handleCallbackQuery();
         $this->assertIsArray($response);
     }
@@ -76,7 +75,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->sendMessage('hello'));
     }
 
@@ -86,7 +85,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->sendChatAction('action'));
     }
 
@@ -96,7 +95,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->answerCallbackQuery());
     }
 
@@ -106,7 +105,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->sendInlineKeyboard());
     }
 
@@ -116,35 +115,8 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->sendWelcomeMessage());
-    }
-
-    public function testIsUserExists(): void
-    {
-
-        $this->dbService->method('isUserExists')
-            ->willReturn(true);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertIsBool($telegramService->isUserExists());
-    }
-
-    public function testIsCallbackQuery(): void
-    {
-
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQueryId')
-            ->willReturn('test');
-
-        $this->httpService->method('request')
-            ->willReturn([]);
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertIsBool($telegramService->isCallbackQuery());
     }
 
     public function testChatCompletion(): void
@@ -162,29 +134,8 @@ class TelegramServiceTest extends TestCase
         $this->dbService->method('getPrompt')
             ->willReturn($prompt);
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $this->assertIsArray($telegramService->chatCompletion('test'));
-    }
-
-    public function testSetBotMode(): void
-    {
-
-        $dbService = $this->createMock(DBService::class);
-
-        $dbService->expects($this->once())
-            ->method('setBotMode');
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $dbService, $this->dtoFactory);
-        $telegramService->setBotMode();
-    }
-
-    public function testTranslate(): void
-    {
-        $this->bt->method('translate')
-            ->willReturn('hello');
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('hello', $telegramService->translate('test'));
     }
 
     public function testLog(): void
@@ -193,186 +144,8 @@ class TelegramServiceTest extends TestCase
         $logger->expects($this->once())
             ->method('info');
 
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
         $telegramService->setLogger($logger);
         $telegramService->log('testlog');
-    }
-
-    public function testGetChatId(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getChatId')
-            ->willReturn(12345);
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals(12345, $telegramService->getChatId());
-    }
-
-    public function testGetFistName(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getFirstName')
-            ->willReturn('name');
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('name', $telegramService->getFirstName());
-    }
-
-    public function testGetLastName(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getLastName')
-            ->willReturn('lastname');
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('lastname', $telegramService->getLastname());
-    }
-
-    public function testGetUsername(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getUsername')
-            ->willReturn('username');
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('username', $telegramService->getUsername());
-    }
-
-    public function testGetMessageId(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getMessageId')
-            ->willReturn(12345);
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals(12345, $telegramService->getMessageId());
-    }
-
-    public function testGetMessageText(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getMessageText')
-            ->willReturn('hello');
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('hello', $telegramService->getMessageText());
-    }
-
-    public function testGetCallbackQuery(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQuery')
-            ->willReturn(new CallbackQueryDto());
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertInstanceOf(CallbackQueryDto::class, $telegramService->getCallbackQuery());
-    }
-
-    public function testGetCallbackQueryId(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQueryId')
-            ->willReturn("4382bfdwdsb323b2d9");
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals("4382bfdwdsb323b2d9", $telegramService->getCallbackQueryId());
-    }
-
-    public function testGetCallbackQueryChatId(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQueryChatId')
-            ->willReturn(1136298813);
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals(1136298813, $telegramService->getCallbackQueryChatId());
-    }
-
-    public function testGetCallbackQueryData(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getCallbackQueryData')
-            ->willReturn("doctor");
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals("doctor", $telegramService->getCallbackQueryData());
-    }
-
-    public function testGetLanguageCode(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getLanguageCode')
-            ->willReturn('es');
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertEquals('es', $telegramService->getLanguageCode());
-    }
-
-    public function testGetIsBot(): void
-    {
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $telegramBotUpdate->method('getIsBot')
-            ->willReturn(true);
-
-        $this->bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $this->dbService, $this->dtoFactory);
-        $this->assertTrue($telegramService->getIsBot());
-    }
-
-    public function testInsertUserInDb(): void
-    {
-        $dbService = $this->createMock(DBService::class);
-
-        $dbService->expects($this->once())
-            ->method('insertUserInDb');
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $dbService, $this->dtoFactory);
-        $telegramService->insertUserInDb();
-    }
-
-    public function testUpdateUserInDb(): void
-    {
-        $dbService = $this->createMock(DBService::class);
-
-        $dbService->expects($this->once())
-            ->method('updateUserInDb');
-
-        $telegramService = new TelegramService($this->httpService, $this->bt, $dbService, $this->dtoFactory);
-        $telegramService->updateUserInDb();
     }
 }

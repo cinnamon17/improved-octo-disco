@@ -20,7 +20,7 @@ class BotUpdateTranslatorTest extends TestCase
     }
     public function testGetAssistantMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $this->translator->method('trans')
@@ -32,7 +32,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetAsisstantMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $this->translator->method('trans')
@@ -44,7 +44,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetCharacterMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $this->translator->method('trans')
@@ -56,7 +56,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetCharacterMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $this->translator->method('trans')
@@ -68,7 +68,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetBussinessMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $this->translator->method('trans')
@@ -80,7 +80,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetBussinessMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $this->translator->method('trans')
@@ -92,7 +92,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetTranslatorMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $this->translator->method('trans')
@@ -104,7 +104,7 @@ class BotUpdateTranslatorTest extends TestCase
 
     public function testGetTranslatorMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $this->translator->method('trans')
@@ -112,23 +112,5 @@ class BotUpdateTranslatorTest extends TestCase
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
         $this->assertSame('translator', $but->getTranslatorMessage());
-    }
-
-    public function testGetCallbackQueryLanguageCode(): void
-    {
-        $this->telegramBotUpdate->method('getCallbackQueryLanguageCode')
-            ->willReturn('en');
-
-        $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
-        $this->assertEquals('en', $but->getCallbackQueryLanguageCode());
-    }
-
-    public function testGetCallbackQueryChatId(): void
-    {
-        $this->telegramBotUpdate->method('getCallbackQueryChatId')
-            ->willReturn(1136298813);
-
-        $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
-        $this->assertEquals(1136298813, $but->getCallbackQueryChatId());
     }
 }

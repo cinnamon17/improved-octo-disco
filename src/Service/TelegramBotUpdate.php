@@ -29,7 +29,7 @@ class TelegramBotUpdate
         return $this->update->getMessage()?->getMessageId();
     }
 
-    public function getChatId(): int
+    public function getChatId(): ?int
     {
         return $this->update->getMessage()->getChat()->getId();
     }
@@ -59,9 +59,9 @@ class TelegramBotUpdate
         return $this->update->getCallbackQuery()?->getData();
     }
 
-    public function getLanguageCode(): ?string
+    private function getLanguageCode(): ?string
     {
-        return $this->update->getMessage()?->getFrom()?->getLanguageCode() ?? 'en';
+        return $this->update->getMessage()?->getFrom()?->getLanguageCode();
     }
 
     public function getCallbackQuery(): ?CallbackQueryDto
@@ -82,5 +82,15 @@ class TelegramBotUpdate
     public function getCallbackQueryChatId(): int
     {
         return $this->update->getCallbackQuery()->getFrom()->getId();
+    }
+
+    public function getLocale(): ?string
+    {
+        return $this->getLanguageCode() ?? $this->getCallbackQueryLanguageCode() ?? 'en';
+    }
+
+    public function isCallbackQuery(): bool
+    {
+        return $this->update->getCallbackQuery() ? true : false;
     }
 }

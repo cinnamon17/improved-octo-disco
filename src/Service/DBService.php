@@ -14,12 +14,21 @@ class DBService
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
     private PromptRepository $promptRepository;
+    private TelegramBotUpdate $update;
+    private BotUpdateTranslator $bt;
 
-    public function __construct(EntityManagerInterface $entityManagerInterface, UserRepository $userRepository, PromptRepository $promptRepository)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManagerInterface,
+        UserRepository $userRepository,
+        PromptRepository $promptRepository,
+        TelegramBotUpdate $update,
+        BotUpdateTranslator $bt
+    ) {
         $this->em = $entityManagerInterface;
         $this->userRepository = $userRepository;
         $this->promptRepository = $promptRepository;
+        $this->update = $update;
+        $this->bt = $bt;
     }
 
     public function userFindOneBy(int $chatId): ?User
@@ -32,53 +41,53 @@ class DBService
         return $this->promptRepository->findOneBy(['role' => $role, 'language' => $lang]);
     }
 
-    public function getPrompt(BotUpdateTranslator $but): Prompt
+    public function getPrompt(): Prompt
     {
-        $chatId = $but->update()->getChatId();
+        $chatId = $this->update->getChatId();
         $user = $this->userFindOneBy($chatId);
-        return $this->promptFindOneBy($user->getMode(), $but->update()->getLanguageCode());
+        return $this->promptFindOneBy($user->getMode(), $this->update->getLocale());
     }
 
-    public function isUserExists(BotUpdateTranslator $but): bool
+    public function isUserExists(): bool
     {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery()->getFrom()->getId();
+        $chatId = $this->update->getChatId() ?? $this->update->getCallbackQuery()->getFrom()->getId();
         $user = $this->userFindOneBy($chatId);
         $existsUser = $user ? true : false;
 
         return $existsUser;
     }
 
-    public function insertUserInDb(BotUpdateTranslator $but): void
+    public function insertUserInDb(): void
     {
         $user = new User();
-        $user->setChatId($but->update()->getChatId())
-            ->setIsBot($but->update()->getIsBot())
-            ->setMode($but->getAssistantMessage())
-            ->setFirstName($but->update()->getFirstName());
+        $user->setChatId($this->update->getChatId())
+            ->setIsBot($this->update->getIsBot())
+            ->setMode($this->bt->getAssistantMessage())
+            ->setFirstName($this->update->getFirstName());
 
         $this->save($user);
     }
 
-    public function updateUserInDb(BotUpdateTranslator $but): void
+    public function updateUserInDb(): void
     {
-        $user = $this->userFindOneBy($but->update()->getChatId());
-        $user->setFirstName($but->update()->getFirstName())
-            ->setLastName($but->update()->getLastName())
-            ->setUsername($but->update()->getUsername());
+        $user = $this->userFindOneBy($this->update->getChatId());
+        $user->setFirstName($this->update->getFirstName())
+            ->setLastName($this->update->getLastName())
+            ->setUsername($this->update->getUsername());
 
         $message = new Message();
-        $message->setText($but->update()->getMessageText())
-            ->setMessageId($but->update()->getMessageId())
+        $message->setText($this->update->getMessageText())
+            ->setMessageId($this->update->getMessageId())
             ->setUser($user);
 
         $this->save($message);
     }
 
-    public function setBotMode(BotUpdateTranslator $but)
+    public function setBotMode()
     {
-        $chatId = $but->getCallbackQueryChatId();
+        $chatId = $this->update->getCallbackQueryChatId();
         $user = $this->userFindOneBy($chatId);
-        $user->setMode($but->update()->getCallbackQueryData());
+        $user->setMode($this->update->getCallbackQueryData());
         $this->save($user);
     }
 

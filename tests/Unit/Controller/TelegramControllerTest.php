@@ -3,6 +3,8 @@
 namespace App\Tests\Unit\Controller;
 
 use App\Controller\TelegramController;
+use App\Service\DBService;
+use App\Service\TelegramBotUpdate;
 use App\Service\TelegramService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -13,11 +15,14 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('isCallbackQuery')->willReturn(true);
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+
+        $update->method('isCallbackQuery')->willReturn(true);
         $telegramService->method('handleCallbackQuery')->willReturn([]);
         $telegramService->expects($this->once())->method('handleCallbackQuery');
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $controller->index();
@@ -27,9 +32,12 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('getChatId')->willReturn(null);
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $update->method('getChatId')->willReturn(null);
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
+        $container = $this->createStub(ContainerInterface::class);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $response = $controller->index();
@@ -41,10 +49,12 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('getChatId')->willReturn((float) 11111111);
-        $telegramService->method('getMessageText')->willReturn(null);
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $update->method('getChatId')->willReturn((int) 11111111);
+        $update->method('getMessageText')->willReturn(null);
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $response = $controller->index();
@@ -56,13 +66,15 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('isUserExists')->willReturn(false);
-        $telegramService->method('getChatId')->willReturn((float) 11111111);
-        $telegramService->method('getMessageText')->willReturn('hello');
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $db->method('isUserExists')->willReturn(false);
+        $update->method('getChatId')->willReturn((int) 11111111);
+        $update->method('getMessageText')->willReturn('hello');
         $telegramService->method('chatCompletion')->willReturn(["choices" => [0 => ["message" => ["content" => "hello"]]]]);
-        $telegramService->expects($this->once())->method('insertUserInDb');
+        $db->expects($this->once())->method('insertUserInDb');
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $controller->index();
@@ -72,13 +84,15 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('isUserExists')->willReturn(true);
-        $telegramService->method('getChatId')->willReturn((float) 11111111);
-        $telegramService->method('getMessageText')->willReturn('hello');
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $db->method('isUserExists')->willReturn(true);
+        $update->method('getChatId')->willReturn((int) 11111111);
+        $update->method('getMessageText')->willReturn('hello');
         $telegramService->method('chatCompletion')->willReturn(["choices" => [0 => ["message" => ["content" => "hello"]]]]);
-        $telegramService->expects($this->once())->method('updateUserInDb');
+        $db->expects($this->once())->method('updateUserInDb');
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $controller->index();
@@ -88,12 +102,14 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('isUserExists')->willReturn(true);
-        $telegramService->method('getChatId')->willReturn((float) 11111111);
-        $telegramService->method('getMessageText')->willReturn('/start');
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $db->method('isUserExists')->willReturn(true);
+        $update->method('getChatId')->willReturn((int) 11111111);
+        $update->method('getMessageText')->willReturn('/start');
         $telegramService->expects($this->once())->method('sendWelcomeMessage');
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $controller->index();
@@ -103,12 +119,14 @@ class TelegramControllerTest extends TestCase
     {
 
         $telegramService = $this->createMock(TelegramService::class);
-        $telegramService->method('isUserExists')->willReturn(true);
-        $telegramService->method('getChatId')->willReturn((float) 11111111);
-        $telegramService->method('getMessageText')->willReturn('/mode');
+        $update = $this->createMock(TelegramBotUpdate::class);
+        $db = $this->createMock(DBService::class);
+        $db->method('isUserExists')->willReturn(true);
+        $update->method('getChatId')->willReturn((int) 11111111);
+        $update->method('getMessageText')->willReturn('/mode');
         $telegramService->expects($this->once())->method('sendInlineKeyboard');
 
-        $controller = new TelegramController($telegramService);
+        $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
         $controller->setContainer($container);
         $controller->index();

@@ -22,7 +22,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
     }
     public function testGetAssistantMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -31,7 +31,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetAsisstantMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -40,7 +40,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetCharacterMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -49,7 +49,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetCharacterMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -58,7 +58,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetBussinessMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -67,7 +67,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetBussinessMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -76,7 +76,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetTranslatorMessageWillReturnInSpanish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
@@ -85,19 +85,32 @@ class BotUpdateTranslatorTest extends KernelTestCase
 
     public function testGetTranslatorMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
         $this->assertSame('translator', $but->getTranslatorMessage());
     }
 
-    public function testGetCallbackQueryLanguageCode(): void
+    public function testGetWelcomeMessageWillReturnInEnglish(): void
     {
-        $this->telegramBotUpdate->method('getCallbackQueryLanguageCode')
+        $this->telegramBotUpdate->method('getLocale')
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
-        $this->assertEquals('en', $but->getCallbackQueryLanguageCode());
+        $message = "Hello!";
+
+        $this->assertStringContainsString($message, $but->getWelcomeMessage());
+    }
+
+    public function testGetWelcomeMessageWillReturnInSpanish(): void
+    {
+        $this->telegramBotUpdate->method('getLocale')
+            ->willReturn('es');
+
+        $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
+        $message = "¡Hola!";
+
+        $this->assertStringContainsString($message, $but->getWelcomeMessage());
     }
 }
