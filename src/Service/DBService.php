@@ -24,23 +24,19 @@ class DBService
 
     public function userFindOneBy(int $chatId): ?User
     {
-        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        return $user;
+        return $this->userRepository->findOneBy(['chat_id' => $chatId]);
     }
 
     public function promptFindOneBy(string $role, string $lang): Prompt
     {
-        $prompt = $this->promptRepository->findOneBy(['role' => $role, 'language' => $lang]);
-        return $prompt;
+        return $this->promptRepository->findOneBy(['role' => $role, 'language' => $lang]);
     }
 
     public function getPrompt(BotUpdateTranslator $but): Prompt
     {
         $chatId = $but->update()->getChatId();
         $user = $this->userFindOneBy($chatId);
-        $prompt = $this->promptFindOneBy($user->getMode(), $but->update()->getLanguageCode());
-
-        return $prompt;
+        return $this->promptFindOneBy($user->getMode(), $but->update()->getLanguageCode());
     }
 
     public function isUserExists(BotUpdateTranslator $but): bool
