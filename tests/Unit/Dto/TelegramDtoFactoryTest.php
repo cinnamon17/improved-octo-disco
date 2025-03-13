@@ -114,7 +114,7 @@ class TelegramDtoFactoryTest extends TestCase
             ->willReturn($translatorMessage);
         $this->botUpdateTranslator->method('getAssistantMessage')
             ->willReturn($assistantMessage);
-        $this->botUpdateTranslator->method('getbussinessMessage')
+        $this->botUpdateTranslator->method('getBusinessMessage')
             ->willReturn($bussinessMessage);
         $this->botUpdateTranslator->method('getCharacterMessage')
             ->willReturn('Choose a character');

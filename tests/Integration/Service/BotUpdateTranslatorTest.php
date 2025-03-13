@@ -62,7 +62,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
             ->willReturn('es');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
-        $this->assertSame('Ideas de Negocio', $but->getbussinessMessage());
+        $this->assertSame('Ideas de Negocio', $but->getBusinessMessage());
     }
 
     public function testGetBussinessMessageWillReturnInEnglish(): void
@@ -71,7 +71,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
             ->willReturn('en');
 
         $but = new BotUpdateTranslator($this->telegramBotUpdate, $this->translator);
-        $this->assertSame('Business Ideas', $but->getbussinessMessage());
+        $this->assertSame('Business Ideas', $but->getBusinessMessage());
     }
 
     public function testGetTranslatorMessageWillReturnInSpanish(): void

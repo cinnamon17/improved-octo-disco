@@ -76,7 +76,7 @@ class TelegramDtoFactory
             ->setData('doctor');
 
         $bussinessButton = (new InlineKeyboardButtonDto())
-            ->setText($this->bt->getbussinessMessage() . '💡')
+            ->setText($this->bt->getBusinessMessage() . '💡')
             ->setData('startup');
 
         $buttonRow1 = (new InlineKeyboardButtonRowDto())
