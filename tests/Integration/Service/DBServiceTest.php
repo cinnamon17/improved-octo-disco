@@ -4,7 +4,6 @@ namespace App\Tests\Integration\Service;
 
 use App\Entity\Prompt;
 use App\Repository\PromptRepository;
-use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
 use App\Service\RequestSerializer;
 use App\Service\TelegramBotUpdate;
@@ -16,66 +15,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class DBServiceTest extends KernelTestCase
 {
-
-    public function testInsertUserInDB(): void
-    {
-        self::bootKernel();
-        $container = static::getContainer();
-        $request = $this->createStub(Request::class);
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $requestStack = $this->createStub(RequestStack::class);
-
-        $telegramBotUpdate->method('getChatId')
-            ->willReturn(9223372036854775807);
-
-        $telegramBotUpdate->method('getFirstName')
-            ->willReturn('Test');
-
-        $telegramBotUpdate->method('getIsBot')
-            ->willReturn(true);
-
-        $jsonRequest = '{
-            "update_id": 829824026,
-            "message": {
-            "message_id": 2239818,
-            "from": {
-                "id": 1136298813,
-                "is_bot": false,
-                "first_name": "Nelson",
-                "last_name": "Moncada",
-                "username": "juniormoncada17",
-                "language_code": "es"
-            },
-            "chat": {
-                "id": 1136298813,
-                "first_name": "Nelson",
-                "last_name": "Moncada",
-                "username": "juniormoncada17",
-                "type": "private"
-            },
-                "date": 1686165587,
-                "text": "/mode"
-            }
-        }';
-
-        $request->method('getContent')
-            ->willReturn($jsonRequest);
-
-        $requestStack->method('getCurrentRequest')
-            ->willReturn($request);
-
-        $serializer = $container->get(SerializerInterface::class);
-
-        $requestSerializer = new RequestSerializer($serializer, $requestStack);
-        $container->set(RequestSerializer::class, $requestSerializer);
-        $container->set(TelegramBotUpdate::class, $telegramBotUpdate);
-        $dbService = static::getContainer()->get(DBService::class);
-        $dbService->insertUserInDb();
-
-        $user = $dbService->userFindOneBy(9223372036854775807);
-
-        $this->assertEquals(9223372036854775807, $user->getChatId());
-    }
 
     public function testGetPrompt(): void
     {

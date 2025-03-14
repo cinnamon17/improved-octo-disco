@@ -31,27 +31,17 @@ class DBService
         $this->bt = $bt;
     }
 
-    public function userFindOneBy(int $chatId): ?User
-    {
-        return $this->userRepository->findOneBy(['chat_id' => $chatId]);
-    }
-
-    public function promptFindOneBy(string $role, string $lang): Prompt
-    {
-        return $this->promptRepository->findOneBy(['role' => $role, 'language' => $lang]);
-    }
-
     public function getPrompt(): Prompt
     {
         $chatId = $this->update->getChatId();
-        $user = $this->userFindOneBy($chatId);
-        return $this->promptFindOneBy($user->getMode(), $this->update->getLocale());
+        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
+        return $this->promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $this->update->getLocale()]);
     }
 
     public function isUserExists(): bool
     {
         $chatId = $this->update->getChatId() ?? $this->update->getCallbackQuery()->getFrom()->getId();
-        $user = $this->userFindOneBy($chatId);
+        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
         $existsUser = $user ? true : false;
 
         return $existsUser;
@@ -71,7 +61,7 @@ class DBService
 
     public function updateUserInDb(): void
     {
-        $user = $this->userFindOneBy($this->update->getChatId());
+        $user = $this->userRepository->findOneBy(['chat_id' => $this->update->getChatId()]);
         $user->setFirstName($this->update->getFirstName())
             ->setLastName($this->update->getLastName())
             ->setUsername($this->update->getUsername());
@@ -88,7 +78,7 @@ class DBService
     public function setBotMode()
     {
         $chatId = $this->update->getCallbackQueryChatId();
-        $user = $this->userFindOneBy($chatId);
+        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
         $user->setMode($this->update->getCallbackQueryData());
 
         $this->em->persist($user);

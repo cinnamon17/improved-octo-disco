@@ -18,7 +18,6 @@ class DBServiceTest extends TestCase
     private EntityManagerInterface $em;
     private PromptRepository $promptRepository;
     private UserRepository $userRepository;
-    private TelegramBotUpdate $update;
     private BotUpdateTranslator $bt;
 
     protected function setUp(): void
@@ -26,44 +25,7 @@ class DBServiceTest extends TestCase
         $this->em = $this->createStub(EntityManagerInterface::class);
         $this->promptRepository = $this->createStub(PromptRepository::class);
         $this->userRepository = $this->createStub(UserRepository::class);
-        $this->update = $this->createStub(TelegramBotUpdate::class);
         $this->bt = $this->createStub(BotUpdateTranslator::class);
-    }
-    public function testUserFindOneBy(): void
-    {
-
-
-        $this->userRepository->method('findOneBy')
-            ->willReturn(new User());
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $user = $dbService->userFindOneBy('1234');
-
-        $this->assertInstanceOf(User::class, $user);
-    }
-
-    public function testUserFindOneByNull(): void
-    {
-
-        $this->userRepository->method('findOneBy')
-            ->willReturn(null);
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $user = $dbService->userFindOneBy('1234');
-
-        $this->assertNull($user);
-    }
-
-    public function testPromptFindOneBy(): void
-    {
-
-        $this->promptRepository->method('findOneBy')
-            ->willReturn(new Prompt());
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $prompt = $dbService->promptFindOneBy('doctor', 'en');
-
-        $this->assertInstanceOf(Prompt::class, $prompt);
     }
 
     public function testGetPrompt(): void
