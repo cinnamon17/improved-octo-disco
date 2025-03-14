@@ -59,13 +59,14 @@ class DBService
 
     public function insertUserInDb(): void
     {
-        $user = new User();
-        $user->setChatId($this->update->getChatId())
+        $user = (new User())
+            ->setChatId($this->update->getChatId())
             ->setIsBot($this->update->getIsBot())
             ->setMode($this->bt->getAssistantMessage())
             ->setFirstName($this->update->getFirstName());
 
-        $this->save($user);
+        $this->em->persist($user);
+        $this->em->flush();
     }
 
     public function updateUserInDb(): void
@@ -75,12 +76,13 @@ class DBService
             ->setLastName($this->update->getLastName())
             ->setUsername($this->update->getUsername());
 
-        $message = new Message();
-        $message->setText($this->update->getMessageText())
+        $message = (new Message())
+            ->setText($this->update->getMessageText())
             ->setMessageId($this->update->getMessageId())
             ->setUser($user);
 
-        $this->save($message);
+        $this->em->persist($message);
+        $this->em->flush();
     }
 
     public function setBotMode()
@@ -88,22 +90,8 @@ class DBService
         $chatId = $this->update->getCallbackQueryChatId();
         $user = $this->userFindOneBy($chatId);
         $user->setMode($this->update->getCallbackQueryData());
-        $this->save($user);
-    }
 
-    public function persist(Object $object): void
-    {
-        $this->em->persist($object);
-    }
-
-    public function flush(): void
-    {
-        $this->em->flush();
-    }
-
-    public function save(Object $object): void
-    {
-        $this->em->persist($object);
+        $this->em->persist($user);
         $this->em->flush();
     }
 }

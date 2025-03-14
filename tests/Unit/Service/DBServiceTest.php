@@ -209,37 +209,4 @@ class DBServiceTest extends TestCase
         $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
         $dbService->setBotMode($bt);
     }
-
-    public function testPersist(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('persist');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $dbService->persist(new User());
-    }
-
-    public function testFlush(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('flush');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $dbService->flush(new User());
-    }
-
-    public function testSave(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('flush');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $this->update, $this->bt);
-        $dbService->save(new User());
-    }
 }
