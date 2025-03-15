@@ -9,6 +9,7 @@ use App\Dto\InlineKeyboardButtonRowDto;
 use App\Dto\InlineKeyboardDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
+use App\Entity\User;
 
 class TelegramDtoFactory
 {
@@ -105,10 +106,30 @@ class TelegramDtoFactory
 
     public function createChatPromptMessageDto(DBService $db): ChatPromptMessageDto
     {
-
-        $prompt = $db->getPrompt();
+        $prompt = $db->getPrompt($this->createUser(), $this->update->getLocale());
         return (new ChatPromptMessageDto)
             ->setMessage($this->update->getMessageText())
             ->setPrompt($prompt->getRole());
+    }
+
+    public function createUserBotMode(): User
+    {
+        return (new User())
+            ->setChatId($this->update->getCallbackQueryChatId())
+            ->setMode($this->update->getCallbackQueryData());
+    }
+
+    public function createUser(): User
+    {
+        return (new User())
+            ->setChatId($this->update->getChatId())
+            ->setIsBot($this->update->getIsBot())
+            ->setMode($this->bt->getAssistantMessage())
+            ->setFirstName($this->update->getFirstName());
+    }
+
+    public function createChatIdFromUpdate(): int
+    {
+        return $this->update->getChatId() ?? $this->update->getCallbackQuery()->getFrom()->getId();
     }
 }

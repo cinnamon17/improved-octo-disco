@@ -39,11 +39,11 @@ class TelegramController extends AbstractController
             return $this->json('invalid message');
         }
 
-        if (!$this->db->isUserExists()) {
-            $this->db->insertUserInDb();
+        if (!$this->tService->isUserExists()) {
+            $this->tService->insertUserInDb();
         }
 
-        if ($this->db->isUserExists()) {
+        if ($this->tService->isUserExists()) {
             $this->db->updateUserInDb();
         }
 

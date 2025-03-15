@@ -2,9 +2,12 @@
 
 namespace App\Tests\Unit\Dto;
 
+use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\UpdateDto;
+use App\Dto\UserDto;
 use App\Entity\Prompt;
+use App\Entity\User;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
 use App\Service\TelegramBotUpdate;
@@ -158,10 +161,98 @@ class TelegramDtoFactoryTest extends TestCase
             ->method('getMessageText')
             ->willReturn('test');
 
+        $this->telegramBotUpdate
+            ->method('getChatId')
+            ->willReturn(123456);
+
+        $this->telegramBotUpdate
+            ->method('getIsBot')
+            ->willReturn(true);
+
+        $this->botUpdateTranslator
+            ->method('getAssistantMessage')
+            ->willReturn('assistant');
+
+        $this->telegramBotUpdate
+            ->method('getFirstName')
+            ->willReturn('test');
+
+        $this->telegramBotUpdate
+            ->method('getLocale')
+            ->willReturn('es');
+
         $db->method('getPrompt')
             ->willReturn($prompt);
 
         $result = $this->telegramDtoFactory->createChatPromptMessageDto($db);
         $this->assertInstanceOf(ChatPromptMessageDto::class, $result);
+    }
+
+    public function testCreateUserBotMode(): void
+    {
+        $this->telegramBotUpdate
+            ->method('getChatId')
+            ->willReturn(1234);
+
+        $this->telegramBotUpdate
+            ->method('getIsBot')
+            ->willReturn(true);
+
+        $this->telegramBotUpdate
+            ->method('getFirstName')
+            ->willReturn('test');
+
+        $this->botUpdateTranslator
+            ->method('getAssistantMessage')
+            ->willReturn('assistant');
+
+        $user = $this->telegramDtoFactory->createUserBotMode();
+        $this->assertInstanceOf(User::class, $user);
+    }
+
+    public function testCreateUser(): void
+    {
+        $this->telegramBotUpdate
+            ->method('getChatId')
+            ->willReturn(123456);
+
+        $this->telegramBotUpdate
+            ->method('getIsBot')
+            ->willReturn(true);
+
+        $this->botUpdateTranslator
+            ->method('getAssistantMessage')
+            ->willReturn('assistant');
+
+        $this->telegramBotUpdate
+            ->method('getFirstName')
+            ->willReturn('test');
+
+        $user = $this->telegramDtoFactory->createUser();
+        $this->assertInstanceOf(User::class, $user);
+    }
+
+    public function testCreateChatId(): void
+    {
+        $callbackQueryDto = $this->createStub(CallbackQueryDto::class);
+        $userDto = $this->createStub(UserDto::class);
+        $userDto
+            ->method('getId')
+            ->willReturn(123456);
+
+        $callbackQueryDto
+            ->method('getFrom')
+            ->willReturn($userDto);
+
+        $this->telegramBotUpdate
+            ->method('getChatId')
+            ->willReturn(123456);
+
+        $this->telegramBotUpdate
+            ->method('getCallbackQuery')
+            ->willReturn($callbackQueryDto);
+
+        $chatId = $this->telegramDtoFactory->createChatIdFromUpdate();
+        $this->assertEquals(123456, $chatId);
     }
 }

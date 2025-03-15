@@ -31,11 +31,11 @@ class DBServiceTest extends TestCase
     public function testGetPrompt(): void
     {
 
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $user = new User();
         $user->setMode('doctor');
+        $user->setChatId(12345);
         $telegramBotUpdate->method('getChatId')
             ->willReturn(12345);
 
@@ -50,15 +50,13 @@ class DBServiceTest extends TestCase
 
         $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
 
-        $prompt = $dbService->getPrompt($bt);
+        $prompt = $dbService->getPrompt($user, 'es');
         $this->assertInstanceOf(Prompt::class, $prompt);
     }
 
     public function testIsUserExists(): void
     {
 
-
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -68,13 +66,12 @@ class DBServiceTest extends TestCase
             ->willReturn(new User());
 
         $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
-        $this->assertTrue($dbService->isUserExists($bt));
+        $this->assertTrue($dbService->isUserExists(12345));
     }
 
     public function testIsUserNoExists(): void
     {
 
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -84,16 +81,13 @@ class DBServiceTest extends TestCase
             ->willReturn(null);
 
         $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
-        $this->assertFalse($dbService->isUserExists($bt));
+        $this->assertFalse($dbService->isUserExists(1234));
     }
 
     public function testInsertUserInDb(): void
     {
-        $bt = $this->createStub(BotUpdateTranslator::class);
+        $user = $this->createStub(User::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-
-        $bt->method('getAssistantMessage')
-            ->willReturn('Hello welcome');
 
         $telegramBotUpdate->method('getChatId')
             ->willReturn(12345);
@@ -110,7 +104,7 @@ class DBServiceTest extends TestCase
             ->method('flush');
 
         $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
-        $dbService->insertUserInDb($bt);
+        $dbService->insertUserInDb($user);
     }
 
     public function testUpdateUserInDb(): void
@@ -148,11 +142,11 @@ class DBServiceTest extends TestCase
         $dbService->updateUserInDb($bt);
     }
 
-    public function testSetBotMode(): void
+    public function testUpdateUserMode(): void
     {
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $bt = $this->createStub(BotUpdateTranslator::class);
+        $user = $this->createStub(User::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getCallbackQueryChatId')
@@ -167,8 +161,15 @@ class DBServiceTest extends TestCase
         $em->expects($this->once())
             ->method('flush');
 
+        $user
+            ->method('getMode')
+            ->willReturn('asistente');
+
+        $user
+            ->method('getChatId')
+            ->willReturn(1234);
 
         $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
-        $dbService->setBotMode($bt);
+        $dbService->UpdateUserMode($user);
     }
 }

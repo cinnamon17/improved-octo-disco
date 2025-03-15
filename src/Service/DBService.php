@@ -31,30 +31,20 @@ class DBService
         $this->bt = $bt;
     }
 
-    public function getPrompt(): Prompt
+    public function getPrompt(User $user, string $locale): Prompt
     {
-        $chatId = $this->update->getChatId();
+        $chatId = $user->getChatId();
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        return $this->promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $this->update->getLocale()]);
+        return $this->promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $locale]);
     }
 
-    public function isUserExists(): bool
+    public function isUserExists(int $chatId): bool
     {
-        $chatId = $this->update->getChatId() ?? $this->update->getCallbackQuery()->getFrom()->getId();
-        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        $existsUser = $user ? true : false;
-
-        return $existsUser;
+        return $this->userRepository->findOneBy(['chat_id' => $chatId]) !== null;
     }
 
-    public function insertUserInDb(): void
+    public function insertUserInDb(User $user): void
     {
-        $user = (new User())
-            ->setChatId($this->update->getChatId())
-            ->setIsBot($this->update->getIsBot())
-            ->setMode($this->bt->getAssistantMessage())
-            ->setFirstName($this->update->getFirstName());
-
         $this->em->persist($user);
         $this->em->flush();
     }
@@ -75,11 +65,11 @@ class DBService
         $this->em->flush();
     }
 
-    public function setBotMode()
+    public function updateUserMode(User $user): void
     {
-        $chatId = $this->update->getCallbackQueryChatId();
+        $chatId = $user->getChatId();
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        $user->setMode($this->update->getCallbackQueryData());
+        $user->setMode($user->getMode());
 
         $this->em->persist($user);
         $this->em->flush();

@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\Service;
 
 use App\Entity\Prompt;
+use App\Entity\User;
 use App\Repository\PromptRepository;
 use App\Service\DBService;
 use App\Service\RequestSerializer;
@@ -82,9 +83,15 @@ class DBServiceTest extends KernelTestCase
         $container->set(TelegramBotUpdate::class, $telegramBotUpdate);
 
         $dbService = static::getContainer()->get(DBService::class);
-        $dbService->insertUserInDb();
 
-        $this->assertInstanceOf(Prompt::class, $dbService->getPrompt());
+        $user = (new User())
+            ->setChatId(12345)
+            ->setIsBot(true)
+            ->setMode('asistente')
+            ->setFirstName('test');
+
+        $dbService->insertUserInDb($user);
+        $this->assertInstanceOf(Prompt::class, $dbService->getPrompt($user, 'es'));
     }
 
     public function testGetPromptRepository(): void

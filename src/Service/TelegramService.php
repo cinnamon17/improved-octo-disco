@@ -78,10 +78,28 @@ class TelegramService implements LoggerAwareInterface
         return $this->http->chatCompletion($chatPromptMessageDto);
     }
 
+    public function setBotMode(): void
+    {
+        $user = $this->dtoFactory->createUserBotMode();
+        $this->db->updateUserMode($user);
+    }
+
+    public function insertUserInDb(): void
+    {
+        $user = $this->dtoFactory->createUser();
+        $this->db->insertUserInDb($user);
+    }
+
+    public function isUserExists(): bool
+    {
+        $chatId = $this->dtoFactory->createChatIdFromUpdate();
+        return $this->db->isUserExists($chatId);
+    }
+
     public function handleCallbackQuery(): array
     {
         $params = $this->dtoFactory->createCallbackQueryParams();
-        $this->db->setBotMode();
+        $this->setBotMode();
         $this->telegramRequest($params);
 
         $response =  $this->answerCallbackQuery();
