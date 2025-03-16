@@ -2,6 +2,9 @@
 
 namespace App\Tests\Unit\Dto;
 
+use App\Dto\InlineKeyboardButtonDto;
+use App\Dto\InlineKeyboardButtonRowDto;
+use App\Dto\InlineKeyboardDto;
 use App\Dto\TelegramMessageDto;
 use PHPUnit\Framework\TestCase;
 
@@ -28,13 +31,47 @@ class TelegramMessageDtoTest extends TestCase
         $this->assertEquals('/mode', $telegramMessageDto->getText());
     }
 
+    public function testGetReplyMarkup(): void
+    {
+        $telegramMessageDto = new TelegramMessageDto();
+        $translatorButton = new InlineKeyboardButtonDto();
+        $translatorButton
+            ->setText('translator')
+            ->setData('translator');
+
+        $assistantButton = new InlineKeyboardButtonDto();
+        $assistantButton
+            ->setText('assistant')
+            ->setData('assistant');
+
+        $inlineKeyboardButtonRowDto = new InlineKeyboardButtonRowDto();
+        $inlineKeyboardButtonRowDto
+            ->add($translatorButton)
+            ->add($assistantButton);
+
+        $inlineKeyboardButtonRowDto2 = new InlineKeyboardButtonRowDto();
+        $inlineKeyboardButtonRowDto
+            ->add($translatorButton)
+            ->add($assistantButton);
+
+        $inlineKeyboardDto = new InlineKeyboardDto();
+        $inlineKeyboardDto
+            ->add($inlineKeyboardButtonRowDto)
+            ->add($inlineKeyboardButtonRowDto2);
+
+        $telegramMessageDto->setReplyMarkup($inlineKeyboardDto);
+
+        $this->assertEquals($inlineKeyboardDto->getKeyboard(), $telegramMessageDto->getReplyMarkup());
+    }
+
     public function testToArray(): void
     {
 
         $params = [
             'method' => 'sendMessage',
             'chat_id' => 9223372036854775807,
-            'text' => '/mode'
+            'text' => '/mode',
+            'reply_markup' => ''
         ];
 
         $telegramMessageDto = new TelegramMessageDto();

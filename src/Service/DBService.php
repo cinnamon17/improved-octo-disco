@@ -15,90 +15,57 @@ class DBService
     private UserRepository $userRepository;
     private PromptRepository $promptRepository;
 
-    public function __construct(EntityManagerInterface $entityManagerInterface, UserRepository $userRepository, PromptRepository $promptRepository)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManagerInterface,
+        UserRepository $userRepository,
+        PromptRepository $promptRepository,
+    ) {
         $this->em = $entityManagerInterface;
         $this->userRepository = $userRepository;
         $this->promptRepository = $promptRepository;
     }
 
-    public function userFindOneBy(int $chatId): ?User
+    public function getPrompt(User $user, string $locale): Prompt
     {
+        $chatId = $user->getChatId();
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        return $user;
+        return $this->promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $locale]);
     }
 
-    public function promptFindOneBy(string $role, string $lang): Prompt
+    public function isUserExists(int $chatId): bool
     {
-        $prompt = $this->promptRepository->findOneBy(['role' => $role, 'language' => $lang]);
-        return $prompt;
+        return $this->userRepository->findOneBy(['chat_id' => $chatId]) !== null;
     }
 
-    public function getPrompt(BotUpdateTranslator $but): Prompt
+    public function insertUserInDb(User $user): void
     {
-        $chatId = $but->update()->getChatId();
-        $user = $this->userFindOneBy($chatId);
-        $prompt = $this->promptFindOneBy($user->getMode(), $but->update()->getLanguageCode());
-
-        return $prompt;
-    }
-
-    public function isUserExists(BotUpdateTranslator $but): bool
-    {
-        $chatId = $but->update()->getChatId() ?? $but->update()->getCallbackQuery()->getFrom()->getId();
-        $user = $this->userFindOneBy($chatId);
-        $existsUser = $user ? true : false;
-
-        return $existsUser;
-    }
-
-    public function insertUserInDb(BotUpdateTranslator $but): void
-    {
-        $user = new User();
-        $user->setChatId($but->update()->getChatId())
-            ->setIsBot($but->update()->getIsBot())
-            ->setMode($but->getAssistantMessage())
-            ->setFirstName($but->update()->getFirstName());
-
-        $this->save($user);
-    }
-
-    public function updateUserInDb(BotUpdateTranslator $but): void
-    {
-        $user = $this->userFindOneBy($but->update()->getChatId());
-        $user->setFirstName($but->update()->getFirstName())
-            ->setLastName($but->update()->getLastName())
-            ->setUsername($but->update()->getUsername());
-
-        $message = new Message();
-        $message->setText($but->update()->getMessageText())
-            ->setMessageId($but->update()->getMessageId())
-            ->setUser($user);
-
-        $this->save($message);
-    }
-
-    public function setBotMode(BotUpdateTranslator $but)
-    {
-        $chatId = $but->getCallbackQueryChatId();
-        $user = $this->userFindOneBy($chatId);
-        $user->setMode($but->update()->getCallbackQueryData());
-        $this->save($user);
-    }
-
-    public function persist(Object $object): void
-    {
-        $this->em->persist($object);
-    }
-
-    public function flush(): void
-    {
+        $this->em->persist($user);
         $this->em->flush();
     }
 
-    public function save(Object $object): void
+    public function updateUserInDb(User $userUpdate, Message $message): void
     {
-        $this->em->persist($object);
+        $user = $this->userRepository->findOneBy(['chat_id' => $userUpdate->getChatId()]);
+        $user->setFirstName($userUpdate->getFirstName())
+            ->setLastName($userUpdate->getLastName())
+            ->setUsername($userUpdate->getUsername());
+
+        $message = (new Message())
+            ->setText($message->getText())
+            ->setMessageId($message->getMessageId())
+            ->setUser($user);
+
+        $this->em->persist($message);
+        $this->em->flush();
+    }
+
+    public function updateUserMode(User $userUpdate): void
+    {
+        $chatId = $userUpdate->getChatId();
+        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
+        $user->setMode($userUpdate->getMode());
+
+        $this->em->persist($user);
         $this->em->flush();
     }
 }

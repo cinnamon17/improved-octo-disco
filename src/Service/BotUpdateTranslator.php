@@ -18,9 +18,7 @@ class BotUpdateTranslator
 
     public function translate(string $id): string
     {
-
-        $message = $this->translator->trans($id, locale: $this->getLocale());
-        return $message;
+        return $this->translator->trans($id, locale: $this->update->getLocale());
     }
 
     public function getAssistantMessage(): string
@@ -33,7 +31,7 @@ class BotUpdateTranslator
         return $this->translate('character.message');
     }
 
-    public function getbussinessMessage(): string
+    public function getBusinessMessage(): string
     {
         return $this->translate('business.message');
     }
@@ -43,29 +41,8 @@ class BotUpdateTranslator
         return $this->translate('translator.message');
     }
 
-    public function getLanguagueCode(): ?string
+    public function getWelcomeMessage(): string
     {
-        return $this->update->getLanguageCode();
-    }
-
-    public function getCallbackQueryLanguageCode(): ?string
-    {
-        return $this->update->getCallbackQueryLanguageCode();
-    }
-
-    public function getCallbackQueryChatId(): int
-    {
-        return $this->update->getCallbackQueryChatId();
-    }
-
-    public function getLocale(): ?string
-    {
-        return $this->getLanguagueCode() ?? $this->getCallbackQueryLanguageCode();
-    }
-
-    public function update(): TelegramBotUpdate
-    {
-
-        return $this->update;
+        return $this->translate('welcome.message');
     }
 }

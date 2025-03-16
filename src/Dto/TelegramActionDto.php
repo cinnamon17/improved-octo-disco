@@ -2,13 +2,12 @@
 
 namespace App\Dto;
 
-class TelegramMessageDto
+class TelegramActionDto
 {
 
     private string $method;
     private int $chat_id;
-    private string $text;
-    private ?InlineKeyboardDto $reply_markup = null;
+    private string $action;
 
     public function setMethod(string $method): self
     {
@@ -32,27 +31,15 @@ class TelegramMessageDto
         return $this->chat_id;
     }
 
-    public function setText(string $text): self
+    public function setAction(string $action): self
     {
-        $this->text = $text;
+        $this->action = $action;
         return $this;
     }
 
-    public function getText(): string
+    public function getAction(): string
     {
-        return $this->text;
-    }
-
-    public function setReplyMarkup(InlineKeyboardDto $inlineKeyboard): self
-    {
-
-        $this->reply_markup = $inlineKeyboard;
-        return $this;
-    }
-
-    public function getReplyMarkup(): array | string
-    {
-        return $this->reply_markup?->getKeyboard() ?? '';
+        return $this->action;
     }
 
     public function toArray(): array
@@ -61,8 +48,7 @@ class TelegramMessageDto
         $params = [
             'method' => $this->getMethod(),
             'chat_id' => $this->getChatId(),
-            'text' => $this->getText(),
-            'reply_markup' => $this->getReplyMarkup()
+            'action' => $this->getAction()
         ];
 
         return $params;

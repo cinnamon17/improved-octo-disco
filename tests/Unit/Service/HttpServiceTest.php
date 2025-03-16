@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Dto\ChatPromptMessageDto;
 use App\Service\HttpService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
@@ -19,6 +20,9 @@ class HttpServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->env = $this->createStub(ContainerBagInterface::class);
+        $this->env->method('get')
+            ->willReturn('completions');
+
         $this->expected = '{
         "id": "chatcmpl-123",
         "object": "chat.completion",
@@ -39,23 +43,32 @@ class HttpServiceTest extends TestCase
         }
     }';
         $this->response = new JsonMockResponse(json_decode($this->expected));
-        $this->client = new MockHttpClient($this->response, 'https://example.com');
+        $this->client = new MockHttpClient($this->response, 'https://api.openai.com/v1/chat/completions');
         $this->http = new HttpService($this->client, $this->env);
     }
 
     public function testChatCompletionReturnAnArrayWithOpenApiResponse(): void
     {
 
-        $openapiArrayResponse = $this->http->chatCompletion('hola', 'test');
-        $expectedArray = json_decode($this->expected, true);
+        $chatPromptMessageDto = new ChatPromptMessageDto();
+        $chatPromptMessageDto
+            ->setPrompt('test')
+            ->setMessage('hola');
 
+        $openapiArrayResponse = $this->http->chatCompletion($chatPromptMessageDto);
+        $expectedArray = json_decode($this->expected, true);
         $this->assertSame($expectedArray, $openapiArrayResponse);
     }
 
     public function testChatCompletionAssertOpenApiURL(): void
     {
 
-        $this->http->chatCompletion('hola', 'test');
+        $chatPromptMessageDto = new ChatPromptMessageDto();
+        $chatPromptMessageDto
+            ->setPrompt('test')
+            ->setMessage('hola');
+
+        $this->http->chatCompletion($chatPromptMessageDto);
 
         $openApiUrl = $this->response->getRequestUrl();
         $this->assertSame('https://api.openai.com/v1/chat/completions', $openApiUrl);
@@ -71,8 +84,12 @@ class HttpServiceTest extends TestCase
 
     public function testChatCompletionAssertRequiredRequestOptions()
     {
+        $chatPromptMessageDto = new ChatPromptMessageDto();
+        $chatPromptMessageDto
+            ->setPrompt('test')
+            ->setMessage('hola');
 
-        $this->http->chatCompletion('hola', 'test');
+        $this->http->chatCompletion($chatPromptMessageDto);
         $requiredOptions = '{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"test"},{"role":"user","content":"hola"}]}';
         $actualPostedOptions = $this->response->getRequestOptions()['body'];
         $this->assertSame($requiredOptions, $actualPostedOptions);

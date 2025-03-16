@@ -125,14 +125,14 @@ class TelegramBotUpdateTest extends TestCase
         $this->assertIsString($telegramBotUpdate->getCallbackQueryData());
     }
 
-    public function testGetLanguageCode(): void
+    public function testGetLocale(): void
     {
         $telegramBotUpdate = new TelegramBotUpdate($this->requestSerializer);
-        $this->assertEquals('es', $telegramBotUpdate->getLanguageCode());
-        $this->assertIsString($telegramBotUpdate->getLanguageCode());
+        $this->assertEquals('es', $telegramBotUpdate->getLocale());
+        $this->assertIsString($telegramBotUpdate->getLocale());
     }
 
-    public function testGetLanguageCodeIsNeverNull(): void
+    public function testGetLocaleIsNeverNull(): void
     {
         $requestSerializer = $this->createStub(RequestSerializer::class);
         $this->updateDto = new UpdateDto();
@@ -176,8 +176,8 @@ class TelegramBotUpdateTest extends TestCase
             ->willReturn($this->updateDto);
 
         $telegramBotUpdate = new TelegramBotUpdate($requestSerializer);
-        $this->assertEquals('en', $telegramBotUpdate->getLanguageCode());
-        $this->assertIsString($telegramBotUpdate->getLanguageCode());
+        $this->assertEquals('en', $telegramBotUpdate->getLocale());
+        $this->assertIsString($telegramBotUpdate->getLocale());
     }
 
     public function testGetCallbackQueryLanguageCode(): void

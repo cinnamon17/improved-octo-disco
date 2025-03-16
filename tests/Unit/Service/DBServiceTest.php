@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Entity\Message;
 use App\Entity\Prompt;
 use App\Entity\User;
 use App\Repository\PromptRepository;
@@ -18,62 +19,28 @@ class DBServiceTest extends TestCase
     private EntityManagerInterface $em;
     private PromptRepository $promptRepository;
     private UserRepository $userRepository;
+    private BotUpdateTranslator $bt;
 
     protected function setUp(): void
     {
         $this->em = $this->createStub(EntityManagerInterface::class);
         $this->promptRepository = $this->createStub(PromptRepository::class);
         $this->userRepository = $this->createStub(UserRepository::class);
-    }
-    public function testUserFindOneBy(): void
-    {
-
-
-        $this->userRepository->method('findOneBy')
-            ->willReturn(new User());
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-        $user = $dbService->userFindOneBy('1234');
-
-        $this->assertInstanceOf(User::class, $user);
-    }
-
-    public function testUserFindOneByNull(): void
-    {
-
-        $this->userRepository->method('findOneBy')
-            ->willReturn(null);
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-        $user = $dbService->userFindOneBy('1234');
-
-        $this->assertNull($user);
-    }
-
-    public function testPromptFindOneBy(): void
-    {
-
-        $this->promptRepository->method('findOneBy')
-            ->willReturn(new Prompt());
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-        $prompt = $dbService->promptFindOneBy('doctor', 'en');
-
-        $this->assertInstanceOf(Prompt::class, $prompt);
+        $this->bt = $this->createStub(BotUpdateTranslator::class);
     }
 
     public function testGetPrompt(): void
     {
 
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $user = new User();
         $user->setMode('doctor');
+        $user->setChatId(12345);
         $telegramBotUpdate->method('getChatId')
             ->willReturn(12345);
 
-        $telegramBotUpdate->method('getLanguageCode')
+        $telegramBotUpdate->method('getLocale')
             ->willReturn('es');
 
         $this->promptRepository->method('findOneBy')
@@ -82,20 +49,15 @@ class DBServiceTest extends TestCase
         $this->userRepository->method('findOneBy')
             ->willReturn($user);
 
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
+        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
 
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-
-        $prompt = $dbService->getPrompt($bt);
+        $prompt = $dbService->getPrompt($user, 'es');
         $this->assertInstanceOf(Prompt::class, $prompt);
     }
 
     public function testIsUserExists(): void
     {
 
-
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -104,17 +66,13 @@ class DBServiceTest extends TestCase
         $this->userRepository->method('findOneBy')
             ->willReturn(new User());
 
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-        $this->assertTrue($dbService->isUserExists($bt));
+        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
+        $this->assertTrue($dbService->isUserExists(12345));
     }
 
     public function testIsUserNoExists(): void
     {
 
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -123,23 +81,14 @@ class DBServiceTest extends TestCase
         $this->userRepository->method('findOneBy')
             ->willReturn(null);
 
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository);
-        $this->assertFalse($dbService->isUserExists($bt));
+        $dbService = new DBService($this->em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
+        $this->assertFalse($dbService->isUserExists(1234));
     }
 
     public function testInsertUserInDb(): void
     {
-        $bt = $this->createStub(BotUpdateTranslator::class);
+        $user = $this->createStub(User::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
-        $bt->method('getAssistantMessage')
-            ->willReturn('Hello welcome');
 
         $telegramBotUpdate->method('getChatId')
             ->willReturn(12345);
@@ -155,15 +104,14 @@ class DBServiceTest extends TestCase
         $em->expects($this->once())
             ->method('flush');
 
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->insertUserInDb($bt);
+        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
+        $dbService->insertUserInDb($user);
     }
 
     public function testUpdateUserInDb(): void
     {
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -184,24 +132,31 @@ class DBServiceTest extends TestCase
         $telegramBotUpdate->method('getMessageId')
             ->willReturn(12345);
 
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
         $this->userRepository->method('findOneBy')
             ->willReturn(new User());
 
         $em->expects($this->once())
             ->method('flush');
 
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->updateUserInDb($bt);
+        $user = (new User())
+            ->setChatId(12345)
+            ->setFirstName('nameTest')
+            ->setMode('asistente')
+            ->setIsBot(false);
+
+        $message = (new Message())
+            ->setText('test')
+            ->setMessageId(12345);
+
+        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
+        $dbService->updateUserInDb($user, $message);
     }
 
-    public function testSetBotMode(): void
+    public function testUpdateUserMode(): void
     {
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $bt = $this->createStub(BotUpdateTranslator::class);
+        $user = $this->createStub(User::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getCallbackQueryChatId')
@@ -213,47 +168,18 @@ class DBServiceTest extends TestCase
         $this->userRepository->method('findOneBy')
             ->willReturn(new User());
 
-        $bt->method('update')
-            ->willReturn($telegramBotUpdate);
-
         $em->expects($this->once())
             ->method('flush');
 
+        $user
+            ->method('getMode')
+            ->willReturn('asistente');
 
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->setBotMode($bt);
-    }
+        $user
+            ->method('getChatId')
+            ->willReturn(1234);
 
-    public function testPersist(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('persist');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->persist(new User());
-    }
-
-    public function testFlush(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('flush');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->flush(new User());
-    }
-
-    public function testSave(): void
-    {
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('flush');
-
-        $dbService = new DBService($em, $this->userRepository, $this->promptRepository);
-        $dbService->save(new User());
+        $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
+        $dbService->UpdateUserMode($user);
     }
 }

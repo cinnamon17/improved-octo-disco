@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\ChatPromptMessageDto;
 use App\Dto\HeadersDto;
 use App\Dto\OpenAIDto;
 use App\Dto\OpenAIJsonDto;
@@ -22,47 +23,40 @@ class HttpService
         $this->env = $env;
     }
 
-    public function chatCompletion(string $message, string  $prompt): array
+    public function chatCompletion(ChatPromptMessageDto $chatDto): array
     {
 
-        $response = $this->client->request(
-            'POST',
-            'https://api.openai.com/v1/chat/completions',
-            $this->requestParams($message, $prompt)
-        );
+        $params = $this->requestParams($chatDto);
+        $openAIurl = $this->env->get('OPENAI_URL');
+        $response = $this->client->request('POST', $openAIurl, $params);
 
-        $content = $response->toArray();
-        return $content;
+        return $response->toArray();
     }
 
     public function request(array $params)
     {
 
-        $response = $this->client->request(
-            'POST',
-            $this->env->get('BOT_URL') . $this->env->get('BOT_KEY') . "/" . $params['method'],
-            [
-                'json' => $params
-            ]
-        );
+        $data = ['json' => $params];
+        $telegramMethodUrl = $this->env->get('BOT_API') . $params['method'];
+        $response = $this->client->request('POST', $telegramMethodUrl, $data);
 
         return $response->toArray();
     }
 
-    private function requestParams(string $message, string $prompt): array
+    private function requestParams(ChatPromptMessageDto $chatDto): array
     {
 
         $headersDto = (new HeadersDto())
             ->setAccept('application/json')
-            ->setAuthorization("Bearer {$this->env->get('OPENAI_KEY')}");
+            ->setAuthorization((string) $this->env->get('OPENAI_KEY'));
 
         $systemPromptOpenAI = (new OpenAIMessageDto())
             ->setRole('system')
-            ->setContent($prompt);
+            ->setContent($chatDto->getPrompt());
 
         $userMessageToOpenAI = (new OpenAIMessageDto())
             ->setRole('user')
-            ->setContent($message);
+            ->setContent($chatDto->getMessage());
 
         $jsonDto = (new OpenAIJsonDto())
             ->setModel('gpt-3.5-turbo')
