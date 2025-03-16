@@ -90,6 +90,13 @@ class TelegramService implements LoggerAwareInterface
         $this->db->insertUserInDb($user);
     }
 
+    public function updateUserInDb(): void
+    {
+        $user = $this->dtoFactory->createUser();
+        $message = $this->dtoFactory->createMessage();
+        $this->db->updateUserInDb($user, $message);
+    }
+
     public function isUserExists(): bool
     {
         $chatId = $this->dtoFactory->createChatIdFromUpdate();

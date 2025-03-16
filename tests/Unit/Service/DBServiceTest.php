@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Entity\Message;
 use App\Entity\Prompt;
 use App\Entity\User;
 use App\Repository\PromptRepository;
@@ -111,7 +112,6 @@ class DBServiceTest extends TestCase
     {
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $bt = $this->createStub(BotUpdateTranslator::class);
         $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
 
         $telegramBotUpdate->method('getChatId')
@@ -138,8 +138,18 @@ class DBServiceTest extends TestCase
         $em->expects($this->once())
             ->method('flush');
 
+        $user = (new User())
+            ->setChatId(12345)
+            ->setFirstName('nameTest')
+            ->setMode('asistente')
+            ->setIsBot(false);
+
+        $message = (new Message())
+            ->setText('test')
+            ->setMessageId(12345);
+
         $dbService = new DBService($em, $this->userRepository, $this->promptRepository, $telegramBotUpdate, $this->bt);
-        $dbService->updateUserInDb($bt);
+        $dbService->updateUserInDb($user, $message);
     }
 
     public function testUpdateUserMode(): void

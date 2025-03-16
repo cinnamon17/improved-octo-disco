@@ -6,6 +6,7 @@ use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\UpdateDto;
 use App\Dto\UserDto;
+use App\Entity\Message;
 use App\Entity\Prompt;
 use App\Entity\User;
 use App\Service\BotUpdateTranslator;
@@ -230,6 +231,20 @@ class TelegramDtoFactoryTest extends TestCase
 
         $user = $this->telegramDtoFactory->createUser();
         $this->assertInstanceOf(User::class, $user);
+    }
+
+    public function testCreateMessage(): void
+    {
+        $this->telegramBotUpdate
+            ->method('getMessageText')
+            ->willReturn('test');
+
+        $this->telegramBotUpdate
+            ->method('getMessageId')
+            ->willReturn(12345);
+
+        $message = $this->telegramDtoFactory->createMessage();
+        $this->assertInstanceOf(Message::class, $message);
     }
 
     public function testCreateChatId(): void

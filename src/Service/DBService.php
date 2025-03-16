@@ -14,21 +14,15 @@ class DBService
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
     private PromptRepository $promptRepository;
-    private TelegramBotUpdate $update;
-    private BotUpdateTranslator $bt;
 
     public function __construct(
         EntityManagerInterface $entityManagerInterface,
         UserRepository $userRepository,
         PromptRepository $promptRepository,
-        TelegramBotUpdate $update,
-        BotUpdateTranslator $bt
     ) {
         $this->em = $entityManagerInterface;
         $this->userRepository = $userRepository;
         $this->promptRepository = $promptRepository;
-        $this->update = $update;
-        $this->bt = $bt;
     }
 
     public function getPrompt(User $user, string $locale): Prompt
@@ -49,27 +43,27 @@ class DBService
         $this->em->flush();
     }
 
-    public function updateUserInDb(): void
+    public function updateUserInDb(User $userUpdate, Message $message): void
     {
-        $user = $this->userRepository->findOneBy(['chat_id' => $this->update->getChatId()]);
-        $user->setFirstName($this->update->getFirstName())
-            ->setLastName($this->update->getLastName())
-            ->setUsername($this->update->getUsername());
+        $user = $this->userRepository->findOneBy(['chat_id' => $userUpdate->getChatId()]);
+        $user->setFirstName($userUpdate->getFirstName())
+            ->setLastName($userUpdate->getLastName())
+            ->setUsername($userUpdate->getUsername());
 
         $message = (new Message())
-            ->setText($this->update->getMessageText())
-            ->setMessageId($this->update->getMessageId())
+            ->setText($message->getText())
+            ->setMessageId($message->getMessageId())
             ->setUser($user);
 
         $this->em->persist($message);
         $this->em->flush();
     }
 
-    public function updateUserMode(User $user): void
+    public function updateUserMode(User $userUpdate): void
     {
-        $chatId = $user->getChatId();
+        $chatId = $userUpdate->getChatId();
         $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        $user->setMode($user->getMode());
+        $user->setMode($userUpdate->getMode());
 
         $this->em->persist($user);
         $this->em->flush();

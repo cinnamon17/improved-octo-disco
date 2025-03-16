@@ -13,13 +13,11 @@ class TelegramController extends AbstractController
 {
     private TelegramService $tService;
     private TelegramBotUpdate $update;
-    private DBService $db;
 
-    public function __construct(TelegramService $tService, TelegramBotUpdate $update, DBService $db)
+    public function __construct(TelegramService $tService, TelegramBotUpdate $update)
     {
         $this->tService = $tService;
         $this->update = $update;
-        $this->db = $db;
     }
 
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
@@ -44,7 +42,7 @@ class TelegramController extends AbstractController
         }
 
         if ($this->tService->isUserExists()) {
-            $this->db->updateUserInDb();
+            $this->tService->updateUserInDb();
         }
 
         if ($this->update->getMessageText() == "/start") {

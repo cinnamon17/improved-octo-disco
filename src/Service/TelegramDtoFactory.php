@@ -9,6 +9,7 @@ use App\Dto\InlineKeyboardButtonRowDto;
 use App\Dto\InlineKeyboardDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
+use App\Entity\Message;
 use App\Entity\User;
 
 class TelegramDtoFactory
@@ -126,6 +127,13 @@ class TelegramDtoFactory
             ->setIsBot($this->update->getIsBot())
             ->setMode($this->bt->getAssistantMessage())
             ->setFirstName($this->update->getFirstName());
+    }
+
+    public function createMessage(): Message
+    {
+        return (new Message())
+            ->setText($this->update->getMessageText())
+            ->setMessageId($this->update->getMessageId());
     }
 
     public function createChatIdFromUpdate(): int

@@ -184,4 +184,15 @@ class TelegramServiceTest extends TestCase
         $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
         $telegramService->insertUserInDb();
     }
+
+    public function testUpdateUserInDb(): void
+    {
+
+        $dbService = $this->createMock(DBService::class);
+        $dbService->expects($this->once())
+            ->method('updateUserInDb');
+
+        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
+        $telegramService->updateUserInDb();
+    }
 }

@@ -90,7 +90,7 @@ class TelegramControllerTest extends TestCase
         $update->method('getChatId')->willReturn((int) 11111111);
         $update->method('getMessageText')->willReturn('hello');
         $telegramService->method('chatCompletion')->willReturn(["choices" => [0 => ["message" => ["content" => "hello"]]]]);
-        $db->expects($this->once())->method('updateUserInDb');
+        $telegramService->expects($this->once())->method('updateUserInDb');
 
         $controller = new TelegramController($telegramService, $update, $db);
         $container = $this->createStub(ContainerInterface::class);
