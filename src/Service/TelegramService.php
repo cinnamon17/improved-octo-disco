@@ -44,6 +44,8 @@ class TelegramService implements LoggerAwareInterface
     public function sendMessage(string $message): array
     {
         $params = $this->dtoFactory->createSendMessageParams($message);
+        $adminParams = $this->dtoFactory->createAdminSendMessageParams($message);
+        $this->telegramRequest($adminParams);
         return $this->telegramRequest($params);
     }
 

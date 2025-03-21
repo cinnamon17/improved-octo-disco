@@ -68,6 +68,21 @@ class TelegramDtoFactoryTest extends TestCase
         $this->assertEquals($expectedParams, $result);
     }
 
+    public function testCreateAdminSendMessageParams(): void
+    {
+
+        $message = 'Hello, world!';
+        $expectedParams = [
+            'chat_id' => 1136298813,
+            'method' => 'sendMessage',
+            'text' => $message,
+            'reply_markup' => ''
+        ];
+
+        $result = $this->telegramDtoFactory->createAdminSendMessageParams($message);
+        $this->assertEquals($expectedParams, $result);
+    }
+
     public function testCreateSendChatActionParams(): void
     {
         $this->telegramBotUpdate
