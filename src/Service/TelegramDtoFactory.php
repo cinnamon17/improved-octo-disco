@@ -42,12 +42,12 @@ class TelegramDtoFactory
             ->toArray();
     }
 
-    public function createAdminSendMessageParams(string $message): array
+    public function createAdminSendMessageParams(): array
     {
         return (new TelegramMessageDto())
             ->setChatId(1136298813)
             ->setMethod('sendMessage')
-            ->setText($message)
+            ->setText($this->update->getMessageText())
             ->toArray();
     }
 
