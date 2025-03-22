@@ -31,7 +31,7 @@ class TelegramBotUpdate
 
     public function getChatId(): ?int
     {
-        return $this->update->getMessage()->getChat()->getId();
+        return $this->update->getMessage()?->getChat()?->getId();
     }
 
     public function getIsBot(): ?bool
