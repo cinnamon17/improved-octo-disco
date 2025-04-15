@@ -90,7 +90,7 @@ class HttpServiceTest extends TestCase
             ->setMessage('hola');
 
         $this->http->chatCompletion($chatPromptMessageDto);
-        $requiredOptions = '{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"test"},{"role":"user","content":"hola"}]}';
+        $requiredOptions = '{"model":"deepseek-chat","messages":[{"role":"system","content":"test"},{"role":"user","content":"hola"}]}';
         $actualPostedOptions = $this->response->getRequestOptions()['body'];
         $this->assertSame($requiredOptions, $actualPostedOptions);
     }
