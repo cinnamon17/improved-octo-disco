@@ -59,7 +59,7 @@ class HttpService
             ->setContent($chatDto->getMessage());
 
         $jsonDto = (new OpenAIJsonDto())
-            ->setModel('gpt-3.5-turbo')
+            ->setModel('deepseek-chat')
             ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI]);
 
         $openAIDto = (new OpenAIDto())
