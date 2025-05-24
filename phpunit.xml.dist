@@ -25,14 +25,10 @@
     <testsuite name="integration">
       <directory>tests/Integration</directory>
     </testsuite>
-    <testsuite name="Project Test Suite">
-      <directory>tests</directory>
-    </testsuite>
   </testsuites>
 
   <extensions>
-        <bootstrap class="Symfony\Component\Panther\ServerExtension" />
-        <extension class="Symfony\Component\Panther\ServerExtension" />
+    <bootstrap class="Symfony\Component\Panther\ServerExtension" />
     <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension"/>
   </extensions>
 
