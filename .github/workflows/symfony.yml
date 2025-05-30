@@ -57,11 +57,11 @@ jobs:
  #       ssh-private-key: ${{ secrets.PRIVATE_KEY }}
  #       run: |
  #         ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
- #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }}"
- #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git"
- #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
- #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod"
- #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/symfony-api && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv improved-octo-disco ${{ github.run_number }}"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/improved-octo-disco.git"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/improved-octo-disco && composer install && composer dump-env prod"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
     - name: TEST
       uses: D3rHase/ssh-command-action@v0.2.2
       with:
@@ -71,14 +71,14 @@ jobs:
         #host_fingerprint: ${{secrets.HOST_FINGERPRINT}} # Public ssh key fingerprint, viewable via ssh-keyscan -H $HOST -p $PORT - optional
         command: |
               echo 'Connected via SSH' &&
-              cd /var/www/html/symfony && mv symfony-api ${{ github.run_number }} &&
-              cd /var/www/html/symfony && git clone https://github.com/cinnamon17/symfony-api.git &&
-              cd /var/www/html/symfony/symfony-api && echo APP_ENV=${{ secrets.APP_ENV }} >.env &&
-              cd /var/www/html/symfony/symfony-api && echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && echo DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && echo CORS_ALLOW_ORIGIN=${{ secrets.CORS }} >> .env &&
-              cd /var/www/html/symfony/symfony-api && composer install && composer dump-env prod &&
-              cd /var/www/html/symfony/symfony-api && php bin/console doctrine:migrations:migrate -n &&
-              cd /var/www/html/symfony/symfony-api && HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+              cd /var/www/html/symfony && mv improved-octo-disco ${{ github.run_number }} &&
+              cd /var/www/html/symfony && git clone https://github.com/cinnamon17/improved-octo-disco.git &&
+              cd /var/www/html/symfony/improved-octo-disco && echo APP_ENV=${{ secrets.APP_ENV }} >.env &&
+              cd /var/www/html/symfony/improved-octo-disco && echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env &&
+              cd /var/www/html/symfony/improved-octo-disco && echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env &&
+              cd /var/www/html/symfony/improved-octo-disco && echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env &&
+              cd /var/www/html/symfony/improved-octo-disco && echo DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env &&
+              cd /var/www/html/symfony/improved-octo-disco && echo CORS_ALLOW_ORIGIN=${{ secrets.CORS }} >> .env &&
+              cd /var/www/html/symfony/improved-octo-disco && composer install && composer dump-env prod &&
+              cd /var/www/html/symfony/improved-octo-disco && php bin/console doctrine:migrations:migrate -n &&
+              cd /var/www/html/symfony/improved-octo-disco && HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
