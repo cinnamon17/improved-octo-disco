@@ -23,9 +23,9 @@ jobs:
         run: |
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << EOF
           cd /var/www/html/staging
-          mv symfony-api ${{ github.run_number }}
-          git clone https://github.com/cinnamon17/symfony-api.git
-          cd symfony-api
+          mv improved-octo-disco ${{ github.run_number }}
+          git clone https://github.com/cinnamon17/improved-octo-disco.git
+          cd improved-octo-disco
           git checkout staging
           echo APP_ENV=${{ secrets.APP_ENV }} >.env
           echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
