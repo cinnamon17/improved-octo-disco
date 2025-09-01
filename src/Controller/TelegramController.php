@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Service\TelegramBotUpdate;
 use App\Service\TelegramService;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,13 +12,11 @@ class TelegramController extends AbstractController
 {
     private TelegramService $tService;
     private TelegramBotUpdate $update;
-    private LoggerInterface $logger;
 
-    public function __construct(TelegramService $tService, TelegramBotUpdate $update, LoggerInterface $webhookLogger)
+    public function __construct(TelegramService $tService, TelegramBotUpdate $update)
     {
         $this->tService = $tService;
         $this->update = $update;
-	$this->logger = $webhookLogger;
     }
 
     #[Route('/telegram', name: 'app_telegram', methods: 'post')]
@@ -63,11 +60,8 @@ class TelegramController extends AbstractController
 	}else{
 	    $chunks = str_split($openaiResponse["choices"][0]["message"]["content"], 4096);
 	    foreach($chunks as $text){
-		$this->tService->sendMessage($text);
+		$response = $this->tService->sendMessage($text);
 	    };
-
-
-
 	}
 
         return $this->json($response);
