@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Service\DBService;
 use App\Service\TelegramBotUpdate;
 use App\Service\TelegramService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

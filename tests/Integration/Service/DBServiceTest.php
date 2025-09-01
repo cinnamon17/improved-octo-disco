@@ -9,6 +9,7 @@ use App\Service\DBService;
 use App\Service\RequestSerializer;
 use App\Service\TelegramBotUpdate;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -25,6 +26,7 @@ class DBServiceTest extends KernelTestCase
         $entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $request = $this->createStub(Request::class);
         $requestStack = $this->createStub(RequestStack::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $prompt = new Prompt();
         $prompt->setLanguage('es');
@@ -78,7 +80,7 @@ class DBServiceTest extends KernelTestCase
 
         $serializer = $container->get(SerializerInterface::class);
 
-        $requestSerializer = new RequestSerializer($serializer, $requestStack);
+        $requestSerializer = new RequestSerializer($serializer, $requestStack, $logger);
         $container->set(RequestSerializer::class, $requestSerializer);
         $container->set(TelegramBotUpdate::class, $telegramBotUpdate);
 

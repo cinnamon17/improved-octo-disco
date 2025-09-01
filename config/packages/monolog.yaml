@@ -1,6 +1,15 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - webhook
+
+    handlers:
+        webhook:
+            type: stream
+            path: "%kernel.logs_dir%/webhook.log"
+            level: debug
+            channels: ["webhook"]
+            formatter: monolog.formatter.json
 
 when@dev:
     monolog:
