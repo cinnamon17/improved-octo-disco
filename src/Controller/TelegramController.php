@@ -54,6 +54,9 @@ class TelegramController extends AbstractController
             return $this->json($response);
         }
 
+	$response = new JsonResponse(data: ["request" => "success"]);
+	$response->send();
+
         $openaiResponse = $this->tService->chatCompletion();
 	if(strlen($openaiResponse["choices"][0]["message"]["content"]) < 4096){
 	    $response = $this->tService->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
