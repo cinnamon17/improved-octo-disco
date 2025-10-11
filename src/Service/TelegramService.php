@@ -32,7 +32,7 @@ class TelegramService implements LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    public function log($message, $context = [])
+    public function log(string $message, array $context = []): void
     {
         $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
