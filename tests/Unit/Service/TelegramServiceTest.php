@@ -166,40 +166,4 @@ class TelegramServiceTest extends TestCase
         $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
         $telegramService->setBotMode();
     }
-
-    public function testIsUserExists(): void
-    {
-
-        $dbService = $this->createStub(DBService::class);
-        $dbService
-            ->method('isUserExists')
-            ->willReturn(true);
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $bool = $telegramService->isUserExists();
-
-        $this->assertTrue($bool);
-    }
-
-    public function testSetInserUserInDb(): void
-    {
-
-        $dbService = $this->createMock(DBService::class);
-        $dbService->expects($this->once())
-            ->method('insertUserInDb');
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $telegramService->insertUserInDb();
-    }
-
-    public function testUpdateUserInDb(): void
-    {
-
-        $dbService = $this->createMock(DBService::class);
-        $dbService->expects($this->once())
-            ->method('updateUserInDb');
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $telegramService->updateUserInDb();
-    }
 }

@@ -36,37 +36,7 @@ class TelegramController extends AbstractController
             return $this->json('invalid message');
         }
 
-        if (!$this->tService->isUserExists()) {
-            $this->tService->insertUserInDb();
-        }
-
-        if ($this->tService->isUserExists()) {
-            $this->tService->updateUserInDb();
-        }
-
-        if ($this->update->getMessageText() == "/start") {
-            $response = $this->tService->sendWelcomeMessage();
-            return $this->json($response);
-        }
-
-        if ($this->update->getMessageText() == "/mode") {
-            $response = $this->tService->sendInlineKeyboard();
-            return $this->json($response);
-        }
-
-	$response = new JsonResponse(data: ["request" => "success"]);
-	$response->send();
-
-        $openaiResponse = $this->tService->chatCompletion();
-	if(strlen($openaiResponse["choices"][0]["message"]["content"]) < 4096){
-	    $response = $this->tService->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
-	}else{
-	    $chunks = str_split($openaiResponse["choices"][0]["message"]["content"], 4096);
-	    foreach($chunks as $text){
-		$response = $this->tService->sendMessage($text);
-	    };
-	}
-
+	$response = $this->tService->handleIncomingMessage();
         return $this->json($response);
     }
 }

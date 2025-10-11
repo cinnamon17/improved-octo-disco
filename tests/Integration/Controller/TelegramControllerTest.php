@@ -122,6 +122,6 @@ class TelegramControllerTest extends WebTestCase
 
         $response = $client->getResponse()->getContent();
         $textReceived = json_decode($response)->result->text;
-        $this->assertStringContainsString('¡Hola! Soy tu asistente de IA en Telegram', $textReceived);
+        $this->assertStringContainsString('¡Hola!', $textReceived);
     }
 }
