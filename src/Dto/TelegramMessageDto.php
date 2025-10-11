@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class TelegramMessageDto
+class TelegramMessageDto implements TelegramDtoInterface
 {
 
     private string $method;

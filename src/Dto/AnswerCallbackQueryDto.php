@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class AnswerCallbackQueryDto
+class AnswerCallbackQueryDto implements TelegramDtoInterface
 {
     private string $id;
     private string $method;
