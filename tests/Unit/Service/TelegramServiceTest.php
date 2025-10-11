@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Dto\CallbackQueryDto;
+use App\Dto\TelegramMessageDto;
 use App\Entity\Prompt;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
@@ -47,8 +47,15 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
+	$telegramMessageDto = new TelegramMessageDto();
+	$telegramMessageDto
+	    ->setMethod('sendMessage')
+	    ->setChatId(11111111)
+	    ->setText('test')
+	;
+
         $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
-        $response = $telegramService->telegramRequest(['params']);
+        $response = $telegramService->telegramRequest($telegramMessageDto);
 
         $this->assertIsArray($response);
     }

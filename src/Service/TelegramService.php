@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\TelegramDtoInterface;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -36,9 +37,9 @@ class TelegramService implements LoggerAwareInterface
         $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
-    public function telegramRequest(array $params): array
+    public function telegramRequest(TelegramDtoInterface $dto): array
     {
-        return $this->http->request($params);
+        return $this->http->request($dto);
     }
 
     public function sendMessage(string $message): array

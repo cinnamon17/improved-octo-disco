@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Service;
 
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\TelegramMessageDto;
 use App\Service\HttpService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
@@ -77,12 +78,19 @@ class HttpServiceTest extends TestCase
     public function testRequest(): void
     {
 
-        $request = $this->http->request(["method" => "world"]);
+	$telegramMessageDto = new TelegramMessageDto();
+	$telegramMessageDto
+	    ->setMethod('sendMessage')
+	    ->setChatId(11111111)
+	    ->setText('test')
+	;
+
+        $request = $this->http->request($telegramMessageDto);
 
         $this->assertIsArray($request);
     }
 
-    public function testChatCompletionAssertRequiredRequestOptions()
+    public function testChatCompletionAssertRequiredRequestOptions(): void
     {
         $chatPromptMessageDto = new ChatPromptMessageDto();
         $chatPromptMessageDto

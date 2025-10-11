@@ -7,6 +7,7 @@ use App\Dto\HeadersDto;
 use App\Dto\OpenAIDto;
 use App\Dto\OpenAIJsonDto;
 use App\Dto\OpenAIMessageDto;
+use App\Dto\TelegramDtoInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -33,11 +34,11 @@ class HttpService
         return $response->toArray();
     }
 
-    public function request(array $params)
+    public function request(TelegramDtoInterface $dto): array
     {
 
-        $data = ['json' => $params];
-        $telegramMethodUrl = $this->env->get('BOT_API') . $params['method'];
+        $data = ['json' => $dto->toArray()];
+        $telegramMethodUrl = $this->env->get('BOT_API') . $dto->getMethod();
         $response = $this->client->request('POST', $telegramMethodUrl, $data);
 
         return $response->toArray();
