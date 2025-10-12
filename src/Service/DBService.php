@@ -28,8 +28,8 @@ class DBService
     public function getPrompt(User $user, string $locale): Prompt
     {
         $chatId = $user->getChatId();
-        $user = $this->userRepository->findOneBy(['chat_id' => $chatId]);
-        return $this->promptRepository->findOneBy(['role' => $user->getMode(), 'language' => $locale]);
+        $userEntity = $this->userRepository->findOneBy(['chat_id' => $chatId]);
+        return $this->promptRepository->findOneBy(['role' => $userEntity->getMode(), 'language' => $locale]);
     }
 
     public function isUserExists(int $chatId): bool

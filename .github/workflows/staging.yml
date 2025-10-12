@@ -12,17 +12,29 @@ permissions:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: mysqli, pdo_mysql
 
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Copy .env.test.local
         run: |
+          echo DATABASE_URL=${{ secrets.DATABASE_STAGING_ACTION }} >> .env.test.local
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
           cat .env.test.local
@@ -39,13 +51,27 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
+      - name: Wait for MySQL to be ready
+        run: |
+          # Esperar a que MySQL esté listo
+          for i in {1..30}; do
+            if nc -z 127.0.0.1 3306; then
+              echo "MySQL is ready!"
+              sleep 2  # Esperar un poco más para asegurar
+              break
+            fi
+            echo "Waiting for MySQL... attempt $i"
+            sleep 2
+          done
+
       - name: Setup Database
         run: |
-          php bin/console --env=test doctrine:schema:create
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:migrations:migrate --env=test -n
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
-          DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+          DATABASE_URL: ${{ secrets.DATABASE_STAGING_ACTION }}
         run: vendor/bin/phpunit
 
   deploy:

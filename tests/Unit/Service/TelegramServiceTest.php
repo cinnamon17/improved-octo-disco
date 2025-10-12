@@ -2,7 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Dto\CallbackQueryDto;
+use App\Dto\TelegramMessageDto;
 use App\Entity\Prompt;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
@@ -47,8 +47,15 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
+	$telegramMessageDto = new TelegramMessageDto();
+	$telegramMessageDto
+	    ->setMethod('sendMessage')
+	    ->setChatId(11111111)
+	    ->setText('test')
+	;
+
         $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
-        $response = $telegramService->telegramRequest(['params']);
+        $response = $telegramService->telegramRequest($telegramMessageDto);
 
         $this->assertIsArray($response);
     }
@@ -158,41 +165,5 @@ class TelegramServiceTest extends TestCase
 
         $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
         $telegramService->setBotMode();
-    }
-
-    public function testIsUserExists(): void
-    {
-
-        $dbService = $this->createStub(DBService::class);
-        $dbService
-            ->method('isUserExists')
-            ->willReturn(true);
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $bool = $telegramService->isUserExists();
-
-        $this->assertTrue($bool);
-    }
-
-    public function testSetInserUserInDb(): void
-    {
-
-        $dbService = $this->createMock(DBService::class);
-        $dbService->expects($this->once())
-            ->method('insertUserInDb');
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $telegramService->insertUserInDb();
-    }
-
-    public function testUpdateUserInDb(): void
-    {
-
-        $dbService = $this->createMock(DBService::class);
-        $dbService->expects($this->once())
-            ->method('updateUserInDb');
-
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
-        $telegramService->updateUserInDb();
     }
 }

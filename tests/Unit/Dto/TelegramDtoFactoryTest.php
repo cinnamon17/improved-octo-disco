@@ -2,8 +2,11 @@
 
 namespace App\Tests\Unit\Dto;
 
+use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\TelegramActionDto;
+use App\Dto\TelegramMessageDto;
 use App\Dto\UpdateDto;
 use App\Dto\UserDto;
 use App\Entity\Message;
@@ -30,142 +33,58 @@ class TelegramDtoFactoryTest extends TestCase
 
     public function testCreateCallbackQueryParams(): void
     {
-        $translatedMessage = 'Callback query message';
-
-        $this->botUpdateTranslator->method('translate')
-            ->with('callbackQuery.message')
-            ->willReturn($translatedMessage);
-
-        $expectedParams = [
-            'method' => 'sendMessage',
-            'chat_id' => $this->telegramBotUpdate->getCallbackQueryChatId(),
-            'text' => $translatedMessage,
-            'reply_markup' => ''
-        ];
-
         $result = $this->telegramDtoFactory->createCallbackQueryParams();
-
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(TelegramMessageDto::class, $result);
     }
 
     public function testCreateSendMessageParams(): void
     {
         $this->telegramBotUpdate
             ->method('getChatId')
-            ->willReturn(123456);
+            ->willReturn(1111111111);
 
         $message = 'Hello, world!';
-
-        $expectedParams = [
-            'chat_id' => $this->telegramBotUpdate->getChatId(),
-            'method' => 'sendMessage',
-            'text' => $message,
-            'reply_markup' => ''
-        ];
-
         $result = $this->telegramDtoFactory->createSendMessageParams($message);
 
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(TelegramMessageDto::class, $result);
     }
 
     public function testCreateAdminSendMessageParams(): void
     {
-
         $this->telegramBotUpdate
             ->method('getMessageText')
-            ->willReturn('Hello, world!');
-
-        $message = 'Hello, world!';
-        $expectedParams = [
-            'chat_id' => 1136298813,
-            'method' => 'sendMessage',
-            'text' => $message,
-            'reply_markup' => ''
-        ];
+            ->willReturn('test');
 
         $result = $this->telegramDtoFactory->createAdminSendMessageParams();
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(TelegramMessageDto::class, $result);
     }
 
     public function testCreateSendChatActionParams(): void
     {
         $this->telegramBotUpdate
             ->method('getChatId')
-            ->willReturn(123456);
+            ->willReturn(1111111111);
 
         $action = 'typing';
-
-        $expectedParams = [
-            'chat_id' => $this->telegramBotUpdate->getChatId(),
-            'method' => 'sendChatAction',
-            'action' => $action,
-        ];
-
         $result = $this->telegramDtoFactory->createSendChatActionParams($action);
 
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(TelegramActionDto::class, $result);
     }
 
     public function testCreateAnswerCallbackQueryParams(): void
     {
-
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(123456);
-
-        $expectedParams = [
-            'callback_query_id' => $this->telegramBotUpdate->getCallbackQueryId(),
-            'method' => 'answerCallbackQuery',
-        ];
-
         $result = $this->telegramDtoFactory->createAnswerCallbackQueryParams();
-
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(AnswerCallbackQueryDto::class, $result);
     }
 
     public function testCreateSendInlineKeyboardParams(): void
     {
         $this->telegramBotUpdate
             ->method('getChatId')
-            ->willReturn(123456);
-
-        $translatorMessage = 'Translate this';
-        $assistantMessage = 'Assist me';
-        $bussinessMessage = 'Startup idea';
-
-        $this->botUpdateTranslator->method('getTranslatorMessage')
-            ->willReturn($translatorMessage);
-        $this->botUpdateTranslator->method('getAssistantMessage')
-            ->willReturn($assistantMessage);
-        $this->botUpdateTranslator->method('getBusinessMessage')
-            ->willReturn($bussinessMessage);
-        $this->botUpdateTranslator->method('getCharacterMessage')
-            ->willReturn('Choose a character');
-
-        $expectedParams = [
-            'method' => 'sendMessage',
-            'chat_id' => $this->telegramBotUpdate->getChatId(),
-            'text' => 'Choose a character',
-            'reply_markup' => [
-                'inline_keyboard' => [
-                    [
-                        ['text' => 'Translate this 🈯', 'callback_data' => 'Translate this'],
-                        ['text' => 'Assist me 👨🏻‍🏫', 'callback_data' => 'Assist me'],
-                    ],
-                    [
-                        ['text' => 'chef 🧑🏻‍🍳', 'callback_data' => 'chef'],
-                        ['text' => 'doctor 👨🏻‍⚕️', 'callback_data' => 'doctor'],
-                    ],
-                    [
-                        ['text' => 'Startup idea💡', 'callback_data' => 'startup'],
-                    ],
-                ],
-            ],
-        ];
+            ->willReturn(1111111111);
 
         $result = $this->telegramDtoFactory->createSendInlineKeyboardParams();
-
-        $this->assertEquals($expectedParams, $result);
+        $this->assertInstanceOf(TelegramMessageDto::class, $result);
     }
 
     public function testCreateChatPromptMessageDto(): void

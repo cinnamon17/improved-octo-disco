@@ -8,7 +8,7 @@ parameters:
   BOT_URL: 'https://api.telegram.org/'
   BOT_API: '%BOT_URL%%BOT_KEY%/'
   OPENAI_KEY: 'Bearer %env(OPENAI_KEY)%'
-  OPENAI_URL: 'https://api.openai.com/v1/chat/completions'
+  OPENAI_URL: 'https://api.deepseek.com/chat/completions'
 
 services:
     # default configuration for services in *this* file

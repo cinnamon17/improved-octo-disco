@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\TelegramDtoInterface;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -31,14 +32,14 @@ class TelegramService implements LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    public function log($message, $context = [])
+    public function log(string $message, array $context = []): void
     {
         $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
-    public function telegramRequest(array $params): array
+    public function telegramRequest(TelegramDtoInterface $dto): array
     {
-        return $this->http->request($params);
+        return $this->http->request($dto);
     }
 
     public function sendMessage(string $message): array
@@ -86,32 +87,71 @@ class TelegramService implements LoggerAwareInterface
         $this->db->updateUserMode($user);
     }
 
-    public function insertUserInDb(): void
-    {
-        $user = $this->dtoFactory->createUser();
-        $this->db->insertUserInDb($user);
-    }
-
-    public function updateUserInDb(): void
-    {
-        $user = $this->dtoFactory->createUser();
-        $message = $this->dtoFactory->createMessage();
-        $this->db->updateUserInDb($user, $message);
-    }
-
-    public function isUserExists(): bool
-    {
-        $chatId = $this->dtoFactory->createChatIdFromUpdate();
-        return $this->db->isUserExists($chatId);
-    }
-
     public function handleCallbackQuery(): array
     {
-        $params = $this->dtoFactory->createCallbackQueryParams();
-        $this->setBotMode();
-        $this->telegramRequest($params);
+	$params = $this->dtoFactory->createCallbackQueryParams();
+	$this->setBotMode();
+	$this->telegramRequest($params);
 
-        $response =  $this->answerCallbackQuery();
-        return $response;
+	$response =  $this->answerCallbackQuery();
+	return $response;
+    }
+
+    public function handleIncomingMessage(): array
+    {
+	$this->handleUserRegistration();
+
+	if ($this->isSpecialCommand()) {
+	    return $this->handleSpecialCommand();
+	}
+
+	return $this->handleAIMessage();
+    }
+
+    private function handleUserRegistration(): void
+    {
+	$chatId = $this->dtoFactory->createChatIdFromUpdate();
+
+	if (!$this->db->isUserExists($chatId)) {
+	    $user = $this->dtoFactory->createUser();
+	    $this->db->insertUserInDb($user);
+	} else {
+	    $user = $this->dtoFactory->createUser();
+	    $message = $this->dtoFactory->createMessage();
+	    $this->db->updateUserInDb($user, $message);
+	}
+    }
+
+    private function isSpecialCommand(): bool
+    {
+	$text = $this->dtoFactory->createMessage();
+	return in_array($text, ['/start', '/mode']);
+    }
+
+    private function handleSpecialCommand(): array
+    {
+	$text = $this->dtoFactory->createMessage();
+
+	return match($text) {
+	    '/start' => $this->sendWelcomeMessage(),
+	    '/mode' => $this->sendInlineKeyboard(),
+	    default => throw new \InvalidArgumentException('Unknown command')
+	};
+    }
+
+    private function handleAIMessage(): array
+    {
+	$this->sendChatAction('typing');
+	$openaiResponse = $this->chatCompletion();
+
+	if (strlen($openaiResponse["choices"][0]["message"]["content"]) < 4096) {
+	    return $this->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
+	} else {
+	    $chunks = str_split($openaiResponse["choices"][0]["message"]["content"], 4096);
+	    foreach ($chunks as $text) {
+		$lastResponse = $this->sendMessage($text);
+	    }
+	    return $lastResponse;
+	}
     }
 }

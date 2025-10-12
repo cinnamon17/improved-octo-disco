@@ -2,8 +2,6 @@
 
 namespace App\Dto;
 
-use Symfony\Component\Mime\Header\Headers;
-
 class OpenAIDto
 {
 

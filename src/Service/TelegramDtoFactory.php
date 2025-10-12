@@ -23,52 +23,52 @@ class TelegramDtoFactory
         $this->update = $update;
     }
 
-    public function createCallbackQueryParams(): array
+    public function createCallbackQueryParams(): TelegramMessageDto
     {
         $setModeMessage = $this->bt->translate('callbackQuery.message');
         return (new TelegramMessageDto())
             ->setMethod('sendMessage')
             ->setChatId($this->update->getCallbackQueryChatId())
-            ->setText($setModeMessage)
-            ->toArray();
+	    ->setText($setModeMessage)
+	;
     }
 
-    public function createSendMessageParams(string $message): array
+    public function createSendMessageParams(string $message): TelegramMessageDto 
     {
         return (new TelegramMessageDto())
             ->setChatId($this->update->getChatId())
             ->setMethod('sendMessage')
-            ->setText($message)
-            ->toArray();
+	    ->setText($message)
+	;
     }
 
-    public function createAdminSendMessageParams(): array
+    public function createAdminSendMessageParams(): TelegramMessageDto
     {
         return (new TelegramMessageDto())
             ->setChatId(1136298813)
             ->setMethod('sendMessage')
-            ->setText($this->update->getMessageText())
-            ->toArray();
+	    ->setText($this->update->getMessageText())
+	;
     }
 
-    public function createSendChatActionParams(string $action): array
+    public function createSendChatActionParams(string $action): TelegramActionDto
     {
         return (new TelegramActionDto())
             ->setChatId($this->update->getChatId())
             ->setMethod('sendChatAction')
-            ->setAction($action)
-            ->toArray();
+	    ->setAction($action)
+	;
     }
 
-    public function createAnswerCallbackQueryParams(): array
+    public function createAnswerCallbackQueryParams(): AnswerCallbackQueryDto
     {
         return (new AnswerCallbackQueryDto())
             ->setId($this->update->getCallbackQueryId())
             ->setMethod('answerCallbackQuery')
-            ->toArray();
+	;
     }
 
-    public function createSendInlineKeyboardParams(): array
+    public function createSendInlineKeyboardParams(): TelegramMessageDto
     {
         $translatorButton = (new InlineKeyboardButtonDto())
             ->setText($this->bt->getTranslatorMessage() . " 🈯")
@@ -111,7 +111,7 @@ class TelegramDtoFactory
             ->setChatId($this->update->getChatId())
             ->setText($this->bt->getCharacterMessage())
             ->setReplyMarkup($inlineKeyboardDto)
-            ->toArray();
+	;
     }
 
     public function createChatPromptMessageDto(DBService $db): ChatPromptMessageDto
