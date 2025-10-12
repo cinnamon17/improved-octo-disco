@@ -51,6 +51,19 @@ jobs:
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
+      - name: Wait for MySQL to be ready
+        run: |
+          # Esperar a que MySQL esté listo
+          for i in {1..30}; do
+            if nc -z 127.0.0.1 3306; then
+              echo "MySQL is ready!"
+              sleep 2  # Esperar un poco más para asegurar
+              break
+            fi
+            echo "Waiting for MySQL... attempt $i"
+            sleep 2
+          done
+
       - name: Setup Database
         run: |
           php bin/console doctrine:database:create --env=test
