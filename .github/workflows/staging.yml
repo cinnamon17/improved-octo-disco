@@ -34,7 +34,7 @@ jobs:
 
       - name: Copy .env.test.local
         run: |
-          echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env.test.local
+          echo DATABASE_URL=${{ secrets.DATABASE_STAGING_ACTION }} >> .env.test.local
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
           cat .env.test.local
@@ -59,7 +59,7 @@ jobs:
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_STAGING }}
+          DATABASE_URL: ${{ secrets.DATABASE_STAGING_ACTION }}
         run: vendor/bin/phpunit
 
   deploy:
