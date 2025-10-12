@@ -36,6 +36,9 @@ class TelegramController extends AbstractController
             return $this->json('invalid message');
         }
 
+	$response = new JsonResponse(data: ["request" => "success"]);
+	$response->send();
+
 	$response = $this->tService->handleIncomingMessage();
         return $this->json($response);
     }
