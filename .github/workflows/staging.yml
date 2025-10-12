@@ -12,17 +12,29 @@ permissions:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: mysqli, pdo_mysql
 
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Copy .env.test.local
         run: |
+          echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env.test.local
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
           cat .env.test.local
@@ -41,11 +53,13 @@ jobs:
 
       - name: Setup Database
         run: |
-          php bin/console --env=test doctrine:schema:create
+          php bin/console doctrine:database:drop --env=test --force
+          php bin/console doctrine:database:create --env=test
+          php bin/console doctrine:migrations:migrate --env=test -n
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
-          DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+          DATABASE_URL: ${{ secrets.DATABASE_STAGING }}
         run: vendor/bin/phpunit
 
   deploy:
