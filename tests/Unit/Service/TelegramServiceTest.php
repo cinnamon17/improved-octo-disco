@@ -12,6 +12,7 @@ use App\Service\TelegramDtoFactory;
 use App\Service\TelegramService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class TelegramServiceTest extends TestCase
 {
@@ -20,6 +21,7 @@ class TelegramServiceTest extends TestCase
     private DBService $dbService;
     private TelegramDtoFactory $dtoFactory;
     private TelegramBotUpdate $update;
+    private MessageBusInterface $dispatcher;
 
     protected function setUp(): void
     {
@@ -28,6 +30,7 @@ class TelegramServiceTest extends TestCase
         $this->dbService = $this->createStub(DBService::class);
         $this->dtoFactory = $this->createStub(TelegramDtoFactory::class);
         $this->update = $this->createStub(TelegramBotUpdate::class);
+        $this->dispatcher = $this->createStub(MessageBusInterface::class);
     }
     public function testSetLogger(): void
     {
@@ -36,7 +39,7 @@ class TelegramServiceTest extends TestCase
         $logger->expects($this->once())
             ->method('info');
 
-        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $telegramService->setLogger($logger);
         $telegramService->log("hello");
     }
@@ -54,7 +57,7 @@ class TelegramServiceTest extends TestCase
 	    ->setText('test')
 	;
 
-        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $response = $telegramService->telegramRequest($telegramMessageDto);
 
         $this->assertIsArray($response);
@@ -71,7 +74,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $response = $telegramService->handleCallbackQuery();
         $this->assertIsArray($response);
     }
@@ -82,7 +85,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->sendMessage('hello'));
     }
 
@@ -92,7 +95,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->sendChatAction('action'));
     }
 
@@ -102,7 +105,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->answerCallbackQuery());
     }
 
@@ -112,7 +115,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->sendInlineKeyboard());
     }
 
@@ -122,7 +125,7 @@ class TelegramServiceTest extends TestCase
         $this->httpService->method('request')
             ->willReturn([]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->sendWelcomeMessage());
     }
 
@@ -141,7 +144,7 @@ class TelegramServiceTest extends TestCase
         $this->dbService->method('getPrompt')
             ->willReturn($prompt);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertIsArray($telegramService->chatCompletion('test'));
     }
 
@@ -151,7 +154,7 @@ class TelegramServiceTest extends TestCase
         $logger->expects($this->once())
             ->method('info');
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $telegramService->setLogger($logger);
         $telegramService->log('testlog');
     }
@@ -163,7 +166,7 @@ class TelegramServiceTest extends TestCase
         $dbService->expects($this->once())
             ->method('updateUserMode');
 
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt);
+        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $telegramService->setBotMode();
     }
 }
