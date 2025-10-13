@@ -12,6 +12,7 @@ use App\Service\TelegramDtoFactory;
 use App\Service\TelegramService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class TelegramServiceTest extends TestCase
@@ -116,7 +117,7 @@ class TelegramServiceTest extends TestCase
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->sendInlineKeyboard());
+        $this->assertInstanceOf(JsonResponse::class,$telegramService->sendInlineKeyboard());
     }
 
     public function testSendWelcomeMessage(): void
@@ -126,7 +127,7 @@ class TelegramServiceTest extends TestCase
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->sendWelcomeMessage());
+        $this->assertInstanceOf(JsonResponse::class,$telegramService->sendWelcomeMessage());
     }
 
     public function testChatCompletion(): void

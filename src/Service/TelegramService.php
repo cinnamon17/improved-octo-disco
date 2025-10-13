@@ -66,16 +66,16 @@ class TelegramService implements LoggerAwareInterface
         return $this->telegramRequest($params);
     }
 
-    public function sendInlineKeyboard(): array
+    public function sendInlineKeyboard(): JsonResponse
     {
         $params = $this->dtoFactory->createSendInlineKeyboardParams();
-        return $this->telegramRequest($params);
+        return new JsonResponse($this->telegramRequest($params));
     }
 
-    public function sendWelcomeMessage(): array
+    public function sendWelcomeMessage(): JsonResponse
     {
         $welcomeMessage = $this->bt->getWelcomeMessage();
-        return $this->sendMessage($welcomeMessage);
+        return new JsonResponse($this->sendMessage($welcomeMessage));
     }
 
     public function chatCompletion(): array
@@ -104,13 +104,9 @@ class TelegramService implements LoggerAwareInterface
     public function handleIncomingMessage() : JsonResponse
     {
 	$this->handleUserRegistration();
+	$this->handleSpecialCommand();
 
-	if ($this->isSpecialCommand()) {
-	    $this->handleSpecialCommand();
-	}else{
-	    $this->handleAIMessage();
-	}
-	    return new JsonResponse(['status' => 'ok']);
+	return new JsonResponse(['status' => 'ok']);
 
     }
 
@@ -128,12 +124,6 @@ class TelegramService implements LoggerAwareInterface
 	}
     }
 
-    private function isSpecialCommand(): bool
-    {
-	$text = $this->dtoFactory->createMessage();
-	return in_array($text->getText(), ['/start', '/mode']);
-    }
-
     private function handleSpecialCommand(): JsonResponse
     {
 	$text = $this->dtoFactory->createMessage();
@@ -141,7 +131,7 @@ class TelegramService implements LoggerAwareInterface
 	match($text->getText()) {
 	    '/start' => $this->sendWelcomeMessage(),
 	    '/mode' => $this->sendInlineKeyboard(),
-	    default => throw new \InvalidArgumentException('Unknown command')
+	    default => $this->handleAIMessage()
 	};
 	return new JsonResponse(['status' => 'ok']);
     }
@@ -151,6 +141,6 @@ class TelegramService implements LoggerAwareInterface
 	$this->sendChatAction('typing');
 	$message = $this->dtoFactory->createChatPromptMessageDto($this->db);
 	$this->bus->dispatch($message);
-	
+
     }
 }
