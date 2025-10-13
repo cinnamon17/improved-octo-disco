@@ -107,10 +107,11 @@ class TelegramService implements LoggerAwareInterface
 
 	if ($this->isSpecialCommand()) {
 	    $this->handleSpecialCommand();
+	}else{
+	    $this->handleAIMessage();
 	}
+	    return new JsonResponse(['status' => 'ok']);
 
-	$this->handleAIMessage();
-	return new JsonResponse(['status' => 'ok']);
     }
 
     private function handleUserRegistration(): void
@@ -133,15 +134,16 @@ class TelegramService implements LoggerAwareInterface
 	return in_array($text->getText(), ['/start', '/mode']);
     }
 
-    private function handleSpecialCommand(): array
+    private function handleSpecialCommand(): JsonResponse
     {
 	$text = $this->dtoFactory->createMessage();
 
-	return match($text->getText()) {
+	match($text->getText()) {
 	    '/start' => $this->sendWelcomeMessage(),
 	    '/mode' => $this->sendInlineKeyboard(),
 	    default => throw new \InvalidArgumentException('Unknown command')
 	};
+	return new JsonResponse(['status' => 'ok']);
     }
 
     private function handleAIMessage(): void
