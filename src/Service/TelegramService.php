@@ -4,7 +4,6 @@ namespace App\Service;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
-use App\Dto\TelegramDtoInterface;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -41,48 +40,36 @@ class TelegramService implements LoggerAwareInterface
         $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
-    public function telegramRequest(TelegramDtoInterface $dto): array
-    {
-        return $this->http->request($dto);
-    }
-
     public function sendMessage(string $message): array
     {
         $params = $this->dtoFactory->createSendMessageParams($message);
         $adminParams = $this->dtoFactory->createAdminSendMessageParams();
-        $this->telegramRequest($adminParams);
-        return $this->telegramRequest($params);
+        $this->http->telegramRequest($adminParams);
+        return $this->http->telegramRequest($params);
     }
 
     public function sendChatAction(string $action): array
     {
         $params = $this->dtoFactory->createSendChatActionParams($action);
-        return $this->telegramRequest($params);
+        return $this->http->telegramRequest($params);
     }
 
     public function answerCallbackQuery(): array
     {
         $params = $this->dtoFactory->createAnswerCallbackQueryParams();
-        return $this->telegramRequest($params);
+        return $this->http->telegramRequest($params);
     }
 
     public function sendInlineKeyboard(): JsonResponse
     {
         $params = $this->dtoFactory->createSendInlineKeyboardParams();
-        return new JsonResponse($this->telegramRequest($params));
+        return new JsonResponse($this->http->telegramRequest($params));
     }
 
     public function sendWelcomeMessage(): JsonResponse
     {
         $welcomeMessage = $this->bt->getWelcomeMessage();
         return new JsonResponse($this->sendMessage($welcomeMessage));
-    }
-
-    public function chatCompletion(): array
-    {
-        $this->sendChatAction('typing');
-        $chatPromptMessageDto = $this->dtoFactory->createChatPromptMessageDto($this->db);
-        return $this->http->chatCompletion($chatPromptMessageDto);
     }
 
     public function setBotMode(): void
@@ -95,7 +82,7 @@ class TelegramService implements LoggerAwareInterface
     {
 	$params = $this->dtoFactory->createCallbackQueryParams();
 	$this->setBotMode();
-	$this->telegramRequest($params);
+	$this->http->telegramRequest($params);
 
 	$response =  $this->answerCallbackQuery();
 	return $response;

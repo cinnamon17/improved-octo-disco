@@ -19,7 +19,7 @@ class TelegramMessageProcessor
 
     public function __invoke(ChatPromptMessageDto $chatDto): void
     {
-	$response = $this->http->chatCompletion($chatDto);
+	$response = $this->http->chatCompletion($chatDto)->toArray();
 
 	if (strlen($response["choices"][0]["message"]["content"]) < 4096) {
 	    $this->tService->sendMessage($response["choices"][0]["message"]["content"]);

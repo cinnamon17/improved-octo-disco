@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Service;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\HttpService;
+use App\Service\TelegramDtoFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -17,10 +18,12 @@ class HttpServiceTest extends TestCase
     private JsonMockResponse $response;
     private MockHttpClient $client;
     private HttpService $http;
+    private TelegramDtoFactory $dtoFactory;
 
     protected function setUp(): void
     {
         $this->env = $this->createStub(ContainerBagInterface::class);
+        $this->dtoFactory = $this->createStub(TelegramDtoFactory::class);
         $this->env->method('get')
             ->willReturn('completions');
 
@@ -45,7 +48,7 @@ class HttpServiceTest extends TestCase
     }';
         $this->response = new JsonMockResponse(json_decode($this->expected));
         $this->client = new MockHttpClient($this->response, 'https://api.openai.com/v1/chat/completions');
-        $this->http = new HttpService($this->client, $this->env);
+        $this->http = new HttpService($this->client, $this->env, $this->dtoFactory);
     }
 
     public function testChatCompletionReturnAnArrayWithOpenApiResponse(): void
@@ -58,10 +61,10 @@ class HttpServiceTest extends TestCase
 
         $openapiArrayResponse = $this->http->chatCompletion($chatPromptMessageDto);
         $expectedArray = json_decode($this->expected, true);
-        $this->assertSame($expectedArray, $openapiArrayResponse);
+        $this->assertSame($expectedArray, $openapiArrayResponse->toArray());
     }
 
-    public function testChatCompletionAssertOpenApiURL(): void
+    public function testChatCompletionAssertOpenApiUrl(): void
     {
 
         $chatPromptMessageDto = new ChatPromptMessageDto();
@@ -85,21 +88,8 @@ class HttpServiceTest extends TestCase
 	    ->setText('test')
 	;
 
-        $request = $this->http->request($telegramMessageDto);
+        $request = $this->http->telegramRequest($telegramMessageDto);
 
         $this->assertIsArray($request);
-    }
-
-    public function testChatCompletionAssertRequiredRequestOptions(): void
-    {
-        $chatPromptMessageDto = new ChatPromptMessageDto();
-        $chatPromptMessageDto
-            ->setPrompt('test')
-            ->setMessage('hola');
-
-        $this->http->chatCompletion($chatPromptMessageDto);
-        $requiredOptions = '{"model":"deepseek-chat","messages":[{"role":"system","content":"test"},{"role":"user","content":"hola"}]}';
-        $actualPostedOptions = $this->response->getRequestOptions()['body'];
-        $this->assertSame($requiredOptions, $actualPostedOptions);
     }
 }

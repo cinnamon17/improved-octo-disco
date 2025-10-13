@@ -7,7 +7,6 @@ use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
-use App\Dto\UpdateDto;
 use App\Dto\UserDto;
 use App\Entity\Message;
 use App\Entity\Prompt;
@@ -17,18 +16,21 @@ use App\Service\DBService;
 use App\Service\TelegramBotUpdate;
 use App\Service\TelegramDtoFactory;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class TelegramDtoFactoryTest extends TestCase
 {
     private $botUpdateTranslator;
     private $telegramDtoFactory;
     private $telegramBotUpdate;
+    private $env;
 
     protected function setUp(): void
     {
         $this->botUpdateTranslator = $this->createStub(BotUpdateTranslator::class);
         $this->telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $this->telegramDtoFactory = new TelegramDtoFactory($this->botUpdateTranslator, $this->telegramBotUpdate);
+        $this->env = $this->createStub(ContainerBagInterface::class);
+        $this->telegramDtoFactory = new TelegramDtoFactory($this->botUpdateTranslator, $this->telegramBotUpdate, $this->env);
     }
 
     public function testCreateCallbackQueryParams(): void

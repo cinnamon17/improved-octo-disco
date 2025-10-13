@@ -3,38 +3,37 @@
 namespace App\Service;
 
 use App\Dto\ChatPromptMessageDto;
-use App\Dto\HeadersDto;
-use App\Dto\OpenAIDto;
-use App\Dto\OpenAIJsonDto;
-use App\Dto\OpenAIMessageDto;
 use App\Dto\TelegramDtoInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class HttpService
 {
 
     private HttpClientInterface $client;
+    private TelegramDtoFactory $dtoFactory;
     private ContainerBagInterface $env;
 
-    public function __construct(HttpClientInterface $client, ContainerBagInterface $env)
+    public function __construct(HttpClientInterface $client, ContainerBagInterface $env, TelegramDtoFactory $dtoFactory, )
     {
 
         $this->client = $client;
-        $this->env = $env;
+        $this->dtoFactory= $dtoFactory;
+	$this->env = $env;
     }
 
-    public function chatCompletion(ChatPromptMessageDto $chatDto): array
+    public function chatCompletion(ChatPromptMessageDto $chatDto): ResponseInterface
     {
 
-        $params = $this->requestParams($chatDto);
+        $params = $this->dtoFactory->createRequestAIparams($chatDto);
         $openAIurl = $this->env->get('OPENAI_URL');
-        $response = $this->client->request('POST', $openAIurl, $params);
+        $response = $this->client->request('POST', $openAIurl, $params->toArray());
 
-        return $response->toArray();
+        return $response;
     }
 
-    public function request(TelegramDtoInterface $dto): array
+    public function telegramRequest(TelegramDtoInterface $dto): array
     {
 
         $data = ['json' => $dto->toArray()];
@@ -44,29 +43,4 @@ class HttpService
         return $response->toArray();
     }
 
-    private function requestParams(ChatPromptMessageDto $chatDto): array
-    {
-
-        $headersDto = (new HeadersDto())
-            ->setAccept('application/json')
-            ->setAuthorization((string) $this->env->get('OPENAI_KEY'));
-
-        $systemPromptOpenAI = (new OpenAIMessageDto())
-            ->setRole('system')
-            ->setContent($chatDto->getPrompt());
-
-        $userMessageToOpenAI = (new OpenAIMessageDto())
-            ->setRole('user')
-            ->setContent($chatDto->getMessage());
-
-        $jsonDto = (new OpenAIJsonDto())
-            ->setModel('deepseek-chat')
-            ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI]);
-
-        $openAIDto = (new OpenAIDto())
-            ->setHeaders($headersDto)
-            ->setJson($jsonDto);
-
-        return $openAIDto->toArray();
-    }
 }
