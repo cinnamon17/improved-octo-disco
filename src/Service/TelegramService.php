@@ -2,11 +2,12 @@
 
 namespace App\Service;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use App\Dto\TelegramDtoInterface;
 use App\Service\DBService;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
-
 class TelegramService implements LoggerAwareInterface
 {
     private HttpService $http;
@@ -14,17 +15,20 @@ class TelegramService implements LoggerAwareInterface
     private LoggerInterface $logger;
     private TelegramDtoFactory $dtoFactory;
     private BotUpdateTranslator $bt;
+    private MessageBusInterface $bus;
 
     public function __construct(
         HttpService $http,
         DBService $db,
         TelegramDtoFactory $telegramDtoFactory,
-        BotUpdateTranslator $botUpdateTranslator
+        BotUpdateTranslator $botUpdateTranslator,
+	MessageBusInterface $bus
     ) {
         $this->http = $http;
         $this->db = $db;
         $this->dtoFactory = $telegramDtoFactory;
         $this->bt = $botUpdateTranslator;
+	$this->bus = $bus;
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -62,16 +66,16 @@ class TelegramService implements LoggerAwareInterface
         return $this->telegramRequest($params);
     }
 
-    public function sendInlineKeyboard(): array
+    public function sendInlineKeyboard(): JsonResponse
     {
         $params = $this->dtoFactory->createSendInlineKeyboardParams();
-        return $this->telegramRequest($params);
+        return new JsonResponse($this->telegramRequest($params));
     }
 
-    public function sendWelcomeMessage(): array
+    public function sendWelcomeMessage(): JsonResponse
     {
         $welcomeMessage = $this->bt->getWelcomeMessage();
-        return $this->sendMessage($welcomeMessage);
+        return new JsonResponse($this->sendMessage($welcomeMessage));
     }
 
     public function chatCompletion(): array
@@ -97,15 +101,13 @@ class TelegramService implements LoggerAwareInterface
 	return $response;
     }
 
-    public function handleIncomingMessage(): array
+    public function handleIncomingMessage() : JsonResponse
     {
 	$this->handleUserRegistration();
+	$this->handleSpecialCommand();
 
-	if ($this->isSpecialCommand()) {
-	    return $this->handleSpecialCommand();
-	}
+	return new JsonResponse(['status' => 'ok']);
 
-	return $this->handleAIMessage();
     }
 
     private function handleUserRegistration(): void
@@ -122,36 +124,23 @@ class TelegramService implements LoggerAwareInterface
 	}
     }
 
-    private function isSpecialCommand(): bool
-    {
-	$text = $this->dtoFactory->createMessage();
-	return in_array($text, ['/start', '/mode']);
-    }
-
-    private function handleSpecialCommand(): array
+    private function handleSpecialCommand(): JsonResponse
     {
 	$text = $this->dtoFactory->createMessage();
 
-	return match($text) {
+	match($text->getText()) {
 	    '/start' => $this->sendWelcomeMessage(),
 	    '/mode' => $this->sendInlineKeyboard(),
-	    default => throw new \InvalidArgumentException('Unknown command')
+	    default => $this->handleAIMessage()
 	};
+	return new JsonResponse(['status' => 'ok']);
     }
 
-    private function handleAIMessage(): array
+    private function handleAIMessage(): void
     {
 	$this->sendChatAction('typing');
-	$openaiResponse = $this->chatCompletion();
+	$message = $this->dtoFactory->createChatPromptMessageDto($this->db);
+	$this->bus->dispatch($message);
 
-	if (strlen($openaiResponse["choices"][0]["message"]["content"]) < 4096) {
-	    return $this->sendMessage($openaiResponse["choices"][0]["message"]["content"]);
-	} else {
-	    $chunks = str_split($openaiResponse["choices"][0]["message"]["content"], 4096);
-	    foreach ($chunks as $text) {
-		$lastResponse = $this->sendMessage($text);
-	    }
-	    return $lastResponse;
-	}
     }
 }

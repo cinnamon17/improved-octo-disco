@@ -8,6 +8,8 @@
          cacheDirectory=".phpunit.cache"
          failOnNotice="true"
          failOnWarning="true"
+	 testdox="true"
+         stopOnError="true"
 >
   <php>
     <ini name="display_errors" value="1"/>

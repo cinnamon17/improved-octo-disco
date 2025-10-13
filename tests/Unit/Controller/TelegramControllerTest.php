@@ -7,6 +7,7 @@ use App\Service\TelegramBotUpdate;
 use App\Service\TelegramService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TelegramControllerTest extends TestCase
 {
@@ -68,7 +69,7 @@ class TelegramControllerTest extends TestCase
 
 	$telegramService->expects($this->once())
 		 ->method('handleIncomingMessage')
-		 ->willReturn(['result' => 'success']);
+		 ->willReturn(new JsonResponse(['result' => 'success']));
 
 	$controller = new TelegramController($telegramService, $update);
 	$container = $this->createStub(ContainerInterface::class);
@@ -86,7 +87,7 @@ class TelegramControllerTest extends TestCase
 
 	$telegramService->expects($this->once())
 		 ->method('handleIncomingMessage')
-		 ->willReturn(['result' => 'success']);
+		 ->willReturn(new JsonResponse(['result' => 'success']));
 
 	$controller = new TelegramController($telegramService, $update);
 	$container = $this->createStub(ContainerInterface::class);
@@ -104,7 +105,7 @@ class TelegramControllerTest extends TestCase
 
 	$telegramService->expects($this->once())
 		 ->method('handleIncomingMessage')
-		 ->willReturn(['welcome_message_sent' => true]);
+		 ->willReturn(new JsonResponse(['welcome_message_sent' => true]));
 
 
 	$controller = new TelegramController($telegramService, $update);
@@ -123,7 +124,7 @@ class TelegramControllerTest extends TestCase
 
 	$telegramService->expects($this->once())
 		 ->method('handleIncomingMessage')
-		 ->willReturn(['inline_keyboard_sent' => true]);
+		 ->willReturn(new JsonResponse(['inline_keyboard_sent' => true]));
 
 	$controller = new TelegramController($telegramService, $update);
 	$container = $this->createStub(ContainerInterface::class);

@@ -121,7 +121,7 @@ class TelegramControllerTest extends WebTestCase
         $client->request('POST', '/telegram', content: $fakeUpdate);
 
         $response = $client->getResponse()->getContent();
-        $textReceived = json_decode($response)->result->text;
-        $this->assertStringContainsString('¡Hola!', $textReceived);
+        $textReceived = json_decode($response)->status;
+        $this->assertStringContainsString('ok', $textReceived);
     }
 }
