@@ -2,8 +2,6 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Dto\TelegramMessageDto;
-use App\Entity\Prompt;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
 use App\Service\HttpService;
@@ -45,25 +43,6 @@ class TelegramServiceTest extends TestCase
         $telegramService->log("hello");
     }
 
-    public function testTelegramRequest(): void
-    {
-
-        $this->httpService->method('request')
-            ->willReturn([]);
-
-	$telegramMessageDto = new TelegramMessageDto();
-	$telegramMessageDto
-	    ->setMethod('sendMessage')
-	    ->setChatId(11111111)
-	    ->setText('test')
-	;
-
-        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $response = $telegramService->telegramRequest($telegramMessageDto);
-
-        $this->assertIsArray($response);
-    }
-
     public function testHandleCallbackQuery(): void
     {
 
@@ -72,7 +51,7 @@ class TelegramServiceTest extends TestCase
         $telegramBotUpdate->method('getCallbackQueryId')
             ->willReturn('test');
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
@@ -83,7 +62,7 @@ class TelegramServiceTest extends TestCase
     public function testSendMessage(): void
     {
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
@@ -93,7 +72,7 @@ class TelegramServiceTest extends TestCase
     public function testSendChatAction(): void
     {
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
@@ -103,7 +82,7 @@ class TelegramServiceTest extends TestCase
     public function testAnswerCallbackQuery(): void
     {
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
@@ -113,7 +92,7 @@ class TelegramServiceTest extends TestCase
     public function testSendInlineKeyboard(): void
     {
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
@@ -123,30 +102,11 @@ class TelegramServiceTest extends TestCase
     public function testSendWelcomeMessage(): void
     {
 
-        $this->httpService->method('request')
+        $this->httpService->method('telegramRequest')
             ->willReturn([]);
 
         $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $this->assertInstanceOf(JsonResponse::class,$telegramService->sendWelcomeMessage());
-    }
-
-    public function testChatCompletion(): void
-    {
-
-        $prompt = new Prompt();
-        $prompt->setRole('doctor');
-
-        $this->httpService->method('request')
-            ->willReturn([]);
-
-        $this->httpService->method('chatCompletion')
-            ->willReturn([]);
-
-        $this->dbService->method('getPrompt')
-            ->willReturn($prompt);
-
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->chatCompletion('test'));
     }
 
     public function testLog(): void

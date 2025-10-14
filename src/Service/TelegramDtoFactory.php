@@ -4,23 +4,30 @@ namespace App\Service;
 
 use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\HeadersDto;
 use App\Dto\InlineKeyboardButtonDto;
 use App\Dto\InlineKeyboardButtonRowDto;
 use App\Dto\InlineKeyboardDto;
+use App\Dto\OpenAIDto;
+use App\Dto\OpenAIJsonDto;
+use App\Dto\OpenAIMessageDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Entity\Message;
 use App\Entity\User;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class TelegramDtoFactory
 {
     private BotUpdateTranslator $bt;
     private TelegramBotUpdate $update;
+    private ContainerBagInterface $env;
 
-    public function __construct(BotUpdateTranslator $bt, TelegramBotUpdate $update)
+    public function __construct(BotUpdateTranslator $bt, TelegramBotUpdate $update, ContainerBagInterface $env)
     {
         $this->bt = $bt;
         $this->update = $update;
+	$this->env = $env;
     }
 
     public function createCallbackQueryParams(): TelegramMessageDto
@@ -143,6 +150,32 @@ class TelegramDtoFactory
         return (new Message())
             ->setText($this->update->getMessageText())
             ->setMessageId($this->update->getMessageId());
+    }
+
+    public function createRequestAIparams(ChatPromptMessageDto $chatDto): OpenAIDto
+    {
+
+        $headersDto = (new HeadersDto())
+            ->setAccept('application/json')
+            ->setAuthorization((string) $this->env->get('OPENAI_KEY'));
+
+        $systemPromptOpenAI = (new OpenAIMessageDto())
+            ->setRole('system')
+            ->setContent($chatDto->getPrompt());
+
+        $userMessageToOpenAI = (new OpenAIMessageDto())
+            ->setRole('user')
+            ->setContent($chatDto->getMessage());
+
+        $jsonDto = (new OpenAIJsonDto())
+            ->setModel('deepseek-chat')
+            ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI]);
+
+        $openAIDto = (new OpenAIDto())
+            ->setHeaders($headersDto)
+            ->setJson($jsonDto);
+
+	return $openAIDto;
     }
 
     public function createChatIdFromUpdate(): int
