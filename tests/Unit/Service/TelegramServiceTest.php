@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Entity\Message;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
 use App\Service\HttpService;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Envelope;
 
 class TelegramServiceTest extends TestCase
 {
@@ -129,5 +131,20 @@ class TelegramServiceTest extends TestCase
 
         $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
         $telegramService->setBotMode();
+    }
+
+    public function testNoMode(): void
+    {
+	$dtoFactory = $this->createMock(TelegramDtoFactory::class);
+
+	$dtoFactory->expects($this->once())
+	    ->method('createMessage');
+
+	$this->dispatcher
+	    ->method('dispatch')
+	    ->willReturn(new Envelope(new \stdClass()));
+
+        $telegramService = new TelegramService($this->httpService,  $this->dbService, $dtoFactory, $this->bt, $this->dispatcher);
+	$telegramService->handleIncomingMessage();
     }
 }

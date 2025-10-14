@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Dto;
 use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
+use App\Dto\OpenAIDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
@@ -23,6 +24,7 @@ class TelegramDtoFactoryTest extends TestCase
     private $botUpdateTranslator;
     private $telegramDtoFactory;
     private $telegramBotUpdate;
+    private $chatPromptMessageDto;
     private $env;
 
     protected function setUp(): void
@@ -30,6 +32,7 @@ class TelegramDtoFactoryTest extends TestCase
         $this->botUpdateTranslator = $this->createStub(BotUpdateTranslator::class);
         $this->telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
         $this->env = $this->createStub(ContainerBagInterface::class);
+        $this->chatPromptMessageDto = $this->createStub(ChatPromptMessageDto::class);
         $this->telegramDtoFactory = new TelegramDtoFactory($this->botUpdateTranslator, $this->telegramBotUpdate, $this->env);
     }
 
@@ -185,6 +188,25 @@ class TelegramDtoFactoryTest extends TestCase
 
         $message = $this->telegramDtoFactory->createMessage();
         $this->assertInstanceOf(Message::class, $message);
+    }
+
+    public function testCreateRequestAIparams(): void
+    {
+	$this->env
+	    ->method('get')
+	    ->with('OPENAI_KEY')
+	    ->willReturn('test');
+
+	$this->chatPromptMessageDto
+	    ->method('getPrompt')
+	    ->willReturn('prompt');
+
+	$this->chatPromptMessageDto
+	    ->method('getMessage')
+	    ->willReturn('message');
+
+        $dto = $this->telegramDtoFactory->createRequestAIparams($this->chatPromptMessageDto);
+        $this->assertInstanceOf(OpenAIDto::class, $dto);
     }
 
     public function testCreateChatId(): void
