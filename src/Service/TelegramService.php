@@ -90,6 +90,8 @@ class TelegramService implements LoggerAwareInterface
 
     public function handleIncomingMessage() : JsonResponse
     {
+	$response = new JsonResponse(data: ["request" => "success"]);
+	$response->send();
 	$this->handleUserRegistration();
 	$this->handleSpecialCommand();
 
