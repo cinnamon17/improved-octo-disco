@@ -60,17 +60,10 @@ class RequestSerializerTest extends KernelTestCase
         self::bootKernel();
 
         $serializer = static::getContainer()->get(SerializerInterface::class);
-        $requestStack = $this->createStub(RequestStack::class);
-        $request = $this->createStub(Request::class);
         $logger = $this->createStub(LoggerInterface::class);
-        $request->method('getContent')
-            ->willReturn($this->jsonRequest);
 
-        $requestStack->method('getCurrentRequest')
-            ->willReturn($request);
-
-        $requestSerializer = new RequestSerializer($serializer, $requestStack, $logger);
-        $updateDto = $requestSerializer->create();
+        $requestSerializer = new RequestSerializer($serializer, $logger);
+        $updateDto = $requestSerializer->create($this->jsonRequest);
 
         $this->assertInstanceOf(UpdateDto::class, $updateDto);
     }
