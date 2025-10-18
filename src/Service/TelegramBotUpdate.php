@@ -4,14 +4,21 @@ namespace App\Service;
 
 use App\Dto\CallbackQueryDto;
 use App\Dto\UpdateDto;
+use Symfony\Component\HttpFoundation\RequestStack;
+use InvalidArgumentException;
 
 class TelegramBotUpdate
 {
     private UpdateDto $update;
 
-    public function __construct(RequestSerializer $update)
+    public function __construct(RequestStack $requestStack, UpdateSerializer $update)
     {
-        $this->update = $update->create();
+	$request = $requestStack->getCurrentRequest()->getContent();
+	
+	if (!$request) {
+             throw new InvalidArgumentException('El Request o su contenido no están disponibles.');
+        }
+        $this->update = $update->deserialize($request);
     }
 
     public function getUpdateId(): int
@@ -86,7 +93,9 @@ class TelegramBotUpdate
 
     public function getLocale(): ?string
     {
-        return $this->getLanguageCode() ?? $this->getCallbackQueryLanguageCode() ?? 'en';
+	return $this->getLanguageCode()
+	    ?? $this->getCallbackQueryLanguageCode()
+	    ?? 'en';
     }
 
     public function isCallbackQuery(): bool
