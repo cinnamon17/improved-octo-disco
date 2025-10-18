@@ -7,13 +7,12 @@ use App\Dto\ChatDto;
 use App\Dto\UpdateDto;
 use App\Dto\UserDto;
 use App\Service\RequestSerializer;
+use App\Service\UpdateSerializer;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class RequestSerializerTest extends KernelTestCase
+class UpdateSerializerTest extends KernelTestCase
 {
     private String $jsonRequest;
 
@@ -62,8 +61,8 @@ class RequestSerializerTest extends KernelTestCase
         $serializer = static::getContainer()->get(SerializerInterface::class);
         $logger = $this->createStub(LoggerInterface::class);
 
-        $requestSerializer = new RequestSerializer($serializer, $logger);
-        $updateDto = $requestSerializer->create($this->jsonRequest);
+        $updateSerializer = new UpdateSerializer($serializer, $logger);
+        $updateDto = $updateSerializer->deserialize($this->jsonRequest);
 
         $this->assertInstanceOf(UpdateDto::class, $updateDto);
     }

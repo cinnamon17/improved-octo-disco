@@ -6,7 +6,7 @@ use App\Dto\UpdateDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class RequestSerializer
+class UpdateSerializer
 {
     private String $encodedJson;
     private SerializerInterface $serializer;
@@ -19,10 +19,11 @@ class RequestSerializer
 	$this->logger = $webhookLogger;
     }
 
-    public function create(string $content): UpdateDto
+    public function deserialize(string $content): UpdateDto
     {
 	$this->logger->debug($content);
         $updateDto = $this->serializer->deserialize($content, UpdateDto::class, 'json');
+
         return $updateDto;
     }
 }
