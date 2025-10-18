@@ -2,11 +2,13 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Dto\ChatPromptMessageDto;
 use App\Entity\Message;
+use App\Entity\User;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
-use App\Service\HttpService;
 use App\Service\TelegramBotUpdate;
+use App\Service\TelegramClient;
 use App\Service\TelegramDtoFactory;
 use App\Service\TelegramService;
 use PHPUnit\Framework\TestCase;
@@ -17,134 +19,246 @@ use Symfony\Component\Messenger\Envelope;
 
 class TelegramServiceTest extends TestCase
 {
-    private HttpService $httpService;
-    private BotUpdateTranslator $bt;
-    private DBService $dbService;
-    private TelegramDtoFactory $dtoFactory;
-    private TelegramBotUpdate $update;
-    private MessageBusInterface $dispatcher;
+    private TelegramClient $clientMock;
+    private DBService $dbMock;
+    private TelegramDtoFactory $dtoFactoryMock;
+    private BotUpdateTranslator $btMock;
+    private MessageBusInterface $busMock;
+    private TelegramBotUpdate $updateStub;
+    private LoggerInterface $loggerMock;
+
+    private TelegramService $service;
 
     protected function setUp(): void
     {
-        $this->httpService = $this->createStub(HttpService::class);
-        $this->bt = $this->createStub(BotUpdateTranslator::class);
-        $this->dbService = $this->createStub(DBService::class);
-        $this->dtoFactory = $this->createStub(TelegramDtoFactory::class);
-        $this->update = $this->createStub(TelegramBotUpdate::class);
-        $this->dispatcher = $this->createStub(MessageBusInterface::class);
-    }
-    public function testSetLogger(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
+	parent::setUp();
 
-        $logger->expects($this->once())
-            ->method('info');
+	$this->clientMock = $this->createMock(TelegramClient::class);
+	$this->dbMock = $this->createMock(DBService::class);
+	$this->dtoFactoryMock = $this->createMock(TelegramDtoFactory::class);
+	$this->btMock = $this->createMock(BotUpdateTranslator::class);
+	$this->busMock = $this->createMock(MessageBusInterface::class);
+	$this->loggerMock = $this->createMock(LoggerInterface::class);
 
-        $telegramService = new TelegramService($this->httpService, $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $telegramService->setLogger($logger);
-        $telegramService->log("hello");
-    }
+	$this->updateStub = $this->createStub(TelegramBotUpdate::class);
 
-    public function testHandleCallbackQuery(): void
-    {
-
-        $telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-
-        $telegramBotUpdate->method('getCallbackQueryId')
-            ->willReturn('test');
-
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
-
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $response = $telegramService->handleCallbackQuery();
-        $this->assertIsArray($response);
+	$this->service = new TelegramService(
+	    $this->clientMock,
+	    $this->dbMock,
+	    $this->dtoFactoryMock,
+	    $this->btMock,
+	    $this->busMock,
+	    $this->updateStub
+	);
+	$this->service->setLogger($this->loggerMock);
     }
 
-    public function testSendMessage(): void
+    public function testSendMessageDelegatesToClient(): void
     {
+	$message = 'Test message';
 
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
+	$this->clientMock->expects($this->once())
+		  ->method('sendAdminMessageFromUpdate')
+		  ->with($this->updateStub)
+		  ->willReturn(['ok' => true]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->sendMessage('hello'));
+	$this->clientMock->expects($this->once())
+		  ->method('sendMessage')
+		  ->with($message, $this->updateStub)
+		  ->willReturn(['ok' => true]);
+
+	$this->service->sendMessage($message);
     }
 
-    public function testSendChatAction(): void
+    public function testSendChatActionDelegatesToClient(): void
     {
+	$action = 'typing';
 
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
+	$this->clientMock->expects($this->once())
+		  ->method('sendChatAction')
+		  ->with($action, $this->updateStub)
+		  ->willReturn(['ok' => true]);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->sendChatAction('action'));
+	$this->service->sendChatAction($action);
     }
 
-    public function testAnswerCallbackQuery(): void
+    public function testHandleUserRegistrationNewUser(): void
     {
+	$chatId = 12345;
+	$userEntity = new User();
 
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createChatIdFromUpdate')
+		      ->with($this->updateStub)
+		      ->willReturn($chatId);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertIsArray($telegramService->answerCallbackQuery());
+	$this->dbMock->expects($this->once())
+	      ->method('isUserExists')
+	      ->with($chatId)
+	      ->willReturn(false);
+
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createUser')
+		      ->with($this->updateStub)
+		      ->willReturn($userEntity);
+
+	$this->dbMock->expects($this->once())
+	      ->method('insertUserInDb')
+	      ->with($userEntity);
+
+	$method = new \ReflectionMethod(TelegramService::class, 'handleUserRegistration');
+	$method->setAccessible(true);
+	$method->invoke($this->service);
     }
 
-    public function testSendInlineKeyboard(): void
+    public function testHandleUserRegistrationExistingUser(): void
     {
+	$chatId = 12345;
+	$userEntity = new User();
+	$messageEntity = new Message();
 
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createChatIdFromUpdate')
+		      ->with($this->updateStub)
+		      ->willReturn($chatId);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertInstanceOf(JsonResponse::class,$telegramService->sendInlineKeyboard());
+	$this->dbMock->expects($this->once())
+	      ->method('isUserExists')
+	      ->with($chatId)
+	      ->willReturn(true);
+
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createUser')
+		      ->with($this->updateStub)
+		      ->willReturn($userEntity);
+
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createMessage')
+		      ->with($this->updateStub)
+		      ->willReturn($messageEntity);
+
+	$this->dbMock->expects($this->once())
+	      ->method('updateUserInDb')
+	      ->with($userEntity, $messageEntity);
+
+	$method = new \ReflectionMethod(TelegramService::class, 'handleUserRegistration');
+	$method->setAccessible(true);
+	$method->invoke($this->service);
     }
 
-    public function testSendWelcomeMessage(): void
+    public function testHandleSpecialCommandStart(): void
     {
+	$messageEntity = new Message();
+	$messageEntity->setText('/start');
+	$welcomeMessage = 'Welcome!';
 
-        $this->httpService->method('telegramRequest')
-            ->willReturn([]);
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createMessage')
+		      ->with($this->updateStub)
+		      ->willReturn($messageEntity);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $this->assertInstanceOf(JsonResponse::class,$telegramService->sendWelcomeMessage());
+	$this->btMock->expects($this->once())
+	      ->method('getWelcomeMessage')
+	      ->willReturn($welcomeMessage);
+
+	$this->clientMock->expects($this->once())
+		  ->method('sendMessage')
+		  ->with($welcomeMessage, $this->updateStub)
+		  ->willReturn(['ok' => true]); // Solo necesitamos que se llame
+
+	$method = new \ReflectionMethod(TelegramService::class, 'handleSpecialCommand');
+	$method->setAccessible(true);
+	$response = $method->invoke($this->service);
+
+	$this->assertInstanceOf(JsonResponse::class, $response);
+	$this->assertEquals(json_encode(['status' => 'ok']), $response->getContent());
     }
 
-    public function testLog(): void
+    public function testHandleSpecialCommandMode(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('info');
+	$messageEntity = new Message();
+	$messageEntity->setText('/mode');
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $telegramService->setLogger($logger);
-        $telegramService->log('testlog');
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createMessage')
+		      ->with($this->updateStub)
+		      ->willReturn($messageEntity);
+
+	$this->clientMock->expects($this->once())
+		  ->method('sendInlineKeyboard')
+		  ->with($this->updateStub)
+		  ->willReturn(['ok' => true]); 
+
+	$method = new \ReflectionMethod(TelegramService::class, 'handleSpecialCommand');
+	$method->setAccessible(true);
+	$response = $method->invoke($this->service);
+
+	$this->assertInstanceOf(JsonResponse::class, $response);
+	$this->assertEquals(json_encode(['status' => 'ok']), $response->getContent());
     }
 
-    public function testSetBotMode(): void
+    public function testHandleIncomingMessage_NewUserAndStartCommand(): void
     {
+	$chatId = 123;
+	$welcomeMessage = 'Welcome!';
+	$messageEntity = new Message();
+	$messageEntity->setText('/start');
 
-        $dbService = $this->createMock(DBService::class);
-        $dbService->expects($this->once())
-            ->method('updateUserMode');
+	$this->dtoFactoryMock->method('createChatIdFromUpdate')->willReturn($chatId);
+	$this->dbMock->method('isUserExists')->willReturn(false); // Nuevo usuario
+	$this->dbMock->expects($this->once())->method('insertUserInDb'); // Debe insertarse
 
-        $telegramService = new TelegramService($this->httpService,  $dbService, $this->dtoFactory, $this->bt, $this->dispatcher);
-        $telegramService->setBotMode();
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createMessage')
+		      ->with($this->updateStub)
+		      ->willReturn($messageEntity);
+
+	$this->btMock->expects($this->once())
+	      ->method('getWelcomeMessage')
+	      ->willReturn($welcomeMessage);
+
+	$this->clientMock->expects($this->once())
+		  ->method('sendMessage')
+		  ->with($welcomeMessage, $this->updateStub)
+		  ->willReturn(['ok' => true]); 
+
+	$response = $this->service->handleIncomingMessage();
+
+	$this->assertInstanceOf(JsonResponse::class, $response);
+	$this->assertEquals(json_encode(['status' => 'ok']), $response->getContent());
     }
 
-    public function testNoMode(): void
+    public function testHandleIncomingMessage_ExistingUserAndAIMessage(): void
     {
-	$dtoFactory = $this->createMock(TelegramDtoFactory::class);
+	$chatId = 123;
+	$messageEntity = new Message();
+	$messageEntity->setText('Pregunta de IA'); 
+	$chatPromptDto = new ChatPromptMessageDto();
 
-	$dtoFactory->expects($this->once())
-	    ->method('createMessage');
+	$this->dtoFactoryMock->method('createChatIdFromUpdate')->willReturn($chatId);
+	$this->dbMock->method('isUserExists')->willReturn(true); // Usuario existente
+	$this->dbMock->expects($this->once())->method('updateUserInDb'); // Debe actualizarse
 
-	$this->dispatcher
-	    ->method('dispatch')
-	    ->willReturn(new Envelope(new \stdClass()));
+	$this->dtoFactoryMock->expects($this->any())
+		      ->method('createMessage')
+		      ->with($this->updateStub)
+		      ->willReturn($messageEntity);
 
-        $telegramService = new TelegramService($this->httpService,  $this->dbService, $dtoFactory, $this->bt, $this->dispatcher);
-	$telegramService->handleIncomingMessage();
+	$this->clientMock->expects($this->once())
+		  ->method('sendChatAction')
+		  ->with('typing', $this->updateStub);
+
+	$this->dtoFactoryMock->expects($this->once())
+		      ->method('createChatPromptMessageDto')
+		      ->willReturn($chatPromptDto);
+	$this->busMock->expects($this->once())
+	       ->method('dispatch')
+	       ->with($chatPromptDto)
+	       ->willReturn(new Envelope(new \stdClass()));
+
+	$response = $this->service->handleIncomingMessage();
+
+	$this->assertInstanceOf(JsonResponse::class, $response);
+	$this->assertEquals(json_encode(['status' => 'ok']), $response->getContent());
     }
 }
