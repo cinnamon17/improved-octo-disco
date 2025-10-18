@@ -10,6 +10,7 @@
          failOnWarning="true"
 	 testdox="true"
          stopOnError="true"
+	 displayDetailsOnTestsThatTriggerDeprecations="true"
 >
   <php>
     <ini name="display_errors" value="1"/>
