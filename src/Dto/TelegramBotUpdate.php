@@ -1,24 +1,14 @@
 <?php
 
-namespace App\Service;
-
-use App\Dto\CallbackQueryDto;
-use App\Dto\UpdateDto;
-use Symfony\Component\HttpFoundation\RequestStack;
-use InvalidArgumentException;
+namespace App\Dto;
 
 class TelegramBotUpdate
 {
     private UpdateDto $update;
 
-    public function __construct(RequestStack $requestStack, UpdateSerializer $update)
+    public function __construct(UpdateDto $update)
     {
-	$request = $requestStack->getCurrentRequest()->getContent();
-	
-	if (!$request) {
-             throw new InvalidArgumentException('El Request o su contenido no están disponibles.');
-        }
-        $this->update = $update->deserialize($request);
+	$this->update = $update;
     }
 
     public function getUpdateId(): int
