@@ -56,10 +56,12 @@ class TelegramApiDtoFactory
 
     public function createAdminSendMessageParams(TelegramBotUpdate $update): TelegramMessageDto
     {
+	$firstName = $update->getFirstName() . ': ';
+
 	return (new TelegramMessageDto())
 	    ->setChatId($this->env->get('ADMIN_CHAT_ID'))
 	    ->setMethod('sendMessage')
-	    ->setText($update->getMessageText())
+	    ->setText($firstName . $update->getMessageText())
 	;
     }
 
