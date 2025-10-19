@@ -1,17 +1,14 @@
 <?php
 
-namespace App\Service;
-
-use App\Dto\CallbackQueryDto;
-use App\Dto\UpdateDto;
+namespace App\Dto;
 
 class TelegramBotUpdate
 {
     private UpdateDto $update;
 
-    public function __construct(RequestSerializer $update)
+    public function __construct(UpdateDto $update)
     {
-        $this->update = $update->create();
+	$this->update = $update;
     }
 
     public function getUpdateId(): int
@@ -86,7 +83,9 @@ class TelegramBotUpdate
 
     public function getLocale(): ?string
     {
-        return $this->getLanguageCode() ?? $this->getCallbackQueryLanguageCode() ?? 'en';
+	return $this->getLanguageCode()
+	    ?? $this->getCallbackQueryLanguageCode()
+	    ?? 'en';
     }
 
     public function isCallbackQuery(): bool

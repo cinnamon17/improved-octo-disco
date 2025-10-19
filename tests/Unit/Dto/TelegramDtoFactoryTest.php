@@ -3,211 +3,109 @@
 namespace App\Tests\Unit\Dto;
 
 use App\Dto\AnswerCallbackQueryDto;
-use App\Dto\CallbackQueryDto;
 use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
-use App\Dto\UserDto;
-use App\Entity\Message;
 use App\Entity\Prompt;
 use App\Entity\User;
 use App\Service\BotUpdateTranslator;
 use App\Service\DBService;
-use App\Service\TelegramBotUpdate;
-use App\Service\TelegramDtoFactory;
+use App\Dto\TelegramBotUpdate;
+use App\Service\TelegramApiDtoFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class TelegramDtoFactoryTest extends TestCase
 {
-    private $botUpdateTranslator;
-    private $telegramDtoFactory;
-    private $telegramBotUpdate;
-    private $env;
+    private BotUpdateTranslator $btMock;
+    private ContainerBagInterface $envMock;
+    private TelegramApiDtoFactory$factory;
+    private TelegramBotUpdate $updateMock;
 
     protected function setUp(): void
     {
-        $this->botUpdateTranslator = $this->createStub(BotUpdateTranslator::class);
-        $this->telegramBotUpdate = $this->createStub(TelegramBotUpdate::class);
-        $this->env = $this->createStub(ContainerBagInterface::class);
-        $this->telegramDtoFactory = new TelegramDtoFactory($this->botUpdateTranslator, $this->telegramBotUpdate, $this->env);
-    }
+        parent::setUp();
 
-    public function testCreateCallbackQueryParams(): void
-    {
-        $result = $this->telegramDtoFactory->createCallbackQueryParams();
-        $this->assertInstanceOf(TelegramMessageDto::class, $result);
+        $this->btMock = $this->createMock(BotUpdateTranslator::class);
+        $this->envMock = $this->createMock(ContainerBagInterface::class);
+
+        $this->factory = new TelegramApiDtoFactory($this->btMock, $this->envMock);
+
+        $this->updateMock = $this->createMock(TelegramBotUpdate::class);
     }
 
     public function testCreateSendMessageParams(): void
     {
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(1111111111);
+        $expectedChatId = 12345;
+        $messageText = 'Hola, este es un mensaje.';
 
-        $message = 'Hello, world!';
-        $result = $this->telegramDtoFactory->createSendMessageParams($message);
+        $this->updateMock->method('getChatId')->willReturn($expectedChatId);
 
-        $this->assertInstanceOf(TelegramMessageDto::class, $result);
+        $dto = $this->factory->createSendMessageParams($messageText, $this->updateMock);
+
+        $this->assertInstanceOf(TelegramMessageDto::class, $dto);
+        $this->assertEquals('sendMessage', $dto->getMethod());
+        $this->assertEquals($expectedChatId, $dto->getChatId());
+        $this->assertEquals($messageText, $dto->getText());
     }
 
-    public function testCreateAdminSendMessageParams(): void
+    public function testCreateGenericSendMessageParams(): void
     {
-        $this->telegramBotUpdate
-            ->method('getMessageText')
-            ->willReturn('test');
+        $expectedChatId = 98765;
+        $messageText = 'Mensaje para otro chat.';
 
-        $result = $this->telegramDtoFactory->createAdminSendMessageParams();
-        $this->assertInstanceOf(TelegramMessageDto::class, $result);
+        $dto = $this->factory->createGenericSendMessageParams($messageText, $expectedChatId);
+
+        $this->assertInstanceOf(TelegramMessageDto::class, $dto);
+        $this->assertEquals('sendMessage', $dto->getMethod());
+        $this->assertEquals($expectedChatId, $dto->getChatId());
+        $this->assertEquals($messageText, $dto->getText());
+    }
+
+    public function testCreateCallbackQueryParams(): void
+    {
+        $expectedChatId = 112233;
+        $expectedMessage = 'Modo de bot actualizado.';
+
+        $this->updateMock->method('getCallbackQueryChatId')->willReturn($expectedChatId);
+        $this->updateMock->method('getLocale')->willReturn('es');
+        $this->btMock->method('translate')
+            ->with('callbackQuery.message', 'es')
+            ->willReturn($expectedMessage);
+
+        $dto = $this->factory->createCallbackQueryParams($this->updateMock);
+
+        $this->assertInstanceOf(TelegramMessageDto::class, $dto);
+        $this->assertEquals('sendMessage', $dto->getMethod());
+        $this->assertEquals($expectedChatId, $dto->getChatId());
+        $this->assertEquals($expectedMessage, $dto->getText());
     }
 
     public function testCreateSendChatActionParams(): void
     {
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(1111111111);
-
+        $expectedChatId = 55555;
         $action = 'typing';
-        $result = $this->telegramDtoFactory->createSendChatActionParams($action);
 
-        $this->assertInstanceOf(TelegramActionDto::class, $result);
+        $this->updateMock->method('getChatId')->willReturn($expectedChatId);
+
+        $dto = $this->factory->createSendChatActionParams($action, $this->updateMock);
+
+        $this->assertInstanceOf(TelegramActionDto::class, $dto);
+        $this->assertEquals('sendChatAction', $dto->getMethod());
+        $this->assertEquals($expectedChatId, $dto->getChatId());
+        $this->assertEquals($action, $dto->getAction());
     }
 
     public function testCreateAnswerCallbackQueryParams(): void
     {
-        $result = $this->telegramDtoFactory->createAnswerCallbackQueryParams();
-        $this->assertInstanceOf(AnswerCallbackQueryDto::class, $result);
-    }
+        $expectedId = 'ABC-123';
+        $this->updateMock->method('getCallbackQueryId')->willReturn($expectedId);
 
-    public function testCreateSendInlineKeyboardParams(): void
-    {
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(1111111111);
+        $dto = $this->factory->createAnswerCallbackQueryParams($this->updateMock);
 
-        $result = $this->telegramDtoFactory->createSendInlineKeyboardParams();
-        $this->assertInstanceOf(TelegramMessageDto::class, $result);
-    }
-
-    public function testCreateChatPromptMessageDto(): void
-    {
-
-        $db = $this->createStub(DBService::class);
-        $prompt = $this->createStub(Prompt::class);
-        $prompt
-            ->method('getRole')
-            ->willReturn('test');
-
-        $this->telegramBotUpdate
-            ->method('getMessageText')
-            ->willReturn('test');
-
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(123456);
-
-        $this->telegramBotUpdate
-            ->method('getIsBot')
-            ->willReturn(true);
-
-        $this->botUpdateTranslator
-            ->method('getAssistantMessage')
-            ->willReturn('assistant');
-
-        $this->telegramBotUpdate
-            ->method('getFirstName')
-            ->willReturn('test');
-
-        $this->telegramBotUpdate
-            ->method('getLocale')
-            ->willReturn('es');
-
-        $db->method('getPrompt')
-            ->willReturn($prompt);
-
-        $result = $this->telegramDtoFactory->createChatPromptMessageDto($db);
-        $this->assertInstanceOf(ChatPromptMessageDto::class, $result);
-    }
-
-    public function testCreateUserBotMode(): void
-    {
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(1234);
-
-        $this->telegramBotUpdate
-            ->method('getIsBot')
-            ->willReturn(true);
-
-        $this->telegramBotUpdate
-            ->method('getFirstName')
-            ->willReturn('test');
-
-        $this->botUpdateTranslator
-            ->method('getAssistantMessage')
-            ->willReturn('assistant');
-
-        $user = $this->telegramDtoFactory->createUserBotMode();
-        $this->assertInstanceOf(User::class, $user);
-    }
-
-    public function testCreateUser(): void
-    {
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(123456);
-
-        $this->telegramBotUpdate
-            ->method('getIsBot')
-            ->willReturn(true);
-
-        $this->botUpdateTranslator
-            ->method('getAssistantMessage')
-            ->willReturn('assistant');
-
-        $this->telegramBotUpdate
-            ->method('getFirstName')
-            ->willReturn('test');
-
-        $user = $this->telegramDtoFactory->createUser();
-        $this->assertInstanceOf(User::class, $user);
-    }
-
-    public function testCreateMessage(): void
-    {
-        $this->telegramBotUpdate
-            ->method('getMessageText')
-            ->willReturn('test');
-
-        $this->telegramBotUpdate
-            ->method('getMessageId')
-            ->willReturn(12345);
-
-        $message = $this->telegramDtoFactory->createMessage();
-        $this->assertInstanceOf(Message::class, $message);
-    }
-
-    public function testCreateChatId(): void
-    {
-        $callbackQueryDto = $this->createStub(CallbackQueryDto::class);
-        $userDto = $this->createStub(UserDto::class);
-        $userDto
-            ->method('getId')
-            ->willReturn(123456);
-
-        $callbackQueryDto
-            ->method('getFrom')
-            ->willReturn($userDto);
-
-        $this->telegramBotUpdate
-            ->method('getChatId')
-            ->willReturn(123456);
-
-        $this->telegramBotUpdate
-            ->method('getCallbackQuery')
-            ->willReturn($callbackQueryDto);
-
-        $chatId = $this->telegramDtoFactory->createChatIdFromUpdate();
-        $this->assertEquals(123456, $chatId);
+        $this->assertInstanceOf(AnswerCallbackQueryDto::class, $dto);
+        $this->assertEquals('answerCallbackQuery', $dto->getMethod());
+        $this->assertEquals($expectedId, $dto->getId());
     }
 }
+

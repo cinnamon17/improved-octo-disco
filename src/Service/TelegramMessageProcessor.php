@@ -2,33 +2,34 @@
 
 namespace App\Service;
 
-use App\Dto\ChatPromptMessageDto;
+use App\Dto\SendAIMessageCommandDto;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 class TelegramMessageProcessor
 {
-    private HttpService $http;
-    private TelegramService $tService;
+    private AIService $aiService;
+    private TelegramClient $telegramClient;
 
-    public function __construct(HttpService $http, TelegramService $tService)
+    public function __construct(AIService $aiService, TelegramClient $telegramClient)
     {
-	$this->http = $http;
-	$this->tService = $tService;
+        $this->aiService = $aiService;
+        $this->telegramClient = $telegramClient;
     }
 
-    public function __invoke(ChatPromptMessageDto $chatDto): void
+    public function __invoke(SendAIMessageCommandDto $command): void
     {
-	$response = $this->http->chatCompletion($chatDto)->toArray();
 
-	if (strlen($response["choices"][0]["message"]["content"]) < 4096) {
-	    $this->tService->sendMessage($response["choices"][0]["message"]["content"]);
-	} else {
-	    $chunks = str_split($response["choices"][0]["message"]["content"], 4096);
-	    foreach ($chunks as $text) {
-		$this->tService->sendMessage($text);
-	    }
-	}
-	
+        $response = $this->aiService->getChatCompletion($command->getChatDto());
+
+        if (strlen($response) < 4096) {
+            $this->telegramClient->sendGenericMessage($response, $command->getChatId());
+        } else {
+            $chunks = str_split($response, 4096);
+            foreach ($chunks as $text) {
+                $this->telegramClient->sendGenericMessage($text, $command->getChatId());
+            }
+        }
+
     }
 }

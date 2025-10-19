@@ -45,4 +45,9 @@ class PromptRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    //
+    public function findPromptByRoleAndLanguage(string $role, string $locale): Prompt
+    {
+        return $this->findOneBy(['role' => $role, 'language' => $locale]);
+    }
 }

@@ -7,42 +7,40 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BotUpdateTranslator
 {
 
-    private TelegramBotUpdate $update;
     private TranslatorInterface $translator;
 
-    public function __construct(TelegramBotUpdate $update, TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator)
     {
-        $this->update = $update;
         $this->translator = $translator;
     }
 
-    public function translate(string $id): string
+    public function translate(string $id, string $locale): string
     {
-        return $this->translator->trans($id, locale: $this->update->getLocale());
+        return $this->translator->trans($id, locale: $locale);
     }
 
-    public function getAssistantMessage(): string
+    public function getAssistantMessage(string $locale): string
     {
-        return $this->translate('assistant.message');
+        return $this->translate('assistant.message', $locale);
     }
 
-    public function getCharacterMessage(): string
+    public function getCharacterMessage(string $locale): string
     {
-        return $this->translate('character.message');
+        return $this->translate('character.message', $locale);
     }
 
-    public function getBusinessMessage(): string
+    public function getBusinessMessage(string $locale): string
     {
-        return $this->translate('business.message');
+        return $this->translate('business.message', $locale);
     }
 
-    public function getTranslatorMessage(): string
+    public function getTranslatorMessage(string $locale): string
     {
-        return $this->translate('translator.message');
+        return $this->translate('translator.message', $locale);
     }
 
-    public function getWelcomeMessage(): string
+    public function getWelcomeMessage(string $locale): string
     {
-        return $this->translate('welcome.message');
+        return $this->translate('welcome.message', $locale);
     }
 }

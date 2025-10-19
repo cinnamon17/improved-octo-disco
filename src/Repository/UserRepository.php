@@ -45,4 +45,9 @@ class UserRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    //
+    public function isUserExists(int $chatId): bool
+    {
+        return $this->findOneBy(['chat_id' => $chatId]) !== null;
+    }
 }

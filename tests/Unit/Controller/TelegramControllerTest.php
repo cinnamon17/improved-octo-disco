@@ -3,132 +3,109 @@
 namespace App\Tests\Unit\Controller;
 
 use App\Controller\TelegramController;
-use App\Service\TelegramBotUpdate;
-use App\Service\TelegramService;
+use App\Dto\TelegramBotUpdate;
+use App\Dto\UpdateDto;
+use App\Service\TelegramRouter;
+use App\Service\UpdateSerializer;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request; 
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class TelegramControllerTest extends TestCase
 {
-    public function testHandleCallbackQuery(): void
+    private function createRequestMock(string $content): Request
     {
-
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-
-	$update->method('isCallbackQuery')->willReturn(true);
-	$telegramService->method('handleCallbackQuery')->willReturn([]);
-	$telegramService->expects($this->once())->method('handleCallbackQuery');
-
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$controller->index();
+        $requestMock = $this->createMock(Request::class);
+        $requestMock->expects($this->once())
+            ->method('getContent')
+            ->willReturn($content);
+        return $requestMock;
     }
 
-    public function testChatIdIsNullReturnMessage(): void
+    public function testIndexHandlesValidRequestAndDelegatesToRouter(): void
     {
+        $requestContent = '{"update_id": 12345, "message": {"text": "/start"}}';
+        $updateDtoMock = $this->createStub(UpdateDto::class);
+        $expectedResponse = new JsonResponse(['status' => 'handled by router'], 200);
 
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-	$update->method('getChatId')->willReturn(null);
+        $requestMock = $this->createRequestMock($requestContent);
 
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$response = $controller->index();
+        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock->expects($this->once())
+            ->method('getCurrentRequest')
+            ->willReturn($requestMock); 
 
-	$this->assertEquals(json_encode('invalid chat_id'), $response->getContent());
+        $serializerMock = $this->createMock(UpdateSerializer::class);
+        $serializerMock->expects($this->once())
+            ->method('deserialize')
+            ->with($requestContent)
+            ->willReturn($updateDtoMock); 
+
+        $routerMock = $this->createMock(TelegramRouter::class);
+        $routerMock->expects($this->once())
+            ->method('handle')
+            ->with($this->isInstanceOf(TelegramBotUpdate::class)) 
+            ->willReturn($expectedResponse);
+
+        $controller = new TelegramController($routerMock, $serializerMock, $requestStackMock);
+        $actualResponse = $controller->index();
+
+        $this->assertSame($expectedResponse, $actualResponse);
+    }
+    
+
+    public function testIndexReturnsIgnoredForEmptyContent(): void
+    {
+        $requestContent = ''; 
+
+        $requestMock = $this->createRequestMock($requestContent);
+        
+        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock->expects($this->once())
+            ->method('getCurrentRequest')
+            ->willReturn($requestMock); 
+
+        $serializerMock = $this->createMock(UpdateSerializer::class);
+        $serializerMock->expects($this->never())
+            ->method('deserialize');
+
+        $routerMock = $this->createMock(TelegramRouter::class);
+        $routerMock->expects($this->never())
+            ->method('handle');
+
+        $controller = new TelegramController($routerMock, $serializerMock, $requestStackMock);
+        $actualResponse = $controller->index();
+        
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['status' => 'ignored']), 
+            $actualResponse->getContent()
+        );
     }
 
-    public function testMesageTextNullReturnMessage(): void
+    public function testIndexReturnsIgnoredIfNoRequestIsAvailable(): void
     {
 
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-	$update->method('getChatId')->willReturn((int) 11111111);
-	$update->method('getMessageText')->willReturn(null);
+	$content = '';
+	$request = $this->createRequestMock($content);
+        $requestStackMock = $this->createMock(RequestStack::class);
+        $requestStackMock->expects($this->once())
+            ->method('getCurrentRequest')
+            ->willReturn($request);
 
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$response = $controller->index();
+        $serializerMock = $this->createMock(UpdateSerializer::class);
+        $serializerMock->expects($this->never())->method('deserialize');
+        $routerMock = $this->createMock(TelegramRouter::class);
+        $routerMock->expects($this->never())->method('handle');
 
-	$this->assertEquals(json_encode('invalid message'), $response->getContent());
-    }
-
-    public function testInsertUserInDb(): void
-    {
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-
-	$update->method('getChatId')->willReturn((int) 11111111);
-	$update->method('getMessageText')->willReturn('hello');
-
-	$telegramService->expects($this->once())
-		 ->method('handleIncomingMessage')
-		 ->willReturn(new JsonResponse(['result' => 'success']));
-
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$controller->index();
-    }
-
-    public function testUpdateUserInDb(): void
-    {
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-
-	$update->method('getChatId')->willReturn((int) 11111111);
-	$update->method('getMessageText')->willReturn('hello');
-
-	$telegramService->expects($this->once())
-		 ->method('handleIncomingMessage')
-		 ->willReturn(new JsonResponse(['result' => 'success']));
-
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$controller->index();
-    }
-
-    public function testStartOption(): void
-    {
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-
-	$update->method('getChatId')->willReturn((int) 11111111);
-	$update->method('getMessageText')->willReturn('/start');
-
-	$telegramService->expects($this->once())
-		 ->method('handleIncomingMessage')
-		 ->willReturn(new JsonResponse(['welcome_message_sent' => true]));
-
-
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$controller->index();
-    }
-
-    public function testModeOption(): void
-    {
-	$telegramService = $this->createMock(TelegramService::class);
-	$update = $this->createMock(TelegramBotUpdate::class);
-
-	$update->method('getChatId')->willReturn((int) 11111111);
-	$update->method('getMessageText')->willReturn('/mode');
-
-	$telegramService->expects($this->once())
-		 ->method('handleIncomingMessage')
-		 ->willReturn(new JsonResponse(['inline_keyboard_sent' => true]));
-
-	$controller = new TelegramController($telegramService, $update);
-	$container = $this->createStub(ContainerInterface::class);
-	$controller->setContainer($container);
-	$controller->index();
+        $controller = new TelegramController($routerMock, $serializerMock, $requestStackMock);
+        $actualResponse = $controller->index();
+        
+        $this->assertEquals(200, $actualResponse->getStatusCode());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['status' => 'ignored']), 
+            $actualResponse->getContent()
+        );
     }
 }
