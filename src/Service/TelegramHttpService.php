@@ -2,35 +2,22 @@
 
 namespace App\Service;
 
-use App\Dto\ChatPromptMessageDto;
 use App\Dto\TelegramDtoInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class HttpService
+class TelegramHttpService
 {
 
     private HttpClientInterface $client;
-    private TelegramDtoFactory $dtoFactory;
     private ContainerBagInterface $env;
 
-    public function __construct(HttpClientInterface $client, ContainerBagInterface $env, TelegramDtoFactory $dtoFactory, )
+    public function __construct(HttpClientInterface $client, ContainerBagInterface $env)
     {
 
         $this->client = $client;
-        $this->dtoFactory= $dtoFactory;
 	$this->env = $env;
-    }
 
-    public function chatCompletion(ChatPromptMessageDto $chatDto): ResponseInterface
-    {
-
-        $params = $this->dtoFactory->createRequestAIparams($chatDto);
-        $openAIurl = $this->env->get('OPENAI_URL');
-        $response = $this->client->request('POST', $openAIurl, $params->toArray());
-
-        return $response;
     }
 
     public function telegramRequest(TelegramDtoInterface $dto): array
