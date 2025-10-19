@@ -4,7 +4,7 @@ namespace App\Tests\Unit\Service;
 
 use App\Service\TelegramRouter;
 use App\Service\TelegramService;
-use App\Service\TelegramBotUpdate;
+use App\Dto\TelegramBotUpdate;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -22,7 +22,7 @@ class TelegramRouterTest extends TestCase
     public function testHandleCallbackQuery(): void
     {
 
-        $expectedResponse = new JsonResponse(['status' => 'callback handled'], 200);
+        $expectedResponse = ['status' => 'callback handled'];
 
         $updateMock = $this->createMock(TelegramBotUpdate::class);
         
@@ -32,15 +32,16 @@ class TelegramRouterTest extends TestCase
 
         $this->telegramServiceStub->expects($this->once())
                                   ->method('handleCallbackQuery')
+				  ->with($updateMock)
                                   ->willReturn($expectedResponse);
 
         $actualResponse = $this->router->handle($updateMock);
-        $this->assertSame($expectedResponse, $actualResponse);
+        $this->assertSame($expectedResponse, json_decode($actualResponse->getContent(), true));
     }
 
     public function testHandleValidMessage(): void
     {
-        $expectedResponse = new JsonResponse(['status' => 'message handled'], 200);
+        $expectedResponse = ['status' => 'message handled'];
 
         $updateMock = $this->createMock(TelegramBotUpdate::class);
 
@@ -62,7 +63,7 @@ class TelegramRouterTest extends TestCase
 
         $actualResponse = $this->router->handle($updateMock);
 
-        $this->assertSame($expectedResponse, $actualResponse);
+        $this->assertSame($expectedResponse, json_decode($actualResponse->getContent(), true));
     }
 
     public function testHandleInvalidMessageMissingChatId(): void

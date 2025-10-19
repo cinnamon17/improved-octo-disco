@@ -6,15 +6,17 @@ use App\Dto\AnswerCallbackQueryDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramMessageDto;
 use App\Service\HttpService;
+use App\Service\TelegramApiDtoFactory;
 use App\Service\TelegramClient;
 use App\Service\TelegramDtoFactory;
-use App\Service\TelegramBotUpdate;
+use App\Dto\TelegramBotUpdate;
+use App\Service\TelegramHttpService;
 use PHPUnit\Framework\TestCase;
 
 class TelegramClientTest extends TestCase
 {
-    private HttpService $httpServiceMock;
-    private TelegramDtoFactory $dtoFactoryMock;
+    private TelegramHttpService $httpServiceMock;
+    private TelegramApiDtoFactory $dtoFactoryMock;
     private TelegramBotUpdate $updateStub;
     private TelegramClient $client;
 
@@ -22,8 +24,8 @@ class TelegramClientTest extends TestCase
     {
         parent::setUp();
 
-        $this->httpServiceMock = $this->createMock(HttpService::class);
-        $this->dtoFactoryMock = $this->createMock(TelegramDtoFactory::class);
+        $this->httpServiceMock = $this->createMock(TelegramHttpService::class);
+        $this->dtoFactoryMock = $this->createMock(TelegramApiDtoFactory::class);
         
         $this->updateStub = $this->createStub(TelegramBotUpdate::class);
 

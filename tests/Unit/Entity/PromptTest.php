@@ -3,7 +3,6 @@
 namespace App\Tests\Unit\Entity;
 
 use App\Entity\Prompt;
-use DateTime;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
