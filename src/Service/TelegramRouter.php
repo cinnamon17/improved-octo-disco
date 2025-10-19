@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dto\TelegramBotUpdate;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TelegramRouter
@@ -16,14 +17,15 @@ class TelegramRouter
     public function handle(TelegramBotUpdate $update): JsonResponse
     {
 	if ($update->isCallbackQuery()) {
-	    return $this->tService->handleCallbackQuery();
+	    return new JsonResponse($this->tService->handleCallbackQuery());
 	}
 
 	if (!$update->getChatId() || !$update->getMessageText()) {
 	    return new JsonResponse(['status' => 'ignored'], 200);
 	}
 
-	return $this->tService->handleIncomingMessage();
+	return new JsonResponse($this->tService->handleIncomingMessage($update));
+
     }
 
 
