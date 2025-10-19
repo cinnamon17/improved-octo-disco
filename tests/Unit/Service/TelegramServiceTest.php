@@ -10,12 +10,10 @@ use App\Service\BotUpdateTranslator;
 use App\Dto\TelegramBotUpdate;
 use App\Service\DomainDtoFactory;
 use App\Service\TelegramClient;
-use App\Service\TelegramApiDtoFactory;
 use App\Service\TelegramService;
 use App\Service\UserManagementService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Envelope;
 
@@ -56,24 +54,6 @@ class TelegramServiceTest extends TestCase
     $this->service->setLogger($this->loggerMock);
     }
 
-    public function testSendMessageDelegatesToClient(): void
-    {
-	$message = 'Test message';
-	$expectedResponse = ['ok' => true, 'message_id' => 100];
-
-	$this->clientMock->expects($this->once())
-		  ->method('sendAdminMessageFromUpdate')
-		  ->with($this->updateStub);
-
-	$this->clientMock->expects($this->once())
-		  ->method('sendMessage')
-		  ->with($message, $this->updateStub)
-		  ->willReturn($expectedResponse);
-
-	$result = $this->service->sendMessage($this->updateStub, $message);
-	$this->assertSame($expectedResponse, $result);
-    }
-
     public function testHandleUserRegistrationDelegatesToUserManagement(): void
     {
 	$userDtoStub = $this->createStub(User::class);
@@ -109,14 +89,12 @@ class TelegramServiceTest extends TestCase
 			    ->with($this->updateStub)
 			    ->willReturn($messageEntity);
 
-	// 1. Verificar la llamada con el locale (asumiendo que getLocale() existe en TelegramBotUpdate)
 	$this->updateStub->method('getLocale')->willReturn('es');
 	$this->btMock->expects($this->once())
 	      ->method('getWelcomeMessage')
 	      ->with('es')
 	      ->willReturn($welcomeMessage);
 
-	// Mocks para sendAdminMessageFromUpdate y sendMessage (dentro de sendWelcomeMessage)
 	$this->clientMock->expects($this->once())->method('sendAdminMessageFromUpdate');
 	$this->clientMock->expects($this->once())
 		  ->method('sendMessage')
@@ -125,9 +103,8 @@ class TelegramServiceTest extends TestCase
 
 	$method = new \ReflectionMethod(TelegramService::class, 'handleSpecialCommand');
 	$method->setAccessible(true);
-	$response = $method->invoke($this->service, $this->updateStub); // Pasar update
+	$response = $method->invoke($this->service, $this->updateStub); 
 
-	// 2. Aserción de retorno corregida (debe ser array)
 	$this->assertEquals(['ok' => true], $response); 
     }
 
@@ -144,7 +121,7 @@ class TelegramServiceTest extends TestCase
 	$this->clientMock->expects($this->once())
 		  ->method('sendInlineKeyboard')
 		  ->with($this->updateStub)
-		  ->willReturn(['ok' => true]); // Solo verificar la llamada
+		  ->willReturn(['ok' => true]); 
 
 	$method = new \ReflectionMethod(TelegramService::class, 'handleSpecialCommand');
 	$method->setAccessible(true);
@@ -165,30 +142,25 @@ class TelegramServiceTest extends TestCase
 	$this->updateStub->method('getChatId')->willReturn($chatId);
 	$this->updateStub->method('getLocale')->willReturn('en');
 
-	// 1. Mocks de Lógica de Negocio y Fábricas
 	$this->dtoDomainFactoryMock->method('createMessage')->willReturn($messageEntity);
 	$this->dbMock->method('findUserByChatId')->with($chatId)->willReturn($userStub);
-	$this->btMock->expects($this->never())->method('getAssistantMessage'); // El usuario existe
+	$this->btMock->expects($this->never())->method('getAssistantMessage');
 	$this->dtoDomainFactoryMock->method('createChatPromptMessageDto')->willReturn($chatPromptDto);
 
-	// 2. Mocks de Cliente
 	$this->clientMock->expects($this->once())
 		  ->method('sendChatAction')
 		  ->with('typing', $this->updateStub);
 
-	// 3. Verificación CRÍTICA del Dispatch
 	$this->busMock->expects($this->once())
 	       ->method('dispatch')
-	   // Verifica que el objeto despachado es el comando correcto y con los datos correctos
 	       ->with($this->callback(function ($command) use ($chatPromptDto, $chatId) {
 		   $this->assertInstanceOf(SendAIMessageCommandDto::class, $command);
 		   $this->assertSame($chatPromptDto, $command->getChatDto());
 		   $this->assertSame($chatId, $command->getChatId());
 		   return true;
 	       }))
-	       ->willReturn(new Envelope(new \stdClass())); // El dispatch siempre devuelve un Envelope
+	       ->willReturn(new Envelope(new \stdClass()));
 
-	// Llamamos al método público que contiene toda la lógica de orquestación
 	$response = $this->service->handleIncomingMessage($this->updateStub);
 
 	$this->assertEquals(['status' => 'AI message dispatched'], $response);

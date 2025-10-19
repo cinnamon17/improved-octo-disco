@@ -40,16 +40,10 @@ class TelegramService implements LoggerAwareInterface
 	$this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
-    public function sendMessage(TelegramBotUpdate $update, string $message): array
-    {
-	$this->client->sendAdminMessageFromUpdate($update);
-	return $this->client->sendMessage($message, $update);
-    }
-
     public function sendWelcomeMessage(TelegramBotUpdate $update): array
     {
 	$welcomeMessage = $this->bt->getWelcomeMessage($update->getLocale());
-	return $this->sendMessage($update, $welcomeMessage);
+	return $this->client->sendMessage($welcomeMessage, $update);
     }
 
     public function setBotMode(TelegramBotUpdate $update): void
@@ -86,6 +80,7 @@ class TelegramService implements LoggerAwareInterface
     private function handleSpecialCommand(TelegramBotUpdate $update): array
     {
 	$text = $this->domainDtoFactory->createMessage($update);
+	$this->client->sendAdminMessageFromUpdate($update);
 
 	return match($text->getText()) {
 	    '/start' => $this->sendWelcomeMessage($update),

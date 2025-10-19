@@ -6,7 +6,6 @@ use App\Dto\CallbackQueryDto;
 use App\Dto\ChatDto;
 use App\Dto\UpdateDto;
 use App\Dto\UserDto;
-use App\Service\RequestSerializer;
 use App\Service\UpdateSerializer;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
