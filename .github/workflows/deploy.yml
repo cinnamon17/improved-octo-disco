@@ -33,8 +33,10 @@ jobs:
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env
           echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env
           echo MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}' >> .env
+          echo DEFAULT_URI='${{ secrets.DEFAULT_URI }}' >> .env
           composer install
           composer dump-env prod
+          php bin/console messenger:stop-workers
           php bin/console doctrine:migrations:migrate -n
           cd ..
           ./permits.sh
