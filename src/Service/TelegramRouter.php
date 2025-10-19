@@ -17,7 +17,7 @@ class TelegramRouter
     public function handle(TelegramBotUpdate $update): JsonResponse
     {
 	if ($update->isCallbackQuery()) {
-	    return new JsonResponse($this->tService->handleCallbackQuery());
+	    return new JsonResponse($this->tService->handleCallbackQuery($update));
 	}
 
 	if (!$update->getChatId() || !$update->getMessageText()) {
