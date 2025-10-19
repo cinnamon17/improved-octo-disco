@@ -2,48 +2,65 @@
 
 namespace App\Service;
 
-use App\Service\HttpService;
-use App\Service\TelegramDtoFactory;
+use App\Dto\TelegramBotUpdate;
+use App\Dto\TelegramDtoInterface;
 
 class TelegramClient
 {
-    private HttpService $http;
-    private TelegramDtoFactory $dtoFactory;
+    private TelegramHttpService $telegramHttpService;
+    private TelegramApiDtoFactory $apiDtoFactory;
 
-    public function __construct(HttpService $http, TelegramDtoFactory $telegramDtoFactory)
+    public function __construct(TelegramHttpService $telegramHttpService, TelegramApiDtoFactory $telegramApiDtoFactory)
     {
-        $this->http = $http;
-        $this->dtoFactory = $telegramDtoFactory;
+	$this->telegramHttpService = $telegramHttpService;
+	$this->apiDtoFactory = $telegramApiDtoFactory;
+    }
+
+    public function sendDto(TelegramDtoInterface $dto): array
+    {
+	return $this->telegramHttpService->telegramRequest($dto);
     }
 
     public function sendMessage(string $message, TelegramBotUpdate $update): array
     {
-        $params = $this->dtoFactory->createSendMessageParams($message, $update);
-        return $this->http->telegramRequest($params);
+	$params = $this->apiDtoFactory->createSendMessageParams($message, $update);
+	return $this->sendDto($params);
     }
 
     public function sendAdminMessageFromUpdate(TelegramBotUpdate $update): array
     {
-        $adminParams = $this->dtoFactory->createAdminSendMessageParams($update);
-        return $this->http->telegramRequest($adminParams);
+	$adminParams = $this->apiDtoFactory->createAdminSendMessageParams($update);
+	return $this->sendDto($adminParams);
     }
 
     public function sendChatAction(string $action, TelegramBotUpdate $update): array
     {
-        $params = $this->dtoFactory->createSendChatActionParams($action, $update);
-        return $this->http->telegramRequest($params);
+	$params = $this->apiDtoFactory->createSendChatActionParams($action, $update);
+	return $this->sendDto($params);
     }
 
     public function answerCallbackQuery(TelegramBotUpdate $update): array
     {
-        $params = $this->dtoFactory->createAnswerCallbackQueryParams($update);
-        return $this->http->telegramRequest($params);
+	$params = $this->apiDtoFactory->createAnswerCallbackQueryParams($update);
+	return $this->sendDto($params);
     }
 
     public function sendInlineKeyboard(TelegramBotUpdate $update): array
     {
-        $params = $this->dtoFactory->createSendInlineKeyboardParams($update);
-        return $this->http->telegramRequest($params);
+	$params = $this->apiDtoFactory->createSendInlineKeyboardParams($update);
+	return $this->sendDto($params);
+    }
+
+    public function sendCallbackQueryResponse(TelegramBotUpdate $update): array
+    {
+	$params = $this->apiDtoFactory->createCallbackQueryParams($update);
+	return $this->sendDto($params);
+    }
+
+    public function sendGenericMessage(string $message, int $chatId): array
+    {
+	$params = $this->apiDtoFactory->createGenericSendMessageParams($message, $chatId);
+	return $this->sendDto($params);
     }
 }
 
