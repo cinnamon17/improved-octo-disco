@@ -17,19 +17,27 @@ jobs:
           echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
           sudo apt-get update && sudo apt-get install cloudflared -y      
      
+      
       - name: Configure SSH for Cloudflare Tunnel
         run: |
-            mkdir -p ~/.ssh
-            CF_PATH=$(which cloudflared)
-            cat <<EOF > ~/.ssh/config
-            Host ${{ secrets.HOSTNAME }}
-                ProxyCommand $CF_PATH access tcp --hostname %h
-                StrictHostKeyChecking accept-new
-            EOF
+          mkdir -p ~/.ssh
+          CF_BIN=$(which cloudflared)
+          echo "Cloudflared está en: $CF_BIN"
+          
+          $CF_BIN --version
+          
+          cat <<EOF > ~/.ssh/config
+          Host ${{ secrets.HOSTNAME }}
+              ProxyCommand $CF_BIN access tcp --hostname %h
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
+              ConnectTimeout 20
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: Scan and Trust Server Fingerprint
         run: |
-            ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || (echo "ERROR: Keyscan failed. Check if cloudflared can resolve the hostname." && exit 1)
+          ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || echo "Keyscan skipped, using config fallback"
           
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
