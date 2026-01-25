@@ -29,7 +29,7 @@ jobs:
 
       - name: Scan and Trust Server Fingerprint
         run: |
-          ssh-keyscan -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts
+            ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || (echo "ERROR: Keyscan failed. Check if cloudflared can resolve the hostname." && exit 1)
           
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
