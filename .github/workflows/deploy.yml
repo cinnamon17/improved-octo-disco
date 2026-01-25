@@ -38,7 +38,8 @@ jobs:
         run: |
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << EOF
           cd /var/www/html/
-          mv improved-octo-disco-feature ${{ github.run_number }}
+          sudo mv improved-octo-disco-feature ${{ github.run_number }}
+          cd /tmp/
           git clone https://github.com/cinnamon17/improved-octo-disco.git
           mv improved-octo-disco/ improved-octo-disco-feature
           cd improved-octo-disco-feature
@@ -54,6 +55,6 @@ jobs:
           composer dump-env prod
           php bin/console messenger:stop-workers
           php bin/console doctrine:migrations:migrate -n
-          cd ..
+          cd /var/www/html
           ./permits.sh
           EOF
