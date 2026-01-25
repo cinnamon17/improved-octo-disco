@@ -117,19 +117,14 @@ jobs:
           rm -rf improved-octo-disco
           git clone https://github.com/cinnamon17/improved-octo-disco.git
           cd improved-octo-disco
-          git checkout staging
-
-          # 1. CREACIÓN DEL ENV (Corregido para no tragarse el resto del script)
-          # Usamos 'ENV' para que no interprete nada de lo que sigue
-          cat <<'ENV' > .env
-          APP_ENV=${{ secrets.APP_ENV }}
-          APP_SECRET=${{ secrets.APP_SECRET }}
-          OPENAI_KEY=${{ secrets.OPENAI_KEY }}
-          BOT_KEY=${{ secrets.BOT_KEY }}
-          DATABASE_URL='${{ secrets.LOCAL_DATABASE_URL }}'
-          MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}'
-          DEFAULT_URI='${{ secrets.DEFAULT_URI }}'
-          ENV
+          
+          echo "APP_ENV=${{ secrets.APP_ENV }}" > .env
+          echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
+          echo "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" >> .env
+          echo "BOT_KEY=${{ secrets.BOT_KEY }}" >> .env
+          echo "DATABASE_URL='${{ secrets.LOCAL_DATABASE_URL }}'" >> .env
+          echo "MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}'" >> .env
+          echo "DEFAULT_URI='${{ secrets.DEFAULT_URI }}'" >> .env
 
           # 2. CONSTRUIR APLICACIÓN
           composer install --no-dev --optimize-autoloader
