@@ -55,6 +55,8 @@ jobs:
           composer dump-env prod
           php bin/console messenger:stop-workers
           php bin/console doctrine:migrations:migrate -n
+          cd ..
+          sudo mv improved-octo-disco-feature/ /var/www/html/
           cd /var/www/html
           ./permits.sh
           EOF
