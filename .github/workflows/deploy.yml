@@ -19,6 +19,7 @@ jobs:
       
       - name: Scan and Trust Server Fingerprint
         run: |
+          mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.HOSTNAME }} \
           --proxy "cloudflared access tcp --hostname %h" >> ~/.ssh/known_hosts
           
