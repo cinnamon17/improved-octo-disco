@@ -73,25 +73,81 @@ jobs:
  #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
  #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/improved-octo-disco && composer install && composer dump-env prod"
  #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
-    - name: TEST
-      uses: D3rHase/ssh-command-action@v0.2.2
-      with:
-        host: ${{secrets.HOSTNAME}} # Remote server address / ip - required
-        user: ${{secrets.USER}} # Remote server user - required
-        private_key: ${{secrets.PRIVATE_KEY}} # Private ssh key registered on the remote server - required
-        #host_fingerprint: ${{secrets.HOST_FINGERPRINT}} # Public ssh key fingerprint, viewable via ssh-keyscan -H $HOST -p $PORT - optional
-        command: |
-              echo 'Connected via SSH' &&
-              cd /var/www/html/symfony && mv improved-octo-disco ${{ github.run_number }} &&
-              cd /var/www/html/symfony && git clone https://github.com/cinnamon17/improved-octo-disco.git &&
-              cd /var/www/html/symfony/improved-octo-disco && echo APP_ENV=${{ secrets.APP_ENV }} >.env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo DATABASE_URL=${{ secrets.LOCAL_DATABASE_URL }} >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}' >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && echo DEFAULT_URI='${{ secrets.DEFAULT_URI }}' >> .env &&
-              cd /var/www/html/symfony/improved-octo-disco && composer install && composer dump-env prod &&
-              cd /var/www/html/symfony/improved-octo-disco && php bin/console messenger:stop-workers &&
-              cd /var/www/html/symfony/improved-octo-disco && php bin/console doctrine:migrations:migrate -n &&
-              cd /var/www/html/symfony/improved-octo-disco && HTTPDUSER=www-data && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+    - name: Install CloudFlared      
+      run: |          
+        sudo mkdir -p --mode=0755 /usr/share/keyrings
+        sudo apt install curl
+        curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null          
+        echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+        sudo apt-get update && sudo apt-get install cloudflared -y      
+     
+      
+    - name: Configure SSH for Cloudflare Tunnel
+      run: |
+        mkdir -p ~/.ssh
+        CF_BIN=$(which cloudflared)
+        echo "Cloudflared está en: $CF_BIN"  
+        $CF_BIN --version
+          
+        cat <<EOF > ~/.ssh/config
+        Host ${{ secrets.HOSTNAME }}
+            ProxyCommand $CF_BIN access tcp --hostname %h
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ConnectTimeout 20
+        EOF
+        chmod 600 ~/.ssh/config
+
+    - name: Scan and Trust Server Fingerprint
+      run: |
+          ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || echo "Keyscan skipped, using config fallback"
+          
+    
+    - name: Deploy Prod
+      run: |
+        ssh -T ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << 'EOF'
+          set -e # Detener si algo falla
+          
+          echo 'Iniciando despliegue...'
+          
+          # 1. Backup de la versión anterior
+          cd /var/www/html/
+          if [ -d "improved-octo-disco" ]; then
+            sudo mv improved-octo-disco "backup_${{ github.run_number }}"
+          fi
+
+          # 2. Clonar en /tmp para preparar
+          cd /tmp
+          rm -rf improved-octo-disco
+          git clone https://github.com/cinnamon17/improved-octo-disco.git
+          cd improved-octo-disco
+
+          # 3. Configurar entorno (Heredoc es más limpio que muchos echo)
+          cat <<ENV > .env
+          APP_ENV=${{ secrets.APP_ENV }}
+          APP_SECRET=${{ secrets.APP_SECRET }}
+          OPENAI_KEY=${{ secrets.OPENAI_KEY }}
+          BOT_KEY=${{ secrets.BOT_KEY }}
+          DATABASE_URL='${{ secrets.LOCAL_DATABASE_URL }}'
+          MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}'
+          DEFAULT_URI='${{ secrets.DEFAULT_URI }}'
+          ENV
+
+          # 4. Construir aplicación
+          composer install --no-dev --optimize-autoloader
+          composer dump-env prod
+          php bin/console messenger:stop-workers || true
+          php bin/console doctrine:migrations:migrate -n --allow-no-migration
+
+          # 5. Mover a producción y limpiar permisos
+          cd ..
+          sudo mv improved-octo-disco /var/www/html/
+          cd /var/www/html/improved-octo-disco
+          
+          # Permisos Symfony
+          HTTPDUSER=www-data
+          sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          
+          echo 'Despliegue finalizado con éxito'
+        EOF
