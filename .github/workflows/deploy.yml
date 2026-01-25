@@ -21,7 +21,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.HOSTNAME }} \
-          --proxy "cloudflared access tcp --hostname %h" >> ~/.ssh/known_hosts
+          --proxy "/usr/local/bin/cloudflared access tcp --hostname %h" >> ~/.ssh/known_hosts
           
       - name: Configure SSH for Cloudflare Tunnel
         run: |
