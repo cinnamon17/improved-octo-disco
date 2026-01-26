@@ -6,7 +6,7 @@ class OpenAIJsonDto
 {
     private string $model;
     private array $messages;
-    private boolean $stream;
+    private bool $stream = false;
 
     public function setModel(string $model): self
     {
@@ -19,13 +19,13 @@ class OpenAIJsonDto
         return $this->model;
     }
 
-    public function setStream(boolean $stream): self
+    public function setStream(bool $stream): self
     {
         $this->stream = $stream;
         return $this;
     }
 
-    public function getStream(): boolean
+    public function getStream(): bool
     {
         return $this->stream;
     }
