@@ -7,7 +7,7 @@ class AIService
 {
     private AIHttpService $http;
     private TelegramApiDtoFactory $dtoFactory;
-    
+
     public function __construct(AIHttpService $http, TelegramApiDtoFactory $dtoFactory)
     {
         $this->http = $http;
@@ -19,11 +19,22 @@ class AIService
 	$openAIDto = $this->dtoFactory->createRequestAIparams($chatDto);
 
 	$response = $this->http->sendChatCompletionRequest(
-	    $openAIDto->getHeaders()->toArray(), 
+	    $openAIDto->getHeaders()->toArray(),
 	    $openAIDto->getJson()->toArray()
 	);
 
 	$responseData = $response->toArray();
 	return $responseData["choices"][0]["message"]["content"] ?? 'Error: No se recibió respuesta.';
+    }
+
+    public function getChatCompletionStream(ChatPromptMessageDto $chatDto): iterable
+    {
+	$openAIDto = $this->dtoFactory->createRequestAIparamsStreamed($chatDto);
+
+	return $this->http->getChatCompletionStream(
+	    $openAIDto->getHeaders()->toArray(),
+	    $openAIDto->getJson()->toArray()
+	);
+
     }
 }

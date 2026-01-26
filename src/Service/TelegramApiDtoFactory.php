@@ -37,7 +37,7 @@ class TelegramApiDtoFactory
 	;
     }
 
-    public function createSendMessageParams(string $message, TelegramBotUpdate $update): TelegramMessageDto 
+    public function createSendMessageParams(string $message, TelegramBotUpdate $update): TelegramMessageDto
     {
         return (new TelegramMessageDto())
             ->setChatId($update->getChatId())
@@ -63,6 +63,15 @@ class TelegramApiDtoFactory
 	    ->setMethod('sendMessage')
 	    ->setText($firstName . $update->getMessageText())
 	;
+    }
+
+    public function createEditMessageParams(string $message, int $chatId, int $messageId): TelegramMessageDto
+    {
+    return (new TelegramMessageDto())
+        ->setChatId($chatId)
+        ->setMessageId($messageId)
+        ->setMethod('editMessageText')
+        ->setText($message);
     }
 
     public function createSendChatActionParams(string $action, TelegramBotUpdate $update): TelegramActionDto
@@ -146,6 +155,33 @@ class TelegramApiDtoFactory
 	$jsonDto = (new OpenAIJsonDto())
 	    ->setModel('deepseek-chat')
 	    ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI]);
+
+	$openAIDto = (new OpenAIDto())
+	    ->setHeaders($headersDto)
+	    ->setJson($jsonDto);
+
+	return $openAIDto;
+    }
+
+    public function createRequestAIparamsStreamed(ChatPromptMessageDto $chatDto): OpenAIDto
+    {
+
+	$headersDto = (new HeadersDto())
+	    ->setAccept('application/json')
+	    ->setAuthorization((string) $this->env->get('OPENAI_KEY'));
+
+	$systemPromptOpenAI = (new OpenAIMessageDto())
+	    ->setRole('system')
+	    ->setContent($chatDto->getPrompt());
+
+	$userMessageToOpenAI = (new OpenAIMessageDto())
+	    ->setRole('user')
+	    ->setContent($chatDto->getMessage());
+
+	$jsonDto = (new OpenAIJsonDto())
+	    ->setModel('deepseek-chat')
+        ->setMessages([$systemPromptOpenAI, $userMessageToOpenAI])
+        ->setStream(true);
 
 	$openAIDto = (new OpenAIDto())
 	    ->setHeaders($headersDto)

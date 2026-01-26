@@ -13,22 +13,48 @@ class TelegramMessageProcessor
 
     public function __construct(AIService $aiService, TelegramClient $telegramClient)
     {
-	$this->aiService = $aiService;
-	$this->telegramClient = $telegramClient;
+        $this->aiService = $aiService;
+        $this->telegramClient = $telegramClient;
     }
 
     public function __invoke(SendAIMessageCommandDto $command): void
     {
-	$response = $this->aiService->getChatCompletion($command->getChatDto());
+        $chunks = $this->aiService->getChatCompletionStream($command->getChatDto());
 
-	if (strlen($response) < 4096) {
-	    $this->telegramClient->sendGenericMessage($response, $command->getChatId());
-	} else {
-	    $chunks = str_split($response, 4096);
-	    foreach ($chunks as $text) {
-		$this->telegramClient->sendGenericMessage($text, $command->getChatId());
-	    }
-	}
-	
+        $currentText = "";
+        $messageId = null;
+        $lastUpdateTime = microtime(true);
+        $limit = 4096;
+
+        foreach ($chunks as $chunk) {
+            $currentText .= $chunk;
+
+            if (mb_strlen($currentText) >= $limit) {
+                if ($messageId) {
+                    $this->telegramClient->editMessageText($currentText, $command->getChatId(), $messageId);
+                }
+
+                $currentText = "";
+                $messageId = null;
+                continue;
+            }
+
+        if ($messageId === null && mb_strlen($currentText) > 0) {
+            $response = $this->telegramClient->sendGenericMessage($currentText, $command->getChatId());
+            $messageId = $response['result']['message_id'] ?? null;
+            $lastUpdateTime = microtime(true);
+            continue;
+        }
+
+        if ($messageId !== null && (microtime(true) - $lastUpdateTime > 1.5)) {
+            $this->telegramClient->editMessageText($currentText, $command->getChatId(), $messageId);
+            $lastUpdateTime = microtime(true);
+        }
+    }
+
+    if ($messageId !== null && mb_strlen($currentText) > 0) {
+        $this->telegramClient->editMessageText($currentText, $command->getChatId(), $messageId);
+    }
+
     }
 }
