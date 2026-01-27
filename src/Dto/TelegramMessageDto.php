@@ -9,6 +9,7 @@ class TelegramMessageDto implements TelegramDtoInterface
     private int $chat_id;
     private string $text;
     private ?InlineKeyboardDto $reply_markup = null;
+    private ?int $message_id = null;
 
     public function setMethod(string $method): self
     {
@@ -43,6 +44,17 @@ class TelegramMessageDto implements TelegramDtoInterface
         return $this->text;
     }
 
+     public function setMessageId(?int $messageId): self
+    {
+        $this->message_id = $messageId;
+        return $this;
+    }
+
+    public function getMessageId(): ?int
+    {
+        return $this->message_id;
+    }
+
     public function setReplyMarkup(InlineKeyboardDto $inlineKeyboard): self
     {
 
@@ -64,6 +76,10 @@ class TelegramMessageDto implements TelegramDtoInterface
             'text' => $this->getText(),
             'reply_markup' => $this->getReplyMarkup()
         ];
+
+         if ($this->message_id !== null) {
+            $params['message_id'] = $this->message_id;
+        }
 
         return $params;
     }

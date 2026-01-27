@@ -60,7 +60,8 @@ class OpenAIJsonDtoTest extends TestCase
             [
                 ['role' => 'system', 'content' => 'assistant'],
                 ['role' => 'user', 'content' => 'test']
-            ]
+            ],
+            'stream' => false
         ];
         $openAIJsonDto->setMessages([$system, $user]);
         $this->assertEquals($array, $openAIJsonDto->toArray());

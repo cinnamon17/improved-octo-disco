@@ -62,5 +62,11 @@ class TelegramClient
 	$params = $this->apiDtoFactory->createGenericSendMessageParams($message, $chatId);
 	return $this->sendDto($params);
     }
+
+    public function editMessageText(string $message, int $chatId, int $messageId): array
+    {
+    $params = $this->apiDtoFactory->createEditMessageParams($message, $chatId, $messageId);
+    return $this->sendDto($params);
+    }
 }
 

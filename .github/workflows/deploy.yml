@@ -8,12 +8,37 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Add SSH Known Hosts
+        
+      - name: Install CloudFlared      
+        run: |          
+          sudo mkdir -p --mode=0755 /usr/share/keyrings
+          sudo apt install curl
+          curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null          
+          echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+          sudo apt-get update && sudo apt-get install cloudflared -y      
+     
+      
+      - name: Configure SSH for Cloudflare Tunnel
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          CF_BIN=$(which cloudflared)
+          echo "Cloudflared está en: $CF_BIN"
+          
+          $CF_BIN --version
+          
+          cat <<EOF > ~/.ssh/config
+          Host ${{ secrets.HOSTNAME }}
+              ProxyCommand $CF_BIN access tcp --hostname %h
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
+              ConnectTimeout 20
+          EOF
+          chmod 600 ~/.ssh/config
 
+      - name: Scan and Trust Server Fingerprint
+        run: |
+          ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || echo "Keyscan skipped, using config fallback"
+          
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.8.0
         with:
@@ -22,16 +47,18 @@ jobs:
       - name: Deploy to Staging
         run: |
           ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << EOF
-          cd /var/www/html/staging
-          mv improved-octo-disco ${{ github.run_number }}
+          cd /var/www/html/
+          sudo mv improved-octo-disco-feature ${{ github.run_number }}
+          cd /tmp/
           git clone https://github.com/cinnamon17/improved-octo-disco.git
-          cd improved-octo-disco
+          mv improved-octo-disco/ improved-octo-disco-feature
+          cd improved-octo-disco-feature
           git checkout staging
           echo APP_ENV=${{ secrets.APP_ENV }} >.env
           echo APP_SECRET=${{ secrets.APP_SECRET }} >> .env
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env
-          echo DATABASE_URL=${{ secrets.DATABASE_STAGING }} >> .env
+          echo "DATABASE_URL='${{ secrets.DATABASE_STAGING }}'" >> .env
           echo MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}' >> .env
           echo DEFAULT_URI='${{ secrets.DEFAULT_URI }}' >> .env
           composer install
@@ -39,5 +66,7 @@ jobs:
           php bin/console messenger:stop-workers
           php bin/console doctrine:migrations:migrate -n
           cd ..
+          sudo mv improved-octo-disco-feature/ /var/www/html/
+          cd /var/www/html
           ./permits.sh
           EOF
