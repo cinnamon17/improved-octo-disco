@@ -55,6 +55,5 @@ class TelegramMessageProcessor
     if ($messageId !== null && mb_strlen($currentText) > 0) {
         $this->telegramClient->editMessageText($currentText, $command->getChatId(), $messageId);
     }
-
     }
 }

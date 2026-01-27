@@ -10,95 +10,95 @@ use Psr\Log\LoggerInterface;
 class TelegramService implements LoggerAwareInterface
 {
     private UserManagementService $userManagementService;
-    private DomainDtoFactory $domainDtoFactory;         
+    private DomainDtoFactory $domainDtoFactory;
     private LoggerInterface $logger;
     private BotUpdateTranslator $bt;
     private MessageBusInterface $bus;
     private TelegramClient $client;
 
     public function __construct(
-	TelegramClient $client,
-	UserManagementService $userManagementService,
-	DomainDtoFactory $domainDtoFactory,
-	BotUpdateTranslator $botUpdateTranslator,
-	MessageBusInterface $bus,
+        TelegramClient $client,
+        UserManagementService $userManagementService,
+        DomainDtoFactory $domainDtoFactory,
+        BotUpdateTranslator $botUpdateTranslator,
+        MessageBusInterface $bus,
     ) {
-	$this->client = $client;
-	$this->userManagementService = $userManagementService;
-	$this->domainDtoFactory = $domainDtoFactory;
-	$this->bt = $botUpdateTranslator;
-	$this->bus = $bus;
+        $this->client = $client;
+        $this->userManagementService = $userManagementService;
+        $this->domainDtoFactory = $domainDtoFactory;
+        $this->bt = $botUpdateTranslator;
+        $this->bus = $bus;
     }
 
     public function setLogger(LoggerInterface $logger): void
     {
-	$this->logger = $logger;
+        $this->logger = $logger;
     }
 
     public function log(string $message, array $context = []): void
     {
-	$this->logger->info('File: TelegramService.php ' . $message, $context);
+        $this->logger->info('File: TelegramService.php ' . $message, $context);
     }
 
     public function sendWelcomeMessage(TelegramBotUpdate $update): array
     {
-	$welcomeMessage = $this->bt->getWelcomeMessage($update->getLocale());
-	return $this->client->sendMessage($welcomeMessage, $update);
+        $welcomeMessage = $this->bt->getWelcomeMessage($update->getLocale());
+        return $this->client->sendMessage($welcomeMessage, $update);
     }
 
     public function setBotMode(TelegramBotUpdate $update): void
     {
-	$user = $this->domainDtoFactory->createUserBotMode($update);
-	$this->userManagementService->updateUserMode($user);
+        $user = $this->domainDtoFactory->createUserBotMode($update);
+        $this->userManagementService->updateUserMode($user);
     }
 
     public function handleCallbackQuery(TelegramBotUpdate $update): array
     {
-	$this->setBotMode($update);
+        $this->setBotMode($update);
 
-	$response = $this->client->sendCallbackQueryResponse($update); 
+        $response = $this->client->sendCallbackQueryResponse($update);
 
-	$this->client->answerCallbackQuery($update);
-	return $response; 
+        $this->client->answerCallbackQuery($update);
+        return $response;
     }
 
     public function handleIncomingMessage(TelegramBotUpdate $update): array
     {
-	$this->handleUserRegistration($update);
-	return $this->handleSpecialCommand($update);
+        $this->handleUserRegistration($update);
+        return $this->handleSpecialCommand($update);
 
     }
 
     private function handleUserRegistration(TelegramBotUpdate $update): void
     {
-	$user = $this->domainDtoFactory->createUser($update);
-	$message = $this->domainDtoFactory->createMessage($update);
+        $user = $this->domainDtoFactory->createUser($update);
+        $message = $this->domainDtoFactory->createMessage($update);
 
-	$this->userManagementService->handleIncomingUser($user, $message);
+        $this->userManagementService->handleIncomingUser($user, $message);
     }
 
     private function handleSpecialCommand(TelegramBotUpdate $update): array
     {
-	$text = $this->domainDtoFactory->createMessage($update);
-	$this->client->sendAdminMessageFromUpdate($update);
+        $text = $this->domainDtoFactory->createMessage($update);
+        $this->client->sendAdminMessageFromUpdate($update);
 
-	return match($text->getText()) {
-	    '/start' => $this->sendWelcomeMessage($update),
-	    '/mode' => $this->client->sendInlineKeyboard($update),
-	    default => $this->handleAIMessage($update)
-	};
+        return match($text->getText()) {
+        '/start' => $this->sendWelcomeMessage($update),
+            '/mode' => $this->client->sendInlineKeyboard($update),
+            default => $this->handleAIMessage($update)
+        };
     }
 
     private function handleAIMessage(TelegramBotUpdate $update): array
     {
-	$this->client->sendChatAction('typing', $update);
-	$user = $this->userManagementService->findUserByChatId($update->getChatId());
-	$userMode = $user ? $user->getMode() : $this->bt->getAssistantMessage($update->getLocale());
-	$chatDto = $this->domainDtoFactory->createChatPromptMessageDto($update, $userMode);
-	$command = new SendAIMessageCommandDto($chatDto, $update->getChatId()); 
+        $this->client->sendChatAction('typing', $update);
+        $user = $this->userManagementService->findUserByChatId($update->getChatId());
+        $userMode = $user ? $user->getMode() : $this->bt->getAssistantMessage($update->getLocale());
+        $chatDto = $this->domainDtoFactory->createChatPromptMessageDto($update, $userMode);
+        $command = new SendAIMessageCommandDto($chatDto, $update->getChatId());
 
-	$this->bus->dispatch($command);
+        $this->bus->dispatch($command);
 
-	return ['status' => 'AI message dispatched'];
+        return ['status' => 'AI message dispatched'];
     }
 }

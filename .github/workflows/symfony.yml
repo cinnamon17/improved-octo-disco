@@ -1,0 +1,152 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Symfony
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+    #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
+    # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
+    # uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+      with:
+        php-version: '8.4'
+    - uses: actions/checkout@v3
+    - name: Copy .env.test.local
+      run: |
+        echo DATABASE_URL=${{ secrets.DATABASE_ACTION }} >> .env.test.local
+        echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
+        echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env.test.local
+        cat .env.test.local
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    - name: Install Dependencies
+      run: composer install
+    - name: Create Database
+      run: |
+        php bin/console doctrine:database:create --env=test --if-not-exists
+        php bin/console doctrine:migrations:migrate --env=test -n
+
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_ACTION }}
+        
+      run: php bin/phpunit
+      
+ ##   - name: Configure SSH key
+ #     uses: webfactory/ssh-agent@v0.5.2
+ #     with:
+ #       ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+ #       run: |
+ #         ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "echo 'Connected via SSH'"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && mv improved-octo-disco ${{ github.run_number }}"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony && git clone https://github.com/cinnamon17/improved-octo-disco.git"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && echo APP_DATA=${{ secrets.ENV_FILE }}>.env
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} "cd /var/www/html/symfony/improved-octo-disco && composer install && composer dump-env prod"
+ #         ssh ${{ secrets.USER }}@${{ secrets.HOSTNAME }} cd /var/www/html/symfony/improved-octo-disco && HTTPDUSER=$(ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1) && sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var && sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+    - name: Install CloudFlared      
+      run: |          
+        sudo mkdir -p --mode=0755 /usr/share/keyrings
+        sudo apt install curl
+        curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null          
+        echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | sudo tee /etc/apt/sources.list.d/cloudflared.list
+        sudo apt-get update && sudo apt-get install cloudflared -y      
+     
+      
+    - name: Configure SSH for Cloudflare Tunnel
+      run: |
+        mkdir -p ~/.ssh
+        CF_BIN=$(which cloudflared)
+        echo "Cloudflared está en: $CF_BIN"  
+        $CF_BIN --version
+          
+        cat <<EOF > ~/.ssh/config
+        Host ${{ secrets.HOSTNAME }}
+            ProxyCommand $CF_BIN access tcp --hostname %h
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ConnectTimeout 20
+        EOF
+        chmod 600 ~/.ssh/config
+
+    - name: Scan and Trust Server Fingerprint
+      run: |
+          ssh-keyscan -v -H ${{ secrets.HOSTNAME }} >> ~/.ssh/known_hosts || echo "Keyscan skipped, using config fallback"
+          
+    - name: Setup SSH Agent
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+    
+    - name: Deploy Prod
+      run: |
+        ssh -T ${{ secrets.USER }}@${{ secrets.HOSTNAME }} << 'EOF'
+          set -e
+          echo 'Iniciando despliegue...'
+          
+          cd /tmp
+          rm -rf improved-octo-disco
+          git clone https://github.com/cinnamon17/improved-octo-disco.git
+          cd improved-octo-disco
+          
+          echo "APP_ENV=${{ secrets.APP_ENV }}" > .env
+          echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
+          echo "OPENAI_KEY=${{ secrets.OPENAI_KEY }}" >> .env
+          echo "BOT_KEY=${{ secrets.BOT_KEY }}" >> .env
+          echo "DATABASE_URL='${{ secrets.LOCAL_DATABASE_URL }}'" >> .env
+          echo "MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}'" >> .env
+          echo "DEFAULT_URI='${{ secrets.DEFAULT_URI }}'" >> .env
+
+          # 2. CONSTRUIR APLICACIÓN
+          composer install --no-dev --optimize-autoloader
+          composer dump-env prod
+          php bin/console messenger:stop-workers || true
+          php bin/console doctrine:migrations:migrate -n --allow-no-migration
+
+          # 3. MOVER A PRODUCCIÓN
+          cd /var/www/html/
+          # Borramos backup anterior si existe para evitar errores de mv
+          sudo rm -rf "backup_${{ github.run_number }}"
+          if [ -d "improved-octo-disco" ]; then
+            sudo mv improved-octo-disco "backup_${{ github.run_number }}"
+          fi
+
+          sudo mv /tmp/improved-octo-disco /var/www/html/
+          cd /var/www/html/improved-octo-disco
+          
+          # 4. PERMISOS (Corregido para que $HTTPDUSER no salga vacío)
+          HTTPDUSER="www-data"
+          sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var
+          
+          echo 'Despliegue finalizado con éxito'
+        EOF
