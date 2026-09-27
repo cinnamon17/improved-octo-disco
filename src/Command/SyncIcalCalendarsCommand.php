@@ -1,5 +1,5 @@
 <?php
-namespace App\Controller;
+namespace App\Command;
 
 use App\Entity\IcalCalendar;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(host: 'ical.lify.win')]
-class IcalController extends AbstractController
+class SyncIcalCalendarsCommand extends AbstractController
 {
     #[Route([
         'es' => '/',
