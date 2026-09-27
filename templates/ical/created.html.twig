@@ -1,8 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-<link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
+{% block title %}Calendario Generado Correctamente | iCal Merger{% endblock %}
 
+{% block meta_seo %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block body %}
 <div class="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4">
     <div class="max-w-xl w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 sm:p-8 text-center">
 
@@ -15,7 +19,6 @@
             Copia esta URL y utilízala como origen iCal en Booking, Airbnb o cualquier software de gestión.
         </p>
 
-        <!-- Bloque de la URL -->
         <div class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 mb-6">
             <input type="text" readonly value="{{ publicUrl }}" id="publicUrlInput"
                    class="bg-transparent text-slate-200 text-xs sm:text-sm font-mono flex-1 focus:outline-none px-2 select-all">
@@ -25,7 +28,6 @@
             </button>
         </div>
 
-        <!-- Meta Info -->
         <div class="bg-slate-900/50 rounded-lg p-4 text-left border border-slate-700/50 text-xs text-slate-400 space-y-2 mb-6">
             <div class="flex justify-between">
                 <span>Plataformas vinculadas:</span>

@@ -1,16 +1,38 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="{{ app.request.locale|default('es') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        {% block javascripts %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <title>{% block title %}Sincronizador y Fusionador de Calendarios iCal{% endblock %}</title>
+
+    {# Bloque para metas SEO específicas de cada vista #}
+    {% block meta_seo %}
+        <meta name="description" content="{% block meta_description %}Herramienta gratuita para unificar tus calendarios iCal de Booking, Airbnb y Vrbo.{% endblock %}">
+        <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+        <link rel="canonical" href="{% block canonical_url %}{{ app.request.uri }}{% endblock %}">
+    {% endblock %}
+
+    {# Bloque para URLs Multiidioma (Hreflang) #}
+    {% block hreflang %}
+        {% set route = app.request.attributes.get('_route') %}
+        {% set route_params = app.request.attributes.get('_route_params')|default({}) %}
+        {% if route %}
+            <link rel="alternate" hreflang="es" href="{{ url(route, route_params|merge({'_locale': 'es'})) }}">
+            <link rel="alternate" hreflang="en" href="{{ url(route, route_params|merge({'_locale': 'en'})) }}">
+            <link rel="alternate" hreflang="x-default" href="{{ url(route, route_params|merge({'_locale': 'es'})) }}">
+        {% endif %}
+    {% endblock %}
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
+    {% endblock %}
+
+    {% block javascripts %}{% endblock %}
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased">
+    {% block body %}{% endblock %}
+</body>
 </html>
