@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route(host: 'ical.lify.win')]
 class IcalController extends AbstractController
@@ -57,7 +56,7 @@ class IcalController extends AbstractController
         $filePath = sprintf('%s/var/calendars/%s.ics', $projectDir, $token);
         $filesystem->dumpFile($filePath, $icsContent);
 
-        $publicUrl = $this->generateUrl('ical_export', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+        $publicUrl = $this->generateUrl('ical_export', ['token' => $token], 0);
 
         // Si usas el mismo template renderizando la URL directamente:
         return $this->render('ical/landing.html.twig', [
@@ -67,7 +66,7 @@ class IcalController extends AbstractController
     }
 
     // 3. Endpoint técnico para exportación de archivos .ics (NO requiere idioma)
-    #[Route('/ical/export/{token}.ics', name: 'ical_export', methods: ['GET'], schemes: ['https'])]
+    #[Route('/ical/export/{token}.ics', name: 'ical_export', methods: ['GET'])]
     public function export(string $token): Response
     {
         $projectDir = $this->getParameter('kernel.project_dir');
