@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /$
+
+Disallow: /ical/export/
+
+Sitemap: https://ical.lify.win/sitemap.xml
