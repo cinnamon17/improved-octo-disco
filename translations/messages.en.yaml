@@ -26,3 +26,50 @@ youAre:
 
 respondAccordingly:
   message: "please respond accordingly."
+meta:
+  title: "Merge iCal Calendars for Free | Sync Booking, Airbnb & Vrbo"
+  description: "Free tool to sync and merge iCal calendars from Booking, Airbnb, and Vrbo into a single link. Prevent double bookings for your vacation rental."
+  og_title: "iCal Calendar Merger | Vacation Rental Sync"
+  og_description: "Consolidate availability from Booking, Airbnb, and Vrbo into a single public URL and avoid double bookings."
+
+hero:
+  badge: "Booking Hub"
+  title: "iCal Calendar Merger"
+  subtitle: "Consolidate availability from Booking, Airbnb, Vrbo, and iTraveo into a single public URL and prevent double bookings for your vacation rental."
+
+form:
+  label_sources: "iCal Feeds"
+  placeholder_1: "https://... (e.g. Booking iCal)"
+  placeholder_2: "https://... (e.g. Airbnb iCal)"
+  placeholder_generic: "https://... (Another platform)"
+  add_platform: "Add another platform"
+  submit: "Generate Free Unified URL"
+
+result:
+  title: "Your unified calendar is ready!"
+  subtitle: "Copy this link and import it into Booking, Airbnb, Vrbo, and iTraveo to sync your availability."
+  label_url: "Unique iCal Link"
+  copy_btn: "Copy"
+  copied_btn: "Copied!"
+  toast_success: "Link copied to clipboard successfully!"
+
+steps:
+  title: "How to sync your calendars in 3 steps?"
+  step1_title: "Copy your links"
+  step1_desc: "Export the iCal (.ics) URLs from your listings on Booking, Airbnb, Vrbo, or iTraveo."
+  step2_title: "Merge them here"
+  step2_desc: "Paste all your URLs into the form and generate a single unified .ics link."
+  step3_title: "Total synchronization"
+  step3_desc: "Import your new URL into all your OTAs to keep availability in sync."
+
+faq:
+  title: "Frequently Asked Questions (FAQ)"
+  q1: "What is an iCal / ICS file?"
+  a1: "An iCal file or link (.ics extension) is an international standard used by most vacation rental platforms to share real-time calendar availability."
+  q2: "Why do I need to merge my iCal links?"
+  a2: "If you manage your property on Booking and Airbnb simultaneously, linking them directly to each other can cause circular lockups or update delays. A unified link acts as a central hub, consolidating all booked dates in one place."
+  q3: "How often is availability updated?"
+  a3: "Our tool periodically processes and updates calendars. When a platform requests your unique URL, it receives the latest version stored on the server."
+
+footer:
+  copyright: "iCal Merger — Free tool for vacation rental managers."

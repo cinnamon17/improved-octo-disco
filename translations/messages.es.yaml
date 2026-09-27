@@ -39,3 +39,50 @@ prompts:
     message: "Requiero a alguien que pueda sugerir deliciosas recetas que incluyan alimentos que sean nutricionalmente beneficiosos pero también fáciles y no
       requieran mucho tiempo, adecuadas para personas ocupadas como nosotros. Además, considerando otros factores como la economía, para que el plato final sea
       saludable y económico al mismo tiempo"
+meta:
+  title: "Fusionar Calendarios iCal Gratis | Sincroniza Booking, Airbnb y Vrbo"
+  description: "Herramienta gratuita para sincronizar y fusionar calendarios iCal de Booking, Airbnb y Vrbo en un único enlace. Evita dobles reservas en tu alquiler vacacional."
+  og_title: "Fusionador de Calendarios iCal | Sincronización Vacacional"
+  og_description: "Consolida la disponibilidad de Booking, Airbnb e iTraveo en una sola URL pública y evita overselling."
+
+hero:
+  badge: "Hub de Reservas"
+  title: "Fusionador de Calendarios iCal"
+  subtitle: "Consolida la disponibilidad de Booking, Airbnb, Vrbo e iTraveo en una sola URL pública y evita dobles reservas en tu alquiler vacacional."
+
+form:
+  label_sources: "Fuentes de iCal"
+  placeholder_1: "https://... (ej. Booking iCal)"
+  placeholder_2: "https://... (ej. Airbnb iCal)"
+  placeholder_generic: "https://... (Otra plataforma)"
+  add_platform: "Añadir otra plataforma"
+  submit: "Generar URL Única Gratis"
+
+result:
+  title: "¡Tu calendario unificado está listo!"
+  subtitle: "Copia este enlace e impórtalo en Booking, Airbnb, Vrbo e iTraveo para sincronizar tu disponibilidad."
+  label_url: "Enlace iCal Único"
+  copy_btn: "Copiar"
+  copied_btn: "¡Copiado!"
+  toast_success: "¡Enlace copiado al portapapeles con éxito!"
+
+steps:
+  title: "¿Cómo sincronizar tus calendarios en 3 pasos?"
+  step1_title: "Copia tus enlaces"
+  step1_desc: "Exporta las URLs iCal (.ics) de tus anuncios en Booking, Airbnb, Vrbo o iTraveo."
+  step2_title: "Fusiónalos aquí"
+  step2_desc: "Pega todas tus URLs en el formulario y genera un único enlace .ics unificado."
+  step3_title: "Sincronización total"
+  step3_desc: "Importa tu nueva URL en todas tus OTAs para mantener la disponibilidad sincronizada."
+
+faq:
+  title: "Preguntas Frecuentes (FAQ)"
+  q1: "¿Qué es un archivo iCal / ICS?"
+  a1: "Un archivo o enlace iCal (extensión .ics) es un estándar internacional utilizado por la mayoría de las plataformas de alquiler vacacional para compartir calendarios de ocupación en tiempo real."
+  q2: "¿Por qué necesito fusionar mis enlaces iCal?"
+  a2: "Si gestionas tu propiedad en Booking y Airbnb simultáneamente, conectar sus enlaces directamente entre sí puede provocar bloqueos circulares o retrasos en la actualización. Un enlace unificado actúa como hub centralizador, consolidando todas las fechas reservadas en un solo punto."
+  q3: "¿Cada cuánto tiempo se actualiza la disponibilidad?"
+  a3: "Nuestra herramienta procesa y actualiza los calendarios periódicamente. Cuando una plataforma realiza una petición a tu URL única, se sirve la versión más actualizada almacenada en el servidor."
+
+footer:
+  copyright: "iCal Merger — Herramienta gratuita para gestores de alquiler vacacional."

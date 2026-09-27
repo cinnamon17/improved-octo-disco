@@ -1,19 +1,20 @@
 {% extends 'base.html.twig' %}
-{% block title %}Fusionar Calendarios iCal Gratis | Sincroniza Booking, Airbnb y Vrbo{% endblock %}
 
-{% block meta %}
-    <meta name="description" content="Herramienta gratuita para sincronizar y fusionar calendarios iCal de Booking, Airbnb, Vrbo e iTraveo en un único enlace. Evita dobles reservas en tu alquiler vacacional.">
-    <meta name="keywords" content="fusionar ical, sincronizar booking airbnb, sincronizador calendarios alquiler vacacional, evitar dobles reservas, ical merger gratis">
+{% block title %}{{ 'meta.title'|trans }}{% endblock %}
+
+{% block meta_seo %}
+    <meta name="description" content="{{ 'meta.description'|trans }}">
+    <meta name="keywords" content="fusionar ical, sincronizar booking airbnb, sincronizador calendarios alquiler vacacional, evitar dobles reservas, ical merger gratis, merge ical, sync airbnb booking">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ url('ical_landing') }}" />
+    <link rel="canonical" href="{{ url(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}">
 
-    <!-- Open Graph (Para tarjetas al compartir en redes y WhatsApp) -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Fusionador de Calendarios iCal | Sincronización Vacacional">
-    <meta property="og:description" content="Consolida la disponibilidad de Booking, Airbnb e iTraveo en una sola URL pública y evita overselling.">
-    <meta property="og:url" content="{{ url('ical_landing') }}">
+    <meta property="og:title" content="{{ 'meta.og_title'|trans }}">
+    <meta property="og:description" content="{{ 'meta.og_description'|trans }}">
+    <meta property="og:url" content="{{ url(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}">
 
-    <!-- Schema.org (Datos estructurados de Google para Rich Snippets / SoftwareApplication) -->
+    <!-- Schema.org (WebApplication) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -26,33 +27,40 @@
         "price": "0",
         "priceCurrency": "EUR"
       },
-      "description": "Herramienta web para combinar múltiples feeds iCal/ICS en una única URL unificada para gestores de alquiler vacacional."
+      "description": "{{ 'meta.description'|trans|e('js') }}"
     }
     </script>
 {% endblock %}
 
 {% block body %}
-<link rel="stylesheet" href="{{ asset('css/tailwind.css') }}">
+<div class="min-h-screen flex flex-col items-center justify-start p-4 py-12 space-y-12 bg-slate-900 text-slate-100">
 
-<div class="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-start p-4 py-12 space-y-12">
+    {# Conmutador de Idiomas para SEO / UX #}
+    <div class="w-full max-w-4xl flex justify-end gap-3 text-xs font-semibold">
+        <a href="{{ url('ical_landing', {'_locale': 'es'}) }}" class="px-3 py-1.5 rounded-md border {% if app.request.locale == 'es' %}bg-indigo-600 text-white border-indigo-500{% else %}bg-slate-800 text-slate-300 border-slate-700 hover:text-white{% endif %} transition">
+            Español
+        </a>
+        <a href="{{ url('ical_landing', {'_locale': 'en'}) }}" class="px-3 py-1.5 rounded-md border {% if app.request.locale == 'en' %}bg-indigo-600 text-white border-indigo-500{% else %}bg-slate-800 text-slate-300 border-slate-700 hover:text-white{% endif %} transition">
+            English
+        </a>
+    </div>
 
-    <!-- BLOQUE 1: Resultado de la URL generada (Solo se muestra cuando se ha enviado el formulario) -->
+    <!-- BLOQUE 1: Resultado de la URL generada -->
     {% if mergedUrl is defined and mergedUrl is not empty %}
-    <div class="max-w-2xl w-full bg-slate-800 border border-emerald-500/30 rounded-xl shadow-2xl p-6 sm:p-8 text-center space-y-5 animate-fade-in">
-        <div class="mx-auto w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-2xl border border-emerald-500/20">
+    <div class="max-w-2xl w-full bg-slate-800 border border-emerald-500/40 rounded-xl shadow-2xl p-6 sm:p-8 text-center space-y-5 animate-fade-in">
+        <div class="mx-auto w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl border border-emerald-500/40">
             ✓
         </div>
 
         <div>
-            <h2 class="text-2xl font-bold text-white mb-1">¡Tu calendario unificado está listo!</h2>
-            <p class="text-slate-400 text-sm">
-                Copia este enlace e impórtalo en Booking, Airbnb, Vrbo e iTraveo para sincronizar tu disponibilidad.
+            <h2 class="text-2xl font-bold text-white mb-1">{{ 'result.title'|trans }}</h2>
+            <p class="text-slate-300 text-sm">
+                {{ 'result.subtitle'|trans }}
             </p>
         </div>
 
-        <!-- Input con botón Copiar incorporado -->
         <div class="space-y-2 text-left">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Enlace iCal Único</label>
+            <label for="generatedUrl" class="block text-xs font-semibold uppercase tracking-wider text-slate-300">{{ 'result.label_url'|trans }}</label>
             <div class="relative flex items-center">
                 <input type="text" id="generatedUrl" readonly value="{{ mergedUrl }}"
                        class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-4 pr-28 py-3 text-sm text-indigo-300 font-mono focus:outline-none select-all">
@@ -62,17 +70,16 @@
                     <svg id="copyIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 012-2v-8a2 2 0 01-2-2h-8a2 2 0 01-2 2v8a2 2 0 012 2z"></path>
                     </svg>
-                    <span id="copyText">Copiar</span>
+                    <span id="copyText">{{ 'result.copy_btn'|trans }}</span>
                 </button>
             </div>
         </div>
 
-        <!-- Mensaje de confirmación (oculto por defecto) -->
-        <div id="toastFeedback" class="hidden bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all">
+        <div id="toastFeedback" class="hidden bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span>¡Enlace copiado al portapapeles con éxito!</span>
+            <span>{{ 'result.toast_success'|trans }}</span>
         </div>
     </div>
     {% endif %}
@@ -80,159 +87,149 @@
     <!-- BLOQUE 2: Tarjeta Principal del Formulario -->
     <div class="max-w-2xl w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 sm:p-8">
 
-        <!-- Header -->
         <div class="mb-8 text-center">
-            <span class="inline-block bg-indigo-500/10 text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-indigo-500/20">
-                Hub de Reservas
+            <span class="inline-block bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 border border-indigo-500/30">
+                {{ 'hero.badge'|trans }}
             </span>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">Fusionador de Calendarios iCal</h1>
-            <p class="text-slate-400 text-sm sm:text-base">
-                Consolida la disponibilidad de Booking, Airbnb, Vrbo e iTraveo en una sola URL pública y evita dobles reservas en tu alquiler vacacional.
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">{{ 'hero.title'|trans }}</h1>
+            <p class="text-slate-300 text-sm sm:text-base">
+                {{ 'hero.subtitle'|trans }}
             </p>
         </div>
 
         {% for message in app.flashes('error') %}
-            <div class="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
+            <div class="mb-6 bg-red-500/20 border border-red-500/40 text-red-300 px-4 py-3 rounded-lg text-sm">
                 {{ message }}
             </div>
         {% endfor %}
 
-        <!-- Formulario -->
         <form action="{{ path('ical_create') }}" method="POST" id="icalForm" class="space-y-4">
             <div id="urlsContainer" class="space-y-3">
-                <label class="block text-sm font-medium text-slate-300">Fuentes de iCal</label>
+                <label class="block text-sm font-semibold text-slate-200">{{ 'form.label_sources'|trans }}</label>
 
-                <!-- Input inicial 1 -->
                 <div class="url-input-group flex gap-2">
-                    <input type="url" name="urls[]" required placeholder="https://... (ej. Booking iCal)"
-                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                    <button type="button" class="remove-btn hidden px-3 py-2 bg-slate-700/50 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg border border-slate-600 transition">
+                    <label for="url_1" class="sr-only">{{ 'form.label_sources'|trans }} 1</label>
+                    <input type="url" id="url_1" name="urls[]" required placeholder="{{ 'form.placeholder_1'|trans }}"
+                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    <button type="button" aria-label="Eliminar URL" class="remove-btn hidden px-3 py-2 bg-slate-700/60 hover:bg-red-500/20 text-slate-300 hover:text-red-300 rounded-lg border border-slate-600 transition">
                         ✕
                     </button>
                 </div>
 
-                <!-- Input inicial 2 -->
                 <div class="url-input-group flex gap-2">
-                    <input type="url" name="urls[]" placeholder="https://... (ej. Airbnb iCal)"
-                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                    <button type="button" class="remove-btn px-3 py-2 bg-slate-700/50 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg border border-slate-600 transition" onclick="removeInput(this)">
+                    <label for="url_2" class="sr-only">{{ 'form.label_sources'|trans }} 2</label>
+                    <input type="url" id="url_2" name="urls[]" placeholder="{{ 'form.placeholder_2'|trans }}"
+                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                    <button type="button" aria-label="Eliminar URL" class="remove-btn px-3 py-2 bg-slate-700/60 hover:bg-red-500/20 text-slate-300 hover:text-red-300 rounded-lg border border-slate-600 transition" onclick="removeInput(this)">
                         ✕
                     </button>
                 </div>
             </div>
 
-            <!-- Botón para añadir más inputs -->
             <button type="button" id="addUrlBtn"
-                    class="w-full py-2.5 border border-dashed border-slate-600 hover:border-indigo-500/50 text-slate-400 hover:text-indigo-400 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
-                <span>+</span> Añadir otra plataforma
+                    class="w-full py-2.5 border border-dashed border-slate-600 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-300 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
+                <span>+</span> {{ 'form.add_platform'|trans }}
             </button>
 
-            <!-- Submit -->
             <div class="pt-4">
                 <button type="submit"
                         class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-indigo-600/30 transition transform active:scale-[0.98]">
-                    Generar URL Única Gratis
+                    {{ 'form.submit'|trans }}
                 </button>
             </div>
         </form>
     </div>
 
     <!-- SECCIÓN SEO: Cómo funciona y Preguntas Frecuentes -->
-    <div class="max-w-4xl w-full space-y-12 text-slate-300 px-2">
+    <div class="max-w-4xl w-full space-y-12 text-slate-200 px-2">
 
-        <!-- Bloque: Cómo funciona -->
         <section class="space-y-6">
-            <h2 class="text-2xl font-bold text-white text-center">¿Cómo sincronizar tus calendarios en 3 pasos?</h2>
+            <h2 class="text-2xl font-bold text-white text-center">{{ 'steps.title'|trans }}</h2>
             <div class="grid md:grid-cols-3 gap-6">
-                <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-xl">
-                    <div class="w-8 h-8 bg-indigo-600/20 text-indigo-400 rounded-lg flex items-center justify-center font-bold mb-3">1</div>
-                    <h3 class="font-semibold text-white mb-1">Copia tus enlaces</h3>
-                    <p class="text-sm text-slate-400">Exporta las URLs iCal (.ics) de tus anuncios en Booking, Airbnb, Vrbo o iTraveo.</p>
+                <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-xl">
+                    <div class="w-8 h-8 bg-indigo-600/30 text-indigo-300 rounded-lg flex items-center justify-center font-bold mb-3">1</div>
+                    <h3 class="font-semibold text-white mb-1">{{ 'steps.step1_title'|trans }}</h3>
+                    <p class="text-sm text-slate-300">{{ 'steps.step1_desc'|trans }}</p>
                 </div>
-                <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-xl">
-                    <div class="w-8 h-8 bg-indigo-600/20 text-indigo-400 rounded-lg flex items-center justify-center font-bold mb-3">2</div>
-                    <h3 class="font-semibold text-white mb-1">Fusiónalos aquí</h3>
-                    <p class="text-sm text-slate-400">Pega todas tus URLs en el formulario y genera un único enlace `.ics` unificado.</p>
+                <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-xl">
+                    <div class="w-8 h-8 bg-indigo-600/30 text-indigo-300 rounded-lg flex items-center justify-center font-bold mb-3">2</div>
+                    <h3 class="font-semibold text-white mb-1">{{ 'steps.step2_title'|trans }}</h3>
+                    <p class="text-sm text-slate-300">{{ 'steps.step2_desc'|trans }}</p>
                 </div>
-                <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-xl">
-                    <div class="w-8 h-8 bg-indigo-600/20 text-indigo-400 rounded-lg flex items-center justify-center font-bold mb-3">3</div>
-                    <h3 class="font-semibold text-white mb-1">Sincronización total</h3>
-                    <p class="text-sm text-slate-400">Importa tu nueva URL en todas tus OTAs para mantener la disponibilidad sincronizada.</p>
+                <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-xl">
+                    <div class="w-8 h-8 bg-indigo-600/30 text-indigo-300 rounded-lg flex items-center justify-center font-bold mb-3">3</div>
+                    <h3 class="font-semibold text-white mb-1">{{ 'steps.step3_title'|trans }}</h3>
+                    <p class="text-sm text-slate-300">{{ 'steps.step3_desc'|trans }}</p>
                 </div>
             </div>
         </section>
 
-        <!-- Bloque: Preguntas Frecuentes (FAQ) -->
-        <section class="space-y-6 bg-slate-800/40 border border-slate-700/50 p-6 sm:p-8 rounded-xl">
-            <h2 class="text-2xl font-bold text-white mb-4">Preguntas Frecuentes (FAQ)</h2>
+        <section class="space-y-6 bg-slate-800/60 border border-slate-700 p-6 sm:p-8 rounded-xl">
+            <h2 class="text-2xl font-bold text-white mb-4">{{ 'faq.title'|trans }}</h2>
 
             <div class="space-y-4 text-sm sm:text-base">
                 <div>
-                    <h3 class="font-semibold text-indigo-300">¿Qué es un archivo iCal / ICS?</h3>
-                    <p class="text-slate-400 mt-1">
-                        Un archivo o enlace iCal (extensión `.ics`) es un estándar internacional utilizado por la mayoría de las plataformas de alquiler vacacional para compartir calendarios de ocupación en tiempo real.
-                    </p>
+                    <h3 class="font-semibold text-indigo-300">{{ 'faq.q1'|trans }}</h3>
+                    <p class="text-slate-300 mt-1">{{ 'faq.a1'|trans }}</p>
                 </div>
-                <hr class="border-slate-700/50">
+                <hr class="border-slate-700">
                 <div>
-                    <h3 class="font-semibold text-indigo-300">¿Por qué necesito fusionar mis enlaces iCal?</h3>
-                    <p class="text-slate-400 mt-1">
-                        Si gestionas tu propiedad en Booking y Airbnb simultáneamente, conectar sus enlaces directamente entre sí puede provocar bloqueos circulares o retrasos en la actualización. Un enlace unificado actúa como **hub centralizador**, consolidando todas las fechas reservadas en un solo punto.
-                    </p>
+                    <h3 class="font-semibold text-indigo-300">{{ 'faq.q2'|trans }}</h3>
+                    <p class="text-slate-300 mt-1">{{ 'faq.a2'|trans }}</p>
                 </div>
-                <hr class="border-slate-700/50">
+                <hr class="border-slate-700">
                 <div>
-                    <h3 class="font-semibold text-indigo-300">¿Cada cuánto tiempo se actualiza la disponibilidad?</h3>
-                    <p class="text-slate-400 mt-1">
-                        Nuestra herramienta procesa y actualiza los calendarios periódicamente. Cuando una plataforma realiza una petición a tu URL única, se sirve la versión más actualizada almacenada en el servidor.
-                    </p>
+                    <h3 class="font-semibold text-indigo-300">{{ 'faq.q3'|trans }}</h3>
+                    <p class="text-slate-300 mt-1">{{ 'faq.a3'|trans }}</p>
                 </div>
             </div>
         </section>
 
-        <footer class="text-center text-xs text-slate-500 pt-4">
-            <p>© {{ "now"|date("Y") }} iCal Merger — Herramienta gratuita para gestores de alquiler vacacional.</p>
+        <footer class="text-center text-xs text-slate-400 pt-4">
+            <p>© {{ "now"|date("Y") }} {{ 'footer.copyright'|trans }}</p>
         </footer>
     </div>
 </div>
 
-<!-- Schema.org FAQ (Rich Snippets para Google) -->
+<!-- Schema.org FAQ (Adaptado a idioma dinámico) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [{
     "@type": "Question",
-    "name": "¿Qué es un archivo iCal / ICS?",
+    "name": "{{ 'faq.q1'|trans|e('js') }}",
     "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Un archivo o enlace iCal es un estándar internacional utilizado por las plataformas de alquiler vacacional para compartir calendarios de ocupación en tiempo real."
+      "text": "{{ 'faq.a1'|trans|e('js') }}"
     }
   }, {
     "@type": "Question",
-    "name": "¿Por qué necesito fusionar mis enlaces iCal?",
+    "name": "{{ 'faq.q2'|trans|e('js') }}",
     "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Fusionar tus enlaces evita bloqueos circulares entre plataformas como Booking y Airbnb, consolidando todas las fechas ocupadas en una sola URL única."
+      "text": "{{ 'faq.a2'|trans|e('js') }}"
     }
   }]
 }
 </script>
 
 <script>
-    // Lógica para añadir/quitar campos de URL
     const container = document.getElementById('urlsContainer');
     const addBtn = document.getElementById('addUrlBtn');
+    const placeholderText = "{{ 'form.placeholder_generic'|trans|e('js') }}";
 
     if (addBtn) {
         addBtn.addEventListener('click', () => {
+            const index = container.querySelectorAll('.url-input-group').length + 1;
             const div = document.createElement('div');
             div.className = 'url-input-group flex gap-2';
             div.innerHTML = `
-                <input type="url" name="urls[]" placeholder="https://... (Otra plataforma)"
-                       class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                <button type="button" onclick="removeInput(this)"
-                        class="px-3 py-2 bg-slate-700/50 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg border border-slate-600 transition">
+                <label for="url_${index}" class="sr-only">Fuente de iCal ${index}</label>
+                <input type="url" id="url_${index}" name="urls[]" placeholder="${placeholderText}"
+                       class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                <button type="button" aria-label="Eliminar URL" onclick="removeInput(this)"
+                        class="px-3 py-2 bg-slate-700/60 hover:bg-red-500/20 text-slate-300 hover:text-red-300 rounded-lg border border-slate-600 transition">
                     ✕
                 </button>
             `;
@@ -247,7 +244,6 @@
         }
     }
 
-    // Función principal para copiar al portapapeles
     function copyToClipboard() {
         const input = document.getElementById('generatedUrl');
         const copyBtn = document.getElementById('copyBtn');
@@ -256,23 +252,20 @@
 
         if (!input || !input.value) return;
 
-        // Comprobar de forma segura si la API moderna existe Y está activa
         if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
             navigator.clipboard.writeText(input.value)
                 .then(() => showSuccessFeedback(copyBtn, copyText, toast))
                 .catch(() => fallbackCopy(input, copyBtn, copyText, toast));
         } else {
-            // Si es HTTP o no existe navigator.clipboard, usar fallback tradicional
             fallbackCopy(input, copyBtn, copyText, toast);
         }
     }
 
-    // Método de copia por selección manual (Funciona SIEMPRE, incluso en HTTP)
     function fallbackCopy(input, copyBtn, copyText, toast) {
         try {
             input.focus();
             input.select();
-            input.setSelectionRange(0, 99999); // Para compatibilidad en móviles iOS/Android
+            input.setSelectionRange(0, 99999);
 
             const successful = document.execCommand('copy');
             if (successful) {
@@ -286,9 +279,11 @@
         }
     }
 
-    // Mostrar feedback visual (Botón en verde + Toast)
     function showSuccessFeedback(copyBtn, copyText, toast) {
-        if (copyText) copyText.textContent = '¡Copiado!';
+        const copiedText = "{{ 'result.copied_btn'|trans|e('js') }}";
+        const defaultText = "{{ 'result.copy_btn'|trans|e('js') }}";
+
+        if (copyText) copyText.textContent = copiedText;
         if (copyBtn) {
             copyBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
             copyBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
@@ -299,7 +294,7 @@
         }
 
         setTimeout(() => {
-            if (copyText) copyText.textContent = 'Copiar';
+            if (copyText) copyText.textContent = defaultText;
             if (copyBtn) {
                 copyBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
                 copyBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
