@@ -57,6 +57,9 @@ class IcalController extends AbstractController
         $filesystem->dumpFile($filePath, $icsContent);
 
         $publicUrl = $this->generateUrl('ical_export', ['token' => $token], 0);
+        if (str_starts_with($publicUrl, 'http://')) {
+            $publicUrl = str_replace('http://', 'https://', $publicUrl);
+        }
 
         // Si usas el mismo template renderizando la URL directamente:
         return $this->render('ical/landing.html.twig', [
