@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4">
+    <div class="max-w-xl w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-6 sm:p-8 text-center">
+
+        <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+            ✓
+        </div>
+
+        <h2 class="text-2xl font-extrabold text-white mb-2">¡Calendario Unificado Listo!</h2>
+        <p class="text-slate-400 text-sm mb-6">
+            Copia esta URL y utilízala como origen iCal en Booking, Airbnb o cualquier software de gestión.
+        </p>
+
+        <!-- Bloque de la URL -->
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 mb-6">
+            <input type="text" readonly value="{{ publicUrl }}" id="publicUrlInput"
+                   class="bg-transparent text-slate-200 text-xs sm:text-sm font-mono flex-1 focus:outline-none px-2 select-all">
+            <button onclick="copyToClipboard()" id="copyBtn"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2 px-4 rounded-md transition shrink-0">
+                Copiar
+            </button>
+        </div>
+
+        <!-- Meta Info -->
+        <div class="bg-slate-900/50 rounded-lg p-4 text-left border border-slate-700/50 text-xs text-slate-400 space-y-2 mb-6">
+            <div class="flex justify-between">
+                <span>Plataformas vinculadas:</span>
+                <span class="text-slate-200 font-semibold">{{ calendar.sources|length }} fuentes</span>
+            </div>
+            <div class="flex justify-between">
+                <span>Frecuencia de sincronización:</span>
+                <span class="text-indigo-400 font-semibold">Gratuito (Cada 12 horas)</span>
+            </div>
+        </div>
+
+        <a href="{{ path('ical_landing') }}" class="text-xs text-slate-500 hover:text-slate-300 underline">
+            ← Fusionar otro conjunto de calendarios
+        </a>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        const input = document.getElementById('publicUrlInput');
+        const btn = document.getElementById('copyBtn');
+
+        navigator.clipboard.writeText(input.value).then(() => {
+            btn.innerText = '¡Copiado!';
+            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+            btn.classList.add('bg-emerald-600');
+
+            setTimeout(() => {
+                btn.innerText = 'Copiar';
+                btn.classList.remove('bg-emerald-600');
+                btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}
