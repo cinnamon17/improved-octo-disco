@@ -1,6 +1,6 @@
 User-agent: *
-Allow: /$
-
+Allow: /
 Disallow: /ical/export/
+Disallow: /ical-merger/
 
 Sitemap: https://ical.lify.win/sitemap.xml
