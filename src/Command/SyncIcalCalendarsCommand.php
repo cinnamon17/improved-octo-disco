@@ -1,89 +1,152 @@
 <?php
 namespace App\Command;
 
-use App\Entity\IcalCalendar;
+use App\Repository\IcalCalendarRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Service\ICalMergerService;
+use App\Entity\IcalCalendar;
 
-#[Route(host: 'ical.lify.win')]
-class SyncIcalCalendarsCommand extends AbstractController
+#[AsCommand(
+    name: 'app:sync-ical-calendars',
+    description: 'Sincroniza y fusiona los archivos iCal en disco'
+)]
+class SyncIcalCalendarsCommand extends Command
 {
-    #[Route([
-        'es' => '/',
-        'en' => '/en'
-    ], name: 'ical_landing', methods: ['GET'])]
-    public function landing(): Response
-    {
-        return $this->render('ical/landing.html.twig');
-    }
+    private IcalCalendarRepository $calendarRepository;
+    private ICalMergerService $merger;
+    private EntityManagerInterface $em;
+    private Filesystem $filesystem;
+    private string $projectDir;
 
-    #[Route('/ical-merger/create', name: 'ical_create', methods: ['POST'])]
-    public function create(
-        Request $request,
+    public function __construct(
+        IcalCalendarRepository $calendarRepository,
+        ICalMergerService $merger,
         EntityManagerInterface $em,
-        KernelInterface $kernel
-    ): Response {
-        $urlsRaw = $request->request->all('urls');
-        $urls = array_values(array_filter($urlsRaw, fn($url) => !empty(trim($url))));
-
-        if (empty($urls)) {
-            $this->addFlash('error', 'Introduce al menos una URL de iCal válida.');
-            return $this->redirectToRoute('ical_landing');
-        }
-
-        // 1. Guardar la entidad en BBDD
-        $calendar = new IcalCalendar();
-        $token = bin2hex(random_bytes(16));
-        $calendar->setToken($token);
-        $calendar->setSources($urls);
-        $calendar->setSyncInterval(720);
-        $calendar->setCreatedAt(new \DateTimeImmutable());
-
-        $em->persist($calendar);
-        $em->flush(); // Guardamos para que el comando pueda encontrarlo con findAll()
-
-        // 2. Ejecutar el comando de consola programáticamente
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput([
-            'command' => 'app:sync-ical-calendars',
-        ]);
-
-        $output = new BufferedOutput();
-        $application->run($input, $output);
-
-        // 3. Generar la URL pública de exportación
-        $publicUrl = $this->generateUrl('ical_export', ['token' => $token], 0);
-
-        return $this->render('ical/landing.html.twig', [
-            'mergedUrl' => $publicUrl,
-            'calendar'  => $calendar,
-        ]);
+        Filesystem $filesystem,
+        string $projectDir,
+    ) {
+        parent::__construct();
+        $this->calendarRepository = $calendarRepository;
+        $this->merger = $merger;
+        $this->em = $em;
+        $this->filesystem = $filesystem;
+        $this->projectDir = $projectDir;
     }
 
-    #[Route('/ical/export/{token}.ics', name: 'ical_export', methods: ['GET'])]
-    public function export(string $token): Response
+    protected function configure(): void
     {
-        $projectDir = $this->getParameter('kernel.project_dir');
-        $filePath = sprintf('%s/var/calendars/%s.ics', $projectDir, $token);
+        $this
+            ->addOption('force', null, \Symfony\Component\Console\Input\InputOption::VALUE_NONE, 'Sincroniza todos los calendarios ignorando su intervalo.')
+            ->setHelp(<<<'EOT'
+El comando <info>%command.name%</info> recorre los calendarios registrados y vuelve a
+fusionar sus fuentes iCal en <comment>var/calendars/{token}.ics</comment>.
 
-        if (!file_exists($filePath)) {
-            return new Response('Calendario no encontrado o pendiente de primera sincronización.', 404);
+Por defecto respeta <comment>syncInterval</comment> de cada calendario (en minutos) y solo
+resincroniza los que hayan vencido desde su <comment>lastSyncedAt</comment>.
+
+  <comment>php %command.full_name%</comment>
+  <comment>php %command.full_name% --force</comment>
+EOT
+            );
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+        $force = (bool) $input->getOption('force');
+        $now = new \DateTimeImmutable();
+
+        $calendars = $this->calendarRepository->findAll();
+
+        if (empty($calendars)) {
+            $io->warning('No hay calendarios registrados en la base de datos.');
+
+            return Command::SUCCESS;
         }
 
-        return new BinaryFileResponse($filePath, 200, [
-            'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => 'inline; filename="calendar.ics"',
-            'Cache-Control' => 'no-cache, must-revalidate',
-        ]);
+        $io->info(sprintf('Calendarios registrados: %d', count($calendars)));
+
+        $synced = 0;
+        $skipped = 0;
+        $failed = 0;
+
+        foreach ($calendars as $calendar) {
+            $token = $calendar->getToken();
+
+            if (!$force && !$this->isDue($calendar, $now)) {
+                ++$skipped;
+
+                continue;
+            }
+
+            $io->writeln(sprintf('Sincronizando calendario %s...', $token));
+
+            try {
+                $icsContent = $this->merger->mergeFromUrls($calendar->getSources());
+
+                // ICalMergerService se traga los errores de red con un catch, asi que un
+                // VCALENDAR sin VEVENT significa que ninguna fuente respondio. No sobrescribimos
+                // el .ics en ese caso: perderiamos los eventos que ya teniamos.
+                if (!$this->hasEvents($icsContent)) {
+                    throw new \RuntimeException('Ninguna fuente devolvio eventos (red caida o timeout)');
+                }
+
+                $filePath = sprintf('%s/var/calendars/%s.ics', $this->projectDir, $token);
+                $this->filesystem->dumpFile($filePath, $icsContent);
+
+                $calendar->setLastSyncedAt($now);
+                ++$synced;
+
+                $io->writeln(sprintf('  <info>OK</info> %s', $filePath));
+            } catch (\Throwable $e) {
+                ++$failed;
+                $io->writeln(sprintf('  <error>Error</error> %s: %s', $token, $e->getMessage()));
+            }
+        }
+
+        $this->em->flush();
+
+        $io->writeln('');
+        $io->writeln(sprintf('Sincronizados: %d | Omitidos: %d | Fallidos: %d', $synced, $skipped, $failed));
+
+        if ($failed > 0 && $synced === 0) {
+            $io->error('Ningún calendario pudo sincronizarse.');
+
+            return Command::FAILURE;
+        }
+
+        if ($failed > 0) {
+            $io->warning('Algunos calendarios fallaron, revisa el log del cron.');
+        }
+
+        if ($synced === 0 && $skipped > 0) {
+            $io->info('Ningún calendario necesitaba sincronización.');
+        }
+
+        return Command::SUCCESS;
+    }
+
+    private function hasEvents(string $icsContent): bool
+    {
+        return str_contains($icsContent, 'BEGIN:VEVENT');
+    }
+
+    private function isDue(IcalCalendar $calendar, \DateTimeImmutable $now): bool
+    {
+        $lastSyncedAt = $calendar->getLastSyncedAt();
+
+        if (null === $lastSyncedAt) {
+            return true;
+        }
+
+        $interval = max(1, (int) $calendar->getSyncInterval());
+
+        return ($now->getTimestamp() - $lastSyncedAt->getTimestamp()) >= ($interval * 60);
     }
 }
