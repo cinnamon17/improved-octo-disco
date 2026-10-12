@@ -31,8 +31,14 @@ class StarTransaction
     /**
      * UNIQUE en BD. Idempotencia contra pagos duplicados y webhooks reintentados.
      * Mientras la factura esta PENDING contiene un placeholder derivado del payload.
+     *
+     * VARCHAR(255) y no algo ajustado a ojo: el telegram_payment_charge_id de
+     * Stars es un token firmado de ~110 caracteres, no un ID opaco corto como
+     * los de otros metodos. Telegram no documenta limite, asi que se deja
+     * margen en vez de cambiar esto otra vez con un pago real de por medio.
+     * Con utf8mb4 el indice UNIQUE ocupa 1020 bytes, dentro del limite InnoDB.
      */
-    #[ORM\Column(length: 64)]
+    #[ORM\Column(length: 255)]
     private ?string $telegram_charge_id = null;
 
     /**
