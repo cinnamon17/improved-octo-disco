@@ -103,6 +103,8 @@ El deploy sobrescribe `.env` con secrets de GitHub. No edites `.env` para produc
 
 **`env(csv:int:VAR)` no existe.** Para una lista de enteros el formato es `%env(csv:VAR)%` y el cast a `int` se hace en el servicio.
 
+**Telegram responde 200 incluso cuando falla.** Siempre con `ok: false` y la causa en `description`. Por eso `TelegramHttpService::telegramRequest()` loguea `error_code`, `description` y el request cuando `ok` es false, y `TelegramPaymentService::createInvoice()` marca la factura como `FAILED`. Sin esto, una factura rechazada se queda en `PENDING` y el `pre_checkout_query` la daria por valida, porque valida precisamente contra `PENDING`.
+
 **`DEFAULT_URI=http://localhost` en `.env`.** Por eso existe el `str_replace('http://', 'https://')` en `IcalController:60`. Es un parche sobre la config. Si lo arreglas, quita también el parche.
 
 **`config/services_test.yaml` reemplaza a `services.yaml`, no lo importa.** El entorno test carga solo el primero. Cualquier binding explícito hay que duplicarlo en los dos archivos o la suite rompe con `Cannot autowire service`.

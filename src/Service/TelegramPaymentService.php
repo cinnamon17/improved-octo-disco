@@ -75,11 +75,11 @@ class TelegramPaymentService implements LoggerAwareInterface
             ->setCredits($this->calculator->starsToCredits($stars))
             ->setStatus(StarTransaction::STATUS_PENDING);
 
-        $this->conn->transactional(function () use ($transaction, $user, $stars, $title, $description, $payload, $locale) {
+        $sent = $this->conn->transactional(function () use ($transaction, $user, $stars, $title, $description, $payload, $locale) {
             $this->em->persist($transaction);
             $this->em->flush();
 
-            $this->telegramClient->sendInvoice(
+            $response = $this->telegramClient->sendInvoice(
                 (int) $user->getChatId(),
                 $payload,
                 $title,
@@ -87,7 +87,36 @@ class TelegramPaymentService implements LoggerAwareInterface
                 $stars,
                 $this->bt->getInvoiceLabel($locale, $stars)
             );
+
+            // Una factura que Telegram rechazo no puede quedarse en PENDING:
+            // el pre_checkout_query valida contra PENDING, asi que ahi la
+            // dariamos por buena un invoice que nunca existio.
+            if (($response['ok'] ?? true) === false) {
+                $transaction->setStatus(StarTransaction::STATUS_FAILED)
+                    ->setRawPayload([
+                        'send_invoice_response' => $response,
+                    ]);
+                $this->em->flush();
+
+                return false;
+            }
+
+            return true;
         });
+
+        if (!$sent) {
+            $this->logger->error('sendInvoice rechazado por Telegram, factura marcada como FAILED', [
+                'invoice_payload' => $payload,
+                'chat_id' => $user->getChatId(),
+                'stars' => $stars,
+            ]);
+
+            return [
+                'status' => 'invoice_failed',
+                'invoice_payload' => $payload,
+                'stars' => $stars,
+            ];
+        }
 
         return ['status' => 'invoice_sent', 'invoice_payload' => $payload, 'stars' => $stars];
     }
