@@ -44,6 +44,10 @@ services:
             $topUpPacks: '%telegram.payments.top_up_packs%'
             $starsToCredits: '%telegram.payments.stars_to_credits%'
 
+    App\Service\TelegramService:
+        arguments:
+            $paySupportContact: '%telegram.payments.support_contact%'
+
     App\Service\CreditPriceCalculator:
         arguments:
             $starsToCredits: '%telegram.payments.stars_to_credits%'

@@ -50,4 +50,41 @@ class UserRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['chat_id' => $chatId]) !== null;
     }
+
+    /**
+     * Iterador de usuarios para broadcast, en lotes y por id.
+     *
+     * El lote evita cargarlo todo en memoria y el cursor de id permite
+     * reanudar una ejecucion interrumpida sin volver a enviar a los que ya
+     * recibieron el mensaje. Cada vuelta construye la query de nuevo: si se
+     * reutilizara el query builder, las condiciones se irian acumulando.
+     *
+     * @return iterable<int, User>
+     */
+    public function iterateForBroadcast(int $batchSize = 100, ?int $afterId = null): iterable
+    {
+        $cursor = $afterId;
+
+        while (true) {
+            $qb = $this->createQueryBuilder('u')
+                ->orderBy('u.id', 'ASC')
+                ->setMaxResults($batchSize);
+
+            if ($cursor !== null) {
+                $qb->andWhere('u.id > :cursor')->setParameter('cursor', $cursor);
+            }
+
+            $batch = $qb->getQuery()->getResult();
+
+            if ($batch === []) {
+                return;
+            }
+
+            foreach ($batch as $user) {
+                yield $user;
+            }
+
+            $cursor = (int) $batch[count($batch) - 1]->getId();
+        }
+    }
 }

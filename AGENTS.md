@@ -39,6 +39,10 @@ php bin/console debug:router                   # 6 rutas
 php bin/console app:sync-ical-calendars         # sincroniza iCal
 php bin/console app:sync-ical-calendars --force # ignora syncInterval
 php bin/console app:void-stale-credit-reservations # anula reservas de creditos huerfanas (cron diario)
+php bin/console app:broadcast-users                                  # simulacion de es+en
+php bin/console app:broadcast-users --send                           # envia de verdad, pide confirmacion
+php bin/console app:broadcast-users --langs=es                       # solo un idioma
+php bin/console app:broadcast-users --base=var/otro --langs=es,en    # otra ruta base
 php bin/console doctrine:migrations:migrate -n
 php bin/console lint:container
 vendor/bin/phpunit
@@ -94,6 +98,16 @@ Usa conventional commits. El historial mezcla estilos (`feature:`, `fix:`, `refa
 El deploy sobrescribe `.env` con secrets de GitHub. No edites `.env` para producción.
 
 `APP_ENV` lo fija el workflow.
+
+## Comunicados a usuarios
+
+`app:broadcast-users` manda un texto a todos los usuarios de la tabla `user`. El texto va **en ficheros**, nunca como argumento: lleva saltos de linea, emojis y signos que la shell se come.
+
+Por defecto manda **todos los idiomas** de `--langs` (por defecto `es,en`) a **cada** usuario, derivando `<--base>.<lang>.txt`, o sea `var/aviso.es.txt` y `var/aviso.en.txt`. Es deliberado: la tabla `user` no guarda `language_code`, asi que no hay forma de saber quien lee que. Con una base de ~90 usuarios, 174 mensajes es mas barato que acertar el idioma a medias. Si algun dia crece, la alternativa es anadir la columna y enviar uno por usuario.
+
+Sin `--send` solo muestra los textos y cuenta destinatarios, que es el comportamiento por defecto. Con `--send` pide confirmacion interactiva. Hace `usleep` **por mensaje** entre envios porque Telegram corta el broadcast de un bot a los pocos cientos. Si se interrumpe, `--after-id <id>` reanuda donde se quedo sin repetir.
+
+`/paysupport` es obligatorio en cualquier bot que acepte pagos (terminos de Telegram para desarrolladores de bots) y **se resuelve antes que `handleAIMessage`**, asi que un usuario sin saldo puede escribirlo sin que le cobren. Es justo el comando del que se sirve quien ya no puede pagar. El texto incluye el contacto de `TELEGRAM_SUPPORT_CONTACT`.
 
 ## Trampas conocidas
 

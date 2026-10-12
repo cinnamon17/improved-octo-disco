@@ -105,3 +105,15 @@ payment:
   invalid: "Esta factura no es válida. Vuelve a intentarlo con /topup."
   confirmed: "¡Pago recibido! +%stars% Stars ⭐️"
   refunded: "Tu pago ha sido reembolsado y los créditos se han retirado."
+
+paysupport:
+  message: |
+    Soporte de pagos ⭐️
+
+    Para cualquier duda sobre recargas, pagos o reembolsos puedes escribirme directamente por aquí: %contact%
+
+    • Tu saldo actual: %credits% créditos
+    • Cada respuesta completa de la IA cuesta %price% créditos
+    • Recarga con /topup
+
+    Si un pago falló, no se te ha descontado nada: los créditos solo se descuentan cuando la IA responde.

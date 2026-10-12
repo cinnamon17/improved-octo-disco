@@ -38,6 +38,7 @@ jobs:
           echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
           echo BOT_KEY=${{ secrets.BOT_KEY_STAGING }} >> .env.test.local
           echo TELEGRAM_SECRET_TOKEN='${{ secrets.TELEGRAM_SECRET_TOKEN }}' >> .env.test.local
+          echo TELEGRAM_SUPPORT_CONTACT='${{ secrets.TELEGRAM_SUPPORT_CONTACT }}' >> .env.test.local
           cat .env.test.local
 
       - name: Cache Composer packages

@@ -62,6 +62,7 @@ jobs:
           echo MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}' >> .env
           echo DEFAULT_URI='${{ secrets.DEFAULT_URI }}' >> .env
           echo TELEGRAM_SECRET_TOKEN='${{ secrets.TELEGRAM_SECRET_TOKEN }}' >> .env
+          echo TELEGRAM_SUPPORT_CONTACT='${{ secrets.TELEGRAM_SUPPORT_CONTACT }}' >> .env
           echo STARS_TO_CREDITS=${{ secrets.STARS_TO_CREDITS }} >> .env
           echo TELEGRAM_TOP_UP_PACKS='${{ secrets.TELEGRAM_TOP_UP_PACKS }}' >> .env
           echo AI_REQUEST_PRICE=${{ secrets.AI_REQUEST_PRICE }} >> .env

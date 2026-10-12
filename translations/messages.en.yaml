@@ -92,3 +92,15 @@ payment:
   invalid: "This invoice is not valid. Please try again with /topup."
   confirmed: "Payment received! +%stars% Stars ⭐️"
   refunded: "Your payment has been refunded and the credits removed."
+
+paysupport:
+  message: |
+    Payment support ⭐️
+
+    For any question about top-ups, payments or refunds you can write me directly here: %contact%
+
+    • Your current balance: %credits% credits
+    • Each complete AI reply costs %price% credits
+    • Top up with /topup
+
+    If a payment failed, nothing was deducted: credits are only spent when the AI replies.

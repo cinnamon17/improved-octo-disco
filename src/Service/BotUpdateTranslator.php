@@ -110,6 +110,21 @@ class BotUpdateTranslator
         return $this->translate('payment.refunded', $locale);
     }
 
+    /**
+     * /paysupport es obligatorio en cualquier bot que acepte pagos: Telegram
+     * lo exige en los terminos para desarrolladores de bots. El texto lleva
+     * el contacto configurado, no hardcodeado, para poder cambiarlo sin
+     * desplegar.
+     */
+    public function getPaySupportMessage(string $locale, string $contact, int $credits, int $price): string
+    {
+	return $this->translator->trans('paysupport.message', [
+	    '%contact%' => $contact,
+	    '%credits%' => $credits,
+	    '%price%' => $price,
+	], 'messages', $locale);
+    }
+
     public function getPackButtonText(string $locale, int $stars): string
     {
 	return $this->translator->trans('topup.pack_button', [

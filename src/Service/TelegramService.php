@@ -19,6 +19,7 @@ class TelegramService implements LoggerAwareInterface
     private AiConsumptionService $consumptionService;
     private TelegramPaymentService $paymentService;
     private CreditPriceCalculator $calculator;
+    private string $paySupportContact;
 
     public function __construct(
         TelegramClient $client,
@@ -29,6 +30,7 @@ class TelegramService implements LoggerAwareInterface
         AiConsumptionService $consumptionService,
         TelegramPaymentService $paymentService,
         CreditPriceCalculator $calculator,
+        string $paySupportContact = '',
     ) {
         $this->client = $client;
         $this->userManagementService = $userManagementService;
@@ -38,6 +40,7 @@ class TelegramService implements LoggerAwareInterface
         $this->consumptionService = $consumptionService;
         $this->paymentService = $paymentService;
         $this->calculator = $calculator;
+        $this->paySupportContact = $paySupportContact;
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -131,8 +134,30 @@ class TelegramService implements LoggerAwareInterface
             '/mode' => $this->client->sendInlineKeyboard($update),
             '/topup' => $this->client->sendTopUpKeyboard($update),
             '/balance' => $this->sendBalance($update),
+            // Antes que handleAIMessage y por el mismo camino que /balance:
+            // un usuario sin saldo no puede permitirse que le cobren por
+            // preguntar donde reclamar. Telegram exige /paysupport en todo
+            // bot que acepte pagos.
+            '/paysupport' => $this->sendPaySupport($update),
             default => $this->handleAIMessage($update)
         };
+    }
+
+    private function sendPaySupport(TelegramBotUpdate $update): array
+    {
+        $user = $this->userManagementService->findUserByChatId($update->getChatId());
+
+        $this->client->sendGenericMessage(
+            $this->bt->getPaySupportMessage(
+                $update->getLocale() ?? 'en',
+                $this->paySupportContact,
+                $user?->getCredits() ?? 0,
+                $this->consumptionService->getRequestPrice()
+            ),
+            $update->getChatId()
+        );
+
+        return ['status' => 'paysupport_sent'];
     }
 
     private function handleAIMessage(TelegramBotUpdate $update): array

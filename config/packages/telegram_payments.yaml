@@ -9,3 +9,6 @@ parameters:
   telegram.payments.ai_full_charge_tokens: '%env(int:AI_FULL_CHARGE_TOKENS)%'
   telegram.payments.ai_min_chargeable_tokens: '%env(int:AI_MIN_CHARGEABLE_TOKENS)%'
   telegram.payments.secret_token: '%env(TELEGRAM_SECRET_TOKEN)%'
+  # Contacto que se muestra en /paysupport. Telegram exige ese comando en todo
+  # bot que acepte pagos, asi que el valor no puede quedar vacio.
+  telegram.payments.support_contact: '%env(TELEGRAM_SUPPORT_CONTACT)%'
