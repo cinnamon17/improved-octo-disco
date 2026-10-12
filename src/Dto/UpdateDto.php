@@ -7,6 +7,7 @@ class UpdateDto
     private int $update_id;
     private ?MessageDto $message = null;
     private ?CallbackQueryDto $callback_query = null;
+    private ?PreCheckoutQueryDto $pre_checkout_query = null;
 
     public function setUpdateId(int $update_id): self
     {
@@ -39,5 +40,16 @@ class UpdateDto
     public function getCallbackQuery(): ?CallbackQueryDto
     {
         return $this->callback_query;
+    }
+
+    public function setPreCheckoutQuery(?PreCheckoutQueryDto $preCheckoutQuery): self
+    {
+        $this->pre_checkout_query = $preCheckoutQuery;
+        return $this;
+    }
+
+    public function getPreCheckoutQuery(): ?PreCheckoutQueryDto
+    {
+        return $this->pre_checkout_query;
     }
 }

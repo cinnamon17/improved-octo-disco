@@ -26,7 +26,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('asistente');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('asistente', $but->getAssistantMessage('es'));
     }
 
@@ -38,7 +38,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('assistant');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('assistant', $but->getAssistantMessage('en'));
     }
 
@@ -50,7 +50,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('¿Que modo te gustaria que interpretara? 🎭');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('¿Que modo te gustaria que interpretara? 🎭', $but->getCharacterMessage('es'));
     }
 
@@ -62,7 +62,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('What mode would you like me to portray? 🎭');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('What mode would you like me to portray? 🎭', $but->getCharacterMessage('en'));
     }
 
@@ -74,7 +74,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('Ideas de Negocio');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('Ideas de Negocio', $but->getBusinessMessage('es'));
     }
 
@@ -86,7 +86,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('Business Ideas');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('Business Ideas', $but->getBusinessMessage('en'));
     }
 
@@ -98,7 +98,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('traductor');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('traductor', $but->getTranslatorMessage('es'));
     }
 
@@ -110,7 +110,7 @@ class BotUpdateTranslatorTest extends TestCase
         $this->translator->method('trans')
             ->willReturn('translator');
 
-        $but = new BotUpdateTranslator($this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('translator', $but->getTranslatorMessage('en'));
     }
 }

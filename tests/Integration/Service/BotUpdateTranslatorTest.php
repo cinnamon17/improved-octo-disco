@@ -26,7 +26,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('asistente', $but->getAssistantMessage($language));
     }
 
@@ -36,7 +36,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('assistant', $but->getAssistantMessage($language));
     }
 
@@ -46,7 +46,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('¿Que modo te gustaria que interpretara? 🎭', $but->getCharacterMessage($language));
     }
 
@@ -56,7 +56,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('What mode would you like me to portray? 🎭', $but->getCharacterMessage($language));
     }
 
@@ -66,7 +66,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('Ideas de Negocio', $but->getBusinessMessage($language));
     }
 
@@ -76,7 +76,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('Business Ideas', $but->getBusinessMessage($language));
     }
 
@@ -86,7 +86,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('traductor', $but->getTranslatorMessage($language));
     }
 
@@ -96,7 +96,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $this->assertSame('translator', $but->getTranslatorMessage($language));
     }
 
@@ -106,7 +106,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $message = "Hello!";
 
         $this->assertStringContainsString($message, $but->getWelcomeMessage($language));
@@ -118,7 +118,7 @@ class BotUpdateTranslatorTest extends KernelTestCase
         $this->telegramBotUpdate->method('getLocale')
             ->willReturn($language);
 
-        $but = new BotUpdateTranslator( $this->translator, $this->telegramBotUpdate->getLocale());
+        $but = new BotUpdateTranslator($this->translator);
         $message = "¡Hola!";
 
         $this->assertStringContainsString($message, $but->getWelcomeMessage($language));

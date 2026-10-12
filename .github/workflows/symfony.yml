@@ -39,6 +39,7 @@ jobs:
         echo DATABASE_URL=${{ secrets.DATABASE_ACTION }} >> .env.test.local
         echo OPENAI_KEY=${{ secrets.OPENAI_KEY }} >> .env.test.local
         echo BOT_KEY=${{ secrets.BOT_KEY }} >> .env.test.local
+        echo TELEGRAM_SECRET_TOKEN='${{ secrets.TELEGRAM_SECRET_TOKEN }}' >> .env.test.local
         cat .env.test.local
 
     - name: Cache Composer packages
@@ -125,6 +126,12 @@ jobs:
           echo "DATABASE_URL='${{ secrets.LOCAL_DATABASE_URL }}'" >> .env
           echo "MESSENGER_TRANSPORT_DSN='${{ secrets.BUS_DSN }}'" >> .env
           echo "DEFAULT_URI='${{ secrets.DEFAULT_URI }}'" >> .env
+          echo "TELEGRAM_SECRET_TOKEN='${{ secrets.TELEGRAM_SECRET_TOKEN }}'" >> .env
+          echo "STARS_TO_CREDITS=${{ secrets.STARS_TO_CREDITS }}" >> .env
+          echo "TELEGRAM_TOP_UP_PACKS='${{ secrets.TELEGRAM_TOP_UP_PACKS }}'" >> .env
+          echo "AI_REQUEST_PRICE=${{ secrets.AI_REQUEST_PRICE }}" >> .env
+          echo "AI_FULL_CHARGE_TOKENS=${{ secrets.AI_FULL_CHARGE_TOKENS }}" >> .env
+          echo "AI_MIN_CHARGEABLE_TOKENS=${{ secrets.AI_MIN_CHARGEABLE_TOKENS }}" >> .env
 
           # 2. CONSTRUIR APLICACIÓN
           composer install --no-dev --optimize-autoloader

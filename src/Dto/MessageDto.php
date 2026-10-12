@@ -8,7 +8,9 @@ class MessageDto
     private UserDto $from;
     private int $date;
     private ChatDto $chat;
-    private string $text;
+    private ?string $text = null;
+    private ?SuccessfulPaymentDto $successful_payment = null;
+    private ?RefundedPaymentDto $refunded_payment = null;
 
     public function setMessageId(int $id): self
     {
@@ -63,5 +65,27 @@ class MessageDto
     public function getText(): ?string
     {
         return $this->text;
+    }
+
+    public function setSuccessfulPayment(?SuccessfulPaymentDto $payment): self
+    {
+        $this->successful_payment = $payment;
+        return $this;
+    }
+
+    public function getSuccessfulPayment(): ?SuccessfulPaymentDto
+    {
+        return $this->successful_payment;
+    }
+
+    public function setRefundedPayment(?RefundedPaymentDto $payment): self
+    {
+        $this->refunded_payment = $payment;
+        return $this;
+    }
+
+    public function getRefundedPayment(): ?RefundedPaymentDto
+    {
+        return $this->refunded_payment;
     }
 }

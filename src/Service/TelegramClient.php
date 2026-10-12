@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Dto\AnswerPreCheckoutQueryDto;
+use App\Dto\RefundStarPaymentDto;
 use App\Dto\TelegramBotUpdate;
 use App\Dto\TelegramDtoInterface;
 
@@ -60,6 +62,63 @@ class TelegramClient
     public function sendGenericMessage(string $message, int $chatId): array
     {
 	$params = $this->apiDtoFactory->createGenericSendMessageParams($message, $chatId);
+	return $this->sendDto($params);
+    }
+
+    /**
+     * Keyboard de recarga. Cada boton lleva data "topup:<stars>", que el
+     * callback_query existente despacha a TelegramPaymentService.
+     */
+    public function sendTopUpKeyboard(TelegramBotUpdate $update): array
+    {
+	$params = $this->apiDtoFactory->createTopUpKeyboardParams($update);
+
+	return $this->sendDto($params);
+    }
+
+    /**
+     * Traduce y envia el aviso de saldo insuficiente. El texto lo compone
+     * TelegramService, que es quien tiene el BotUpdateTranslator.
+     */
+    public function sendInsufficientCreditsMessage(TelegramBotUpdate $update, string $text): array
+    {
+	return $this->sendGenericMessage($text, $update->getChatId());
+    }
+
+    public function sendInvoice(
+        int $chatId,
+        string $payload,
+        string $title,
+        string $description,
+        int $stars,
+        string $label,
+    ): array {
+	$params = $this->apiDtoFactory->createSendInvoiceParams(
+	    $chatId,
+	    $payload,
+	    $title,
+	    $description,
+	    $stars,
+	    $label
+	);
+	return $this->sendDto($params);
+    }
+
+    public function answerPreCheckoutQuery(AnswerPreCheckoutQueryDto $dto): array
+    {
+	return $this->sendDto($dto);
+    }
+
+    /**
+     * Devuelve las Stars al usuario. Se llama tras un refunded_payment, que es
+     * cuando Telegram ya ha hecho el reembolso por su cuenta.
+     */
+    public function refundStarPayment(int $userId, string $telegramPaymentChargeId): array
+    {
+	$params = (new RefundStarPaymentDto())
+	    ->setUserId($userId)
+	    ->setTelegramPaymentChargeId($telegramPaymentChargeId);
+
 	return $this->sendDto($params);
     }
 

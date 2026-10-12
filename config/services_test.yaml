@@ -31,3 +31,22 @@ services:
     App\Command\SyncIcalCalendarsCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    # services_test.yaml REEMPLAZA a services.yaml, no lo importa: cualquier
+    # binding explicito de config/services.yaml hay que duplicarlo aqui o el
+    # autowiring de test rompe con "Cannot autowire service".
+    App\Service\TelegramSecretTokenValidator:
+        arguments:
+            $secretToken: '%telegram.payments.secret_token%'
+
+    App\Service\BotUpdateTranslator:
+        arguments:
+            $topUpPacks: '%telegram.payments.top_up_packs%'
+            $starsToCredits: '%telegram.payments.stars_to_credits%'
+
+    App\Service\CreditPriceCalculator:
+        arguments:
+            $starsToCredits: '%telegram.payments.stars_to_credits%'
+            $requestPrice: '%telegram.payments.ai_request_price%'
+            $fullChargeTokens: '%telegram.payments.ai_full_charge_tokens%'
+            $minChargeableTokens: '%telegram.payments.ai_min_chargeable_tokens%'

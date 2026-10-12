@@ -86,3 +86,22 @@ faq:
 
 footer:
   copyright: "iCal Merger — Herramienta gratuita para gestores de alquiler vacacional."
+
+balance:
+  message: "Tienes %credits% créditos disponibles ⭐️"
+
+credits:
+  insufficient: "Te has quedado sin créditos (tienes %credits% y cada mensaje cuesta %price%). Usa /topup para recargar con Stars ⭐️"
+
+topup:
+  message: "Elige cuánto quieres recargar ⭐️"
+  pack_button: "%stars% Stars ⭐️ (%credits% créditos)"
+
+invoice:
+  title: "Recarga de créditos"
+  label: "%stars% Stars"
+
+payment:
+  invalid: "Esta factura no es válida. Vuelve a intentarlo con /topup."
+  confirmed: "¡Pago recibido! +%stars% Stars ⭐️"
+  refunded: "Tu pago ha sido reembolsado y los créditos se han retirado."

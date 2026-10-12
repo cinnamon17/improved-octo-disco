@@ -6,10 +6,13 @@ use App\Dto\ChatPromptMessageDto;
 use App\Dto\SendAIMessageCommandDto;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Service\AiConsumptionService;
 use App\Service\BotUpdateTranslator;
+use App\Service\CreditPriceCalculator;
 use App\Dto\TelegramBotUpdate;
 use App\Service\DomainDtoFactory;
 use App\Service\TelegramClient;
+use App\Service\TelegramPaymentService;
 use App\Service\TelegramService;
 use App\Service\UserManagementService;
 use PHPUnit\Framework\TestCase;
@@ -26,6 +29,9 @@ class TelegramServiceTest extends TestCase
     private MessageBusInterface $busMock;
     private TelegramBotUpdate $updateStub;
     private LoggerInterface $loggerMock;
+    private AiConsumptionService $consumptionMock;
+    private TelegramPaymentService $paymentServiceMock;
+    private CreditPriceCalculator $calculatorMock;
 
     private TelegramService $service;
 
@@ -39,6 +45,10 @@ class TelegramServiceTest extends TestCase
         $this->btMock = $this->createMock(BotUpdateTranslator::class);
         $this->busMock = $this->createMock(MessageBusInterface::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->consumptionMock = $this->createMock(AiConsumptionService::class);
+        $this->paymentServiceMock = $this->createMock(TelegramPaymentService::class);
+        $this->calculatorMock = $this->createMock(CreditPriceCalculator::class);
+        $this->consumptionMock->method('getRequestPrice')->willReturn(2);
 
         $this->updateStub = $this->createStub(TelegramBotUpdate::class);
         $this->updateStub->method('getLocale')->willReturn('es');
@@ -49,7 +59,10 @@ class TelegramServiceTest extends TestCase
             $this->dbMock,
             $this->dtoDomainFactoryMock,
             $this->btMock,
-            $this->busMock
+            $this->busMock,
+            $this->consumptionMock,
+            $this->paymentServiceMock,
+            $this->calculatorMock
         );
         $this->service->setLogger($this->loggerMock);
     }

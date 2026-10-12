@@ -85,11 +85,61 @@ class TelegramBotUpdate
     {
 	return $this->getLanguageCode()
 	    ?? $this->getCallbackQueryLanguageCode()
+	    ?? $this->getPreCheckoutQueryLanguageCode()
 	    ?? 'en';
     }
 
     public function isCallbackQuery(): bool
     {
         return $this->update->getCallbackQuery() ? true : false;
+    }
+
+    public function isPreCheckoutQuery(): bool
+    {
+        return $this->update->getPreCheckoutQuery() !== null;
+    }
+
+    public function getPreCheckoutQuery(): ?PreCheckoutQueryDto
+    {
+        return $this->update->getPreCheckoutQuery();
+    }
+
+    public function hasSuccessfulPayment(): bool
+    {
+        return $this->update->getMessage()?->getSuccessfulPayment() !== null;
+    }
+
+    public function getSuccessfulPayment(): ?SuccessfulPaymentDto
+    {
+        return $this->update->getMessage()?->getSuccessfulPayment();
+    }
+
+    public function hasRefundedPayment(): bool
+    {
+        return $this->update->getMessage()?->getRefundedPayment() !== null;
+    }
+
+    public function getRefundedPayment(): ?RefundedPaymentDto
+    {
+        return $this->update->getMessage()?->getRefundedPayment();
+    }
+
+    /**
+     * Subconjunto del update para trazarabilidad. Solo datos de pago: el texto
+     * del usuario ya vive en la tabla message.
+     */
+    public function toRawArray(): array
+    {
+        return [
+            'update_id' => $this->getUpdateId(),
+            'successful_payment' => $this->hasSuccessfulPayment()
+                ? $this->getSuccessfulPayment()
+                : null,
+        ];
+    }
+
+    private function getPreCheckoutQueryLanguageCode(): ?string
+    {
+        return $this->update->getPreCheckoutQuery()?->getFrom()->getLanguageCode();
     }
 }

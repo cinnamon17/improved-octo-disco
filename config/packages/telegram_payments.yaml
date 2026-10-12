@@ -1,0 +1,11 @@
+# Parametros del sistema de creditos prepago con Telegram Stars.
+#
+# Solo parametros: los bindings de servicio van en config/services.yaml y,
+# por la trampa de services_test.yaml, tambien duplicados ahi.
+parameters:
+  telegram.payments.stars_to_credits: '%env(int:STARS_TO_CREDITS)%'
+  telegram.payments.top_up_packs: '%env(csv:TELEGRAM_TOP_UP_PACKS)%'
+  telegram.payments.ai_request_price: '%env(int:AI_REQUEST_PRICE)%'
+  telegram.payments.ai_full_charge_tokens: '%env(int:AI_FULL_CHARGE_TOKENS)%'
+  telegram.payments.ai_min_chargeable_tokens: '%env(int:AI_MIN_CHARGEABLE_TOKENS)%'
+  telegram.payments.secret_token: '%env(TELEGRAM_SECRET_TOKEN)%'

@@ -32,3 +32,22 @@ services:
     App\Command\SyncIcalCalendarsCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    # Creditos prepago con Telegram Stars. Los parametros viven en
+    # config/packages/telegram_payments.yaml. Cualquier binding de aqui hay
+    # que duplicarlo en services_test.yaml, que reemplaza este fichero.
+    App\Service\TelegramSecretTokenValidator:
+        arguments:
+            $secretToken: '%telegram.payments.secret_token%'
+
+    App\Service\BotUpdateTranslator:
+        arguments:
+            $topUpPacks: '%telegram.payments.top_up_packs%'
+            $starsToCredits: '%telegram.payments.stars_to_credits%'
+
+    App\Service\CreditPriceCalculator:
+        arguments:
+            $starsToCredits: '%telegram.payments.stars_to_credits%'
+            $requestPrice: '%telegram.payments.ai_request_price%'
+            $fullChargeTokens: '%telegram.payments.ai_full_charge_tokens%'
+            $minChargeableTokens: '%telegram.payments.ai_min_chargeable_tokens%'

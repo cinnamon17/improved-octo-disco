@@ -7,6 +7,34 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TelegramControllerTest extends WebTestCase
 {
+    /**
+     * El token que hay en TELEGRAM_SECRET_TOKEN en el entorno de test. Vacio
+     * seria un fallo de configuracion, asi que el helper falla ruidoso en vez
+     * de devolver 403 y hidesar el motivo real.
+     */
+    private function secretToken(): string
+    {
+        $token = $_ENV['TELEGRAM_SECRET_TOKEN'] ?? $_SERVER['TELEGRAM_SECRET_TOKEN'] ?? '';
+
+        if ($token === '') {
+            self::markTestSkipped('TELEGRAM_SECRET_TOKEN vacio en el entorno de test');
+        }
+
+        return $token;
+    }
+
+    /**
+     * Sin secret token, /telegram rechaza antes de deserializar. Sin esto,
+     * cualquiera podria acreditar creditos con un successful_payment forjado.
+     */
+    public function testRejectsRequestWithoutSecretToken(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/telegram', content: '{"update_id": 1}');
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     private function assertIsTelegramResponse(Response $response, string $expectedBody): void
     {
         $this->assertResponseIsSuccessful();
@@ -52,7 +80,7 @@ class TelegramControllerTest extends WebTestCase
         }';
         
         $client = static::createClient();
-        $client->request('POST', '/telegram', content: $fakeUpdate);
+        $client->request('POST', '/telegram', content: $fakeUpdate, server: ['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN' => $this->secretToken()]);
 
         $this->assertIsTelegramResponse($client->getResponse(), $expectedResponse);
     }
@@ -75,7 +103,7 @@ class TelegramControllerTest extends WebTestCase
         }';
 
         $client = static::createClient();
-        $client->request('POST', '/telegram', content: $fakeUpdate);
+        $client->request('POST', '/telegram', content: $fakeUpdate, server: ['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN' => $this->secretToken()]);
         
         $response = $client->getResponse();
         

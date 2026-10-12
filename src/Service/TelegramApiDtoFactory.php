@@ -11,6 +11,7 @@ use App\Dto\InlineKeyboardDto;
 use App\Dto\OpenAIDto;
 use App\Dto\OpenAIJsonDto;
 use App\Dto\OpenAIMessageDto;
+use App\Dto\SendInvoiceDto;
 use App\Dto\TelegramActionDto;
 use App\Dto\TelegramBotUpdate;
 use App\Dto\TelegramMessageDto;
@@ -188,6 +189,46 @@ class TelegramApiDtoFactory
 	    ->setJson($jsonDto);
 
 	return $openAIDto;
+    }
+
+    public function createTopUpKeyboardParams(TelegramBotUpdate $update): TelegramMessageDto
+    {
+	$locale = $update->getLocale() ?? 'en';
+
+	$keyboard = (new InlineKeyboardDto());
+	$row = (new InlineKeyboardButtonRowDto());
+
+	foreach ($this->bt->getTopUpPacks() as $stars) {
+	    $row->add(
+		(new InlineKeyboardButtonDto())
+		    ->setText($this->bt->getPackButtonText($locale, $stars))
+		    ->setData('topup:' . $stars)
+	    );
+	}
+
+	$keyboard->add($row);
+
+	return (new TelegramMessageDto())
+	    ->setMethod('sendMessage')
+	    ->setChatId($update->getChatId())
+	    ->setText($this->bt->getTopUpMessage($locale))
+	    ->setReplyMarkup($keyboard);
+    }
+
+    public function createSendInvoiceParams(
+        int $chatId,
+        string $payload,
+        string $title,
+        string $description,
+        int $stars,
+        string $label,
+    ): SendInvoiceDto {
+	return (new SendInvoiceDto())
+	    ->setChatId($chatId)
+	    ->setTitle($title)
+	    ->setDescription($description)
+	    ->setPayload($payload)
+	    ->addPrice($label, $stars);
     }
 
     public function createChatIdFromUpdate(TelegramBotUpdate $update): int

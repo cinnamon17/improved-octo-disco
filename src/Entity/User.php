@@ -44,9 +44,20 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $mode = null;
 
+    /**
+     * Saldo prepaid. unsigned para que el motorMariaDB impida el saldo
+     * negativo aunque la logica falle. Lo escribe unicamente CreditManager.
+     */
+    #[ORM\Column(type: Types::INTEGER, options: ['unsigned' => true, 'default' => 0])]
+    private int $credits = 0;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: StarTransaction::class)]
+    private Collection $starTransactions;
+
     public function __construct()
     {
         $this->message = new ArrayCollection();
+        $this->starTransactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -201,5 +212,32 @@ class User
     public function getIsBot(): ?bool
     {
         return $this->is_bot;
+    }
+
+    public function getCredits(): int
+    {
+        return $this->credits;
+    }
+
+    /**
+     * Uso reservado a CreditManager. Anyadirlo aqui seria partir
+     * CreditManager en dos fuentes de verdad.
+     */
+    public function addCredits(int $credits): void
+    {
+        $this->credits += $credits;
+    }
+
+    public function hasAtLeast(int $credits): bool
+    {
+        return $this->credits >= $credits;
+    }
+
+    /**
+     * @return Collection<int, StarTransaction>
+     */
+    public function getStarTransactions(): Collection
+    {
+        return $this->starTransactions;
     }
 }
